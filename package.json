@@ -1,0 +1,13 @@
+{
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "start": "php -S 0.0.0.0:${PORT:-8000} -t public/"
+    },
+    "devDependencies": {
+        "axios": "^1.7.4",
+        "vite": "^5.0.0"
+    }
+}

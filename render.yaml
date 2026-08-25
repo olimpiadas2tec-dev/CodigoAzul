@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: gestion-codigoazul
+    env: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    envVars:
+      - key: APP_NAME
+        value: "Gestión Código Azul"
+      - key: APP_ENV
+        value: production
+      - key: APP_KEY
+        value: base64:eW91cmNvb2xhcHBrZXlmb3JsYXJhdmVsMjAyNnNlY3VyZQ==
+      - key: APP_DEBUG
+        value: "false"
+      - key: DB_CONNECTION
+        value: mysql
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "3306"
+      - key: DB_DATABASE
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
