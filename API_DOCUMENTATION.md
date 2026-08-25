@@ -1,6 +1,6 @@
 # 🔌 Documentación de la API REST - Backend Código Azul (INEP 2026)
 
-Esta es la especificación oficial de la API backend desarrollada en **PHP Laravel** para el consumo de los desarrolladores del Frontend (Web / Mobile).
+Esta es la especificación oficial de la API backend desarrollada en **PHP Laravel** para el consumo de los desarrolladores del Frontend y la integración con la base de datos MySQL.
 
 ---
 
@@ -8,15 +8,16 @@ Esta es la especificación oficial de la API backend desarrollada en **PHP Larav
 - **Desarrollo Local**: `http://localhost:8000/api`
 - **Producción (Render)**: `https://gestion-codigoazul.onrender.com/api`
 
-> **CORS**: Habilitado para todos los orígenes (`*`). Puedes consumir la API desde cualquier servidor local (`localhost:3000`, `localhost:5173`, etc.).
+> **CORS**: Habilitado para todos los orígenes (`*`). Se puede consumir directamente desde aplicaciones web React/Vue/Svelte/Vanilla JS o móviles.
 
 ---
 
 ## 🚀 Endpoints Disponibles
 
-### 1. Obtener Lista de Códigos Azules
-- **Método**: `GET`
-- **URL**: `/api/code-blue`
+### 1. Módulo: Código Azul (`/api/code-blue`)
+
+#### `GET /api/code-blue`
+- **Descripción**: Obtiene el listado completo de eventos de Código Azul.
 - **Respuesta `200 OK`**:
 ```json
 [
@@ -29,69 +30,25 @@ Esta es la especificación oficial de la API backend desarrollada en **PHP Larav
     "details": "FV revertida exitosamente",
     "duration_seconds": 252,
     "resolved_at": "2026-08-25T14:32:00.000000Z",
-    "created_at": "2026-08-25T14:28:00.000000Z",
-    "updated_at": "2026-08-25T14:32:00.000000Z"
+    "created_at": "2026-08-25T14:28:00.000000Z"
   }
 ]
 ```
 
----
-
-### 2. Disparar / Activar Nuevo Código Azul
-- **Método**: `POST`
-- **URL**: `/api/code-blue`
+#### `POST /api/code-blue`
+- **Descripción**: Dispara una nueva alerta de Código Azul.
 - **Body (JSON)**:
 ```json
 {
   "location": "Piso 3 - Habitación 304",
   "patient": "Rodriguez, Carlos",
   "team_leader": "Dr. Guardia R1",
-  "details": "Paciente en paro cardio-respiratorio detectado por enfermería"
-}
-```
-- **Campos**:
-  - `location` *(Requerido, string)*: Ubicación o sector de la emergencia.
-  - `patient` *(Opcional, string)*: Nombre o HC del paciente.
-  - `team_leader` *(Opcional, string)*: Médico a cargo.
-  - `details` *(Opcional, string)*: Observaciones adicionales.
-
-- **Respuesta `201 Created`**:
-```json
-{
-  "message": "🚨 Código Azul registrado exitosamente",
-  "data": {
-    "id": 3,
-    "location": "Piso 3 - Habitación 304",
-    "patient": "Rodriguez, Carlos",
-    "team_leader": "Dr. Guardia R1",
-    "status": "ACTIVO",
-    "created_at": "2026-08-25T17:00:00.000000Z"
-  }
+  "details": "Paro cardio-respiratorio presenciado"
 }
 ```
 
----
-
-### 3. Obtener Detalle de un Código Azul
-- **Método**: `GET`
-- **URL**: `/api/code-blue/{id}`
-- **Respuesta `200 OK`**:
-```json
-{
-  "id": 1,
-  "location": "Urgencias - Box 2",
-  "patient": "Perez, Juan (64a)",
-  "team_leader": "Dr. Martinez",
-  "status": "RESUELTO",
-  "duration_seconds": 252
-}
-```
-
----
-
-### 4. Finalizar / Actualizar Estado del Código Azul
-- **Método**: `PUT`
-- **URL**: `/api/code-blue/{id}`
+#### `PUT /api/code-blue/{id}`
+- **Descripción**: Finaliza un Código Azul (ROSC / Resuelto).
 - **Body (JSON)**:
 ```json
 {
@@ -99,30 +56,55 @@ Esta es la especificación oficial de la API backend desarrollada en **PHP Larav
   "duration_seconds": 310
 }
 ```
+
+---
+
+### 2. Módulo: Eventos de Reanimación (`/api/code-blue/{id}/events`)
+
+#### `GET /api/code-blue/{id}/events`
+- **Descripción**: Obtiene la línea de tiempo de eventos registrados durante el código (ciclos de RCP, medicamentos, descargas).
 - **Respuesta `200 OK`**:
 ```json
-{
-  "message": "🟢 Código Azul finalizado",
-  "data": {
+[
+  {
     "id": 1,
-    "status": "RESUELTO",
-    "duration_seconds": 310,
-    "resolved_at": "2026-08-25T17:05:00.000000Z"
+    "code_blue_id": 1,
+    "event_type": "SHOCK",
+    "description": "Descarga de 200J administrada",
+    "elapsed_seconds": 60
+  },
+  {
+    "id": 2,
+    "code_blue_id": 1,
+    "event_type": "MEDICATION",
+    "description": "Adrenalina 1mg IV administrada",
+    "elapsed_seconds": 180
   }
+]
+```
+
+#### `POST /api/code-blue/{id}/events`
+- **Descripción**: Agrega un evento a la línea de tiempo.
+- **Body (JSON)**:
+```json
+{
+  "event_type": "MEDICATION",
+  "description": "Adrenalina 1mg IV",
+  "elapsed_seconds": 180
 }
 ```
 
 ---
 
-### 5. Verificación de Salud del Servidor (Health Check)
-- **Método**: `GET`
-- **URL**: `/health`
-- **Respuesta `200 OK`**:
-```json
-{
-  "status": "OK",
-  "service": "Gestion-CodigoAzul",
-  "environment": "production",
-  "timestamp": "2026-08-25T17:00:00Z"
-}
-```
+### 3. Módulo: Equipo Médico (`/api/doctors`)
+
+#### `GET /api/doctors`
+- **Descripción**: Obtiene el listado de médicos de respuesta rápida y su disponibilidad.
+
+#### `POST /api/doctors`
+- **Descripción**: Registra un nuevo profesional al equipo de guardia.
+
+---
+
+### 4. System Health Check (`/health`)
+- **GET `/health`**: Verifica que la API en Render esté en línea.

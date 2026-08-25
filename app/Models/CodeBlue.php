@@ -24,4 +24,9 @@ class CodeBlue extends Model
     protected $casts = [
         'resolved_at' => 'datetime',
     ];
+
+    public function eventLogs()
+    {
+        return $this->hasMany(EventLog::class);
+    }
 }
