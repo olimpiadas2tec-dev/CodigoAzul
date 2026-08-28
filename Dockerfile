@@ -36,11 +36,13 @@ ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/0000-default.conf
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 
-# Configure custom port listening if Render passes $PORT
-RUN sed -i 's/80/${PORT:-80}/g' /etc/apache2/ports.conf /etc/apache2/sites-available/*.conf
+# Custom entrypoint that binds Apache to the dynamic port Render inyecta via $PORT
+COPY docker-apache-start.sh /usr/local/bin/docker-apache-start.sh
+RUN chmod +x /usr/local/bin/docker-apache-start.sh
 
-# Expose default port
+# Expose default port (Render lo reemplaza con su propio PORT)
 EXPOSE 80
 
-# Start Apache in foreground
+# Start Apache in foreground with dynamic port binding
+ENTRYPOINT ["docker-apache-start.sh"]
 CMD ["apache2-foreground"]

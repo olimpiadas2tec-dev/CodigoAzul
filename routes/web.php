@@ -1,10 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\CodeBlueController;
 
 Route::get('/', function () {
-    return file_get_contents(public_path('index.php'));
+    return file_get_contents(public_path('index.html'));
 });
 
 Route::get('/health', function () {

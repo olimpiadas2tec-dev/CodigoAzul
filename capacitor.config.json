@@ -1,0 +1,9 @@
+{
+  "appId": "com.inep.codigoazul",
+  "appName": "Codigo Azul",
+  "webDir": "public",
+  "server": {
+    "url": "https://gestion-codigoazul.onrender.com",
+    "cleartext": false
+  }
+}

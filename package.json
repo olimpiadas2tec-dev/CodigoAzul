@@ -4,9 +4,19 @@
     "scripts": {
         "dev": "vite",
         "build": "vite build",
-        "start": "php -S 0.0.0.0:${PORT:-8000} -t public/"
+        "start": "php -S 0.0.0.0:${PORT:-8000} -t public/",
+        "cap:init": "cap init",
+        "cap:add:android": "cap add android",
+        "cap:sync": "cap sync android",
+        "cap:open": "cap open android",
+        "cap:apk": "cap sync android && cd android && gradlew assembleDebug"
+    },
+    "dependencies": {
+        "@capacitor/android": "^7.0.0",
+        "@capacitor/core": "^7.0.0"
     },
     "devDependencies": {
+        "@capacitor/cli": "^7.0.0",
         "axios": "^1.7.4",
         "vite": "^5.0.0"
     }
