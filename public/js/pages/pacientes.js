@@ -158,11 +158,6 @@ function renderPacientes() {
                         `}
                       </div>
                     </td>
-                            ${icon('refreshCw', 12)} Reingresar
-                          </button>
-                        `}
-                      </div>
-                    </td>
                   </tr>
                 `;
               }).join('')}
