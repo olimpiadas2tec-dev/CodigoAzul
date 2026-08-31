@@ -52,7 +52,6 @@ function renderAreas() {
 function renderAreasTab() {
   const areasList = getAreas();
   const camasList = getCamas();
-  const pacientesList = getPacientes().filter(p => p.activo);
 
   let filtered = areasList;
   if (areasTabState.searchArea) {
@@ -88,35 +87,43 @@ function renderAreasTab() {
         <div class="kpi-label">Camas Disponibles (Libres)</div>
       </div>
       <div class="kpi-card fade-in">
-        <div class="kpi-icon red">${icon('user')}</div>
+        <div class="kpi-icon ${pctOcupacionGlobal >= 85 ? 'red' : (pctOcupacionGlobal >= 60 ? 'yellow' : 'blue')}">${icon('user')}</div>
         <div class="kpi-value">${pctOcupacionGlobal}%</div>
         <div class="kpi-label">Ocupación Hospitalaria</div>
+        <div style="font-size:11px; margin-top:4px; font-weight:600; color:${pctOcupacionGlobal >= 85 ? '#dc2626' : (pctOcupacionGlobal >= 60 ? '#d97706' : '#059669')}">
+          ${pctOcupacionGlobal >= 85 ? '🚨 Ocupación Crítica (>85%)' : (pctOcupacionGlobal >= 60 ? '⚠️ Ocupación Moderada (60-85%)' : '✓ Rango Normal (<60%)')}
+        </div>
       </div>
     </div>
 
     <div class="card scale-in">
-      <div class="card-body" style="padding-bottom:0;">
-        <div class="filters-bar" style="display:flex; flex-wrap:wrap; gap:10px;">
+      <div class="card-body" style="padding-bottom:12px;">
+        <div class="filters-bar" style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
           <div class="filter-group search-input-wrapper" style="flex:1; min-width:240px;">
             <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input type="text" id="area-search" placeholder="Buscar área por nombre o descripción..." value="${escapeHtml(areasTabState.searchArea)}" />
           </div>
           <button class="btn btn-secondary btn-sm" onclick="areasTabState.searchArea=''; renderApp();">Limpiar</button>
+          <div style="font-size:12px; color:var(--gray-600); font-weight:600; margin-left:auto;">
+            <span class="badge" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; font-weight:600; padding:4px 10px; font-size:11px;">
+              Mostrando ${filtered.length} de ${areasList.length} áreas
+            </span>
+          </div>
         </div>
       </div>
 
-      <div class="table-container table-stagger">
-        <table>
+      <div class="table-container table-stagger" style="padding:0;">
+        <table style="width:100%; border-collapse:collapse; font-size:13px;">
           <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nombre del Área</th>
-              <th>Camas Totales</th>
-              <th>Libres</th>
-              <th>Ocupadas</th>
-              <th>Ocupación</th>
-              <th>Descripción</th>
-              <th>Acciones</th>
+            <tr style="border-bottom:2px solid var(--gray-200); background:var(--gray-50); text-align:left;">
+              <th style="padding:10px 14px; width:50px; text-align:center;">#</th>
+              <th style="padding:10px 14px;">Nombre del Área</th>
+              <th style="padding:10px 14px; text-align:center;">Camas Totales</th>
+              <th style="padding:10px 14px; text-align:center;">Libres</th>
+              <th style="padding:10px 14px; text-align:center;">Ocupadas</th>
+              <th style="padding:10px 14px;">Ocupación</th>
+              <th style="padding:10px 14px;">Descripción</th>
+              <th style="padding:10px 14px; text-align:center;">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -129,47 +136,50 @@ function renderAreasTab() {
                   </div>
                 </td>
               </tr>
-            ` : filtered.map(area => {
+            ` : filtered.map((area, idx) => {
               const camasArea = camasList.filter(c => c.id_area === area.id);
               const totalCamas = camasArea.length;
               const libres = camasArea.filter(c => c.estado === 'Libre').length;
               const ocupadas = camasArea.filter(c => c.estado === 'Ocupada').length;
               const pct = totalCamas > 0 ? Math.round((ocupadas / totalCamas) * 100) : 0;
-              const pacientesArea = pacientesList.filter(p => p.area === area.nombre).length;
+              const barColor = pct >= 85 ? '#ef4444' : (pct >= 60 ? '#f59e0b' : '#10b981');
 
               return `
-                <tr>
-                  <td style="font-weight:600; color:var(--gray-400);">${area.id}</td>
-                  <td style="font-weight:700; color:var(--gray-800); font-size:13.5px;">
+                <tr style="border-bottom:1px solid var(--gray-100); background:${idx % 2 === 0 ? 'var(--white)' : '#f8fafc'};">
+                  <td style="padding:10px 14px; font-weight:600; color:var(--gray-400); text-align:center; vertical-align:middle;">#${area.id}</td>
+                  <td style="padding:10px 14px; font-weight:700; color:var(--gray-800); font-size:13.5px; vertical-align:middle; white-space:nowrap;">
                     ${escapeHtml(area.nombre)}
-                    ${pacientesArea > 0 ? `<span style="font-size:11px; color:var(--gray-400); font-weight:normal; margin-left:6px;">(${pacientesArea} pacientes)</span>` : ''}
                   </td>
-                  <td style="text-align:center; font-weight:700;">
-                    <span class="badge" style="background:var(--celeste-light); color:var(--celeste-dark); font-size:12px;">
+                  <td style="padding:10px 14px; text-align:center; font-weight:700; vertical-align:middle;">
+                    <span class="badge" style="background:var(--celeste-light); color:var(--celeste-dark); font-size:11px; padding:3px 8px;">
                       ${totalCamas} camas
                     </span>
                   </td>
-                  <td style="text-align:center; color:#059669; font-weight:700;">
-                    ${icon('circleFill')} ${libres}
+                  <td style="padding:10px 14px; text-align:center; color:#059669; font-weight:600; vertical-align:middle; white-space:nowrap;">
+                    ${libres} libres
                   </td>
-                  <td style="text-align:center; color:#dc2626; font-weight:700;">
-                    ${icon('circleFill')} ${ocupadas}
+                  <td style="padding:10px 14px; text-align:center; color:var(--gray-700); font-weight:600; vertical-align:middle; white-space:nowrap;">
+                    ${ocupadas} ocupadas
                   </td>
-                  <td style="width:140px;">
+                  <td style="padding:10px 14px; width:140px; vertical-align:middle;">
                     <div style="display:flex; align-items:center; gap:6px;">
                       <div style="flex:1; height:8px; background:var(--gray-200); border-radius:4px; overflow:hidden;">
-                        <div style="width:${pct}%; height:100%; background:${pct > 80 ? 'var(--danger)' : (pct > 50 ? 'var(--warning)' : 'var(--success)')}; border-radius:4px;"></div>
+                        <div style="width:${pct}%; height:100%; background:${barColor}; border-radius:4px;"></div>
                       </div>
                       <span style="font-size:11px; font-weight:700; color:var(--gray-600);">${pct}%</span>
                     </div>
                   </td>
-                  <td style="font-size:12px; color:var(--gray-500); max-width:240px;">
-                    ${escapeHtml(area.descripcion || '-')}
+                  <td style="padding:10px 14px; vertical-align:middle;">
+                    <span title="${escapeHtml(area.descripcion || '-')}" style="font-size:12px; color:var(--gray-500); max-width:200px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; display:inline-block; vertical-align:middle;">
+                      ${escapeHtml(area.descripcion || '-')}
+                    </span>
                   </td>
-                  <td>
-                    <div style="display:flex; gap:6px;">
+                  <td style="padding:10px 14px; vertical-align:middle; text-align:center;">
+                    <div style="display:flex; align-items:center; justify-content:center; gap:16px;">
                       <button class="action-link" onclick="openAreaModal(${area.id})">Editar</button>
-                      <button class="action-link danger" onclick="confirmDeleteArea(${area.id})">Eliminar</button>
+                      <button class="action-link danger" onclick="confirmDeleteArea(${area.id})" title="Eliminar Área" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
+                        ${icon('trash', 16)}
+                      </button>
                     </div>
                   </td>
                 </tr>
