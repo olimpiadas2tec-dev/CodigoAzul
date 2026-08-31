@@ -67,25 +67,25 @@ function renderPacientes() {
           </div>
         </div>
 
-        <div class="table-container table-stagger">
-          <table>
+        <div class="table-container table-stagger" style="overflow-x:auto;">
+          <table style="width:100%; border-collapse:collapse;">
             <thead>
-              <tr>
-                <th>#</th>
-                <th>Paciente</th>
-                <th>DNI / Edad</th>
-                <th>Área & Cama</th>
-                <th>Causa / Diagnóstico</th>
-                <th>Médico Responsable</th>
-                <th>Grupo & Alergias</th>
-                <th>Estado</th>
-                <th>Acciones</th>
+              <tr style="background:var(--gray-50); border-bottom:1px solid var(--gray-200);">
+                <th style="padding:12px 10px; vertical-align:middle; text-align:left;">#</th>
+                <th style="padding:12px 10px; vertical-align:middle; text-align:left;">Paciente</th>
+                <th style="padding:12px 10px; vertical-align:middle; text-align:left; white-space:nowrap;">DNI / Edad</th>
+                <th style="padding:12px 10px; vertical-align:middle; text-align:left;">Área & Cama</th>
+                <th style="padding:12px 10px; vertical-align:middle; text-align:left;">Causa / Diagnóstico</th>
+                <th style="padding:12px 10px; vertical-align:middle; text-align:left;">Médico Responsable</th>
+                <th style="padding:12px 10px; vertical-align:middle; text-align:left;">Grupo & Alergias</th>
+                <th style="padding:12px 10px; vertical-align:middle; text-align:center;">Estado</th>
+                <th style="padding:12px 14px; vertical-align:middle; text-align:center; position:sticky; right:0; background:var(--gray-50); z-index:5; box-shadow:-4px 0 8px -2px rgba(0,0,0,0.06); white-space:nowrap;">Acciones</th>
               </tr>
             </thead>
             <tbody>
               ${filtered.length === 0 ? `
                 <tr>
-                  <td colspan="9">
+                  <td colspan="9" style="vertical-align:middle;">
                     <div class="empty-state" style="padding:30px 20px; text-align:center;">
                       <span style="font-size:32px;">${icon('search')}</span>
                       <h3 style="margin:8px 0 4px 0;">No se encontraron pacientes</h3>
@@ -106,43 +106,54 @@ function renderPacientes() {
               ` : filtered.map(p => {
                 const doc = personalList.find(d => d.id === p.id_personal);
                 const docName = doc ? `${doc.apellido}, ${doc.nombre}` : 'Médico de Guardia';
+                const hasAlergia = p.alergias && p.alergias.trim().toLowerCase() !== 'ninguna' && p.alergias.trim() !== '-';
+                const formattedDNI = p.dni ? formatDNI(p.dni) : 'S/D';
+
                 return `
-                  <tr>
-                    <td style="font-weight:600; color:var(--gray-400);">${p.id}</td>
-                    <td style="font-weight:700; color:var(--gray-800);">${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}</td>
-                    <td>
-                      <div style="font-size:12px; font-weight:600;">${p.dni || 'S/D'}</div>
-                      <div style="font-size:11px; color:var(--gray-500);">${p.edad ? p.edad + ' años' : ''}</div>
+                  <tr style="border-bottom:1px solid var(--gray-100);">
+                    <td style="padding:12px 10px; vertical-align:middle; font-weight:600; color:var(--gray-400);">${p.id}</td>
+                    <td style="padding:12px 10px; vertical-align:middle; font-weight:700; color:var(--gray-800); whitespace:nowrap;">${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}</td>
+                    <td style="padding:12px 10px; vertical-align:middle; white-space:nowrap;">
+                      <span style="font-size:12px; font-weight:600; color:var(--gray-800);">${escapeHtml(formattedDNI)}</span>
+                      ${p.edad ? `<span style="font-size:12px; color:var(--gray-500);"> · ${p.edad} años</span>` : ''}
                     </td>
-                    <td>
+                    <td style="padding:12px 10px; vertical-align:middle;">
                       <div style="font-weight:600; color:var(--gray-700);">${escapeHtml(p.area)}</div>
                       <div style="font-size:11px; color:var(--celeste-dark); font-weight:700;">${icon('bed')} ${escapeHtml(p.cama || 'Cama Guardia')}</div>
                     </td>
-                    <td>
-                      <span style="font-size:12px; font-weight:600; color:#0369a1; background:var(--celeste-50); padding:4px 8px; border-radius:6px; display:inline-block;">
+                    <td style="padding:12px 10px; vertical-align:middle;">
+                      <span style="font-size:12px; font-weight:600; color:var(--gray-800); background:var(--gray-100); border:1px solid var(--gray-200); padding:4px 8px; border-radius:6px; display:inline-block;">
                         ${escapeHtml(p.causa || 'Paro Cardiorrespiratorio')}
                       </span>
                     </td>
-                    <td style="font-size:12px; color:var(--gray-700);">${escapeHtml(docName)}</td>
-                    <td>
-                      <span class="badge" style="background:#fee2e2; color:#b91c1c; font-weight:700; font-size:10px;">${p.grupo || 'S/D'}</span>
-                      <div style="font-size:11px; color:var(--gray-500); margin-top:2px;">${escapeHtml(p.alergias || 'Ninguna')}</div>
+                    <td style="padding:12px 10px; vertical-align:middle; font-size:12px; color:var(--gray-700); whitespace:nowrap;">${escapeHtml(docName)}</td>
+                    <td style="padding:12px 10px; vertical-align:middle;">
+                      <div style="display:flex; flex-direction:column; gap:3px; align-items:flex-start;">
+                        <span class="badge" style="background:var(--gray-100); color:var(--gray-700); border:1px solid var(--gray-300); font-weight:700; font-size:10px;">${escapeHtml(p.grupo || 'S/D')}</span>
+                        ${hasAlergia ? `
+                          <span class="badge" style="background:#fef2f2; color:#991b1b; border:1px solid #fca5a5; font-weight:700; font-size:10px; display:inline-flex; align-items:center; gap:3px;" title="Alergia Médica Crítica">
+                            ${icon('alertTriangle', 11)} ${escapeHtml(p.alergias)}
+                          </span>
+                        ` : `
+                          <span style="font-size:11px; color:var(--gray-400);">Ninguna</span>
+                        `}
+                      </div>
                     </td>
-                    <td>
+                    <td style="padding:12px 10px; vertical-align:middle; text-align:center;">
                       <span class="badge ${p.activo ? 'badge-success' : 'badge-warning'}">
                         ${p.activo ? 'Internado' : 'Alta'}
                       </span>
                     </td>
-                    <td>
-                      <div style="display:flex; gap:6px; align-items:center;">
-                        <button class="action-link" onclick="openPacienteModal(${p.id})">Editar</button>
+                    <td style="padding:12px 14px; vertical-align:middle; text-align:center; position:sticky; right:0; background:var(--white); z-index:2; box-shadow:-4px 0 8px -2px rgba(0,0,0,0.06); white-space:nowrap;">
+                      <div style="display:flex; gap:10px; align-items:center; justify-content:center;">
+                        <button class="action-link" style="font-size:12px; font-weight:600;" onclick="openPacienteModal(${p.id})">Editar</button>
                         ${p.activo ? `
-                          <button class="btn btn-outline btn-sm" style="padding:3px 8px; font-size:11px; color:#059669; border-color:#a7f3d0; background:#ecfdf5;" onclick="confirmAltaPaciente(${p.id})" title="Registrar Alta Médica">
-                            ${icon('building')} Dar de Alta
+                          <button class="btn btn-sm" style="padding:4px 10px; font-size:11.5px; font-weight:600; background:#059669; color:#ffffff; border:none; border-radius:6px; display:inline-flex; align-items:center; gap:4px; box-shadow:0 1px 2px rgba(0,0,0,0.1); cursor:pointer;" onclick="confirmAltaPaciente(${p.id})" title="Registrar Alta Médica (Requiere confirmación)">
+                            ${icon('checkCircle', 12)} Dar de Alta
                           </button>
                         ` : `
-                          <button class="btn btn-outline btn-sm" style="padding:3px 8px; font-size:11px; color:var(--celeste-dark); border-color:var(--celeste-200); background:var(--celeste-50);" onclick="reingresarPaciente(${p.id})" title="Reingresar Paciente">
-                            ${icon('refreshCw')} Reingresar
+                          <button class="btn btn-sm" style="padding:4px 10px; font-size:11.5px; font-weight:600; background:var(--celeste-dark); color:#ffffff; border:none; border-radius:6px; display:inline-flex; align-items:center; gap:4px; box-shadow:0 1px 2px rgba(0,0,0,0.1); cursor:pointer;" onclick="reingresarPaciente(${p.id})" title="Reingresar Paciente">
+                            ${icon('refreshCw', 12)} Reingresar
                           </button>
                         `}
                       </div>
