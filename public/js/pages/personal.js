@@ -1,8 +1,14 @@
 let personalTabState = {
   currentTab: 'personal', // 'personal', 'roles', 'equipos', 'turnos'
   searchPersonal: '',
-  filterRol: ''
+  filterRol: '',
+  onlyRolesSinPersonal: false
 };
+
+function toggleRolesSinPersonal(checked) {
+  personalTabState.onlyRolesSinPersonal = checked;
+  renderApp();
+}
 
 function renderPersonal() {
   const tab = personalTabState.currentTab;
@@ -161,46 +167,70 @@ function renderPersonalTab() {
 // TAB 2: ROLES DE SALUD (ALTA, EDICIÓN Y LISTADO)
 // -------------------------------------------------------------
 function renderRolesTab() {
-  const rolesList = getRolesSalud();
+  let rolesList = getRolesSalud();
   const personalList = getPersonalSalud();
+
+  if (personalTabState.onlyRolesSinPersonal) {
+    rolesList = rolesList.filter(rol => {
+      const count = personalList.filter(p => p.id_rol_profesional === rol.id || p.nombre_rol === rol.nombre_rol).length;
+      return count === 0;
+    });
+  }
 
   return `
     <div class="card scale-in">
-      <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+      <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
         <div>
-          <h2>Roles Profesionales de Salud</h2>
+          <h2 style="margin:0; font-size:16px;">Roles Profesionales de Salud</h2>
           <p style="font-size:13px; color:var(--gray-500); margin:0;">Categorías clínicas y especialidades requeridas para el personal</p>
         </div>
-        <button class="btn btn-primary btn-sm" onclick="openRolModal()">+ Nuevo Rol</button>
+        <div style="display:flex; align-items:center; gap:16px;">
+          <label style="font-size:12px; color:var(--gray-600); display:flex; align-items:center; gap:6px; cursor:pointer; font-weight:500; user-select:none;">
+            <input type="checkbox" id="filter-roles-sin-personal" ${personalTabState.onlyRolesSinPersonal ? 'checked' : ''} onchange="toggleRolesSinPersonal(this.checked)" style="cursor:pointer;" />
+            Mostrar solo roles sin personal
+          </label>
+          <button class="btn btn-primary btn-sm" onclick="openRolModal()">
+            ${icon('plus', 16)} Nuevo Rol de Salud
+          </button>
+        </div>
       </div>
       <div class="card-body" style="padding:0;">
         <table style="width:100%; border-collapse:collapse; font-size:13px;">
           <thead>
             <tr style="border-bottom:2px solid var(--gray-200); background:var(--gray-50); text-align:left;">
-              <th style="padding:10px 16px;">ID</th>
+              <th style="padding:10px 16px; width:60px;">ID</th>
               <th style="padding:10px 16px;">Nombre del Rol</th>
               <th style="padding:10px 16px;">Descripción</th>
               <th style="padding:10px 16px;">Personal Asignado</th>
-              <th style="padding:10px 16px;">Acciones</th>
+              <th style="padding:10px 16px; text-align:center;">Acciones</th>
             </tr>
           </thead>
           <tbody>
-            ${rolesList.map(rol => {
+            ${rolesList.length === 0 ? `
+              <tr>
+                <td colspan="5" style="text-align:center; padding:24px; color:var(--gray-400);">
+                  ${personalTabState.onlyRolesSinPersonal ? 'No hay roles sin personal asignado.' : 'No hay roles registrados.'}
+                </td>
+              </tr>
+            ` : rolesList.map(rol => {
               const personalCount = personalList.filter(p => p.id_rol_profesional === rol.id || p.nombre_rol === rol.nombre_rol).length;
+              const textPersonal = personalCount === 1 ? '1 profesional' : `${personalCount} profesionales`;
               return `
                 <tr style="border-bottom:1px solid var(--gray-100);">
-                  <td style="padding:10px 16px; font-weight:600; color:var(--gray-400);">${rol.id}</td>
-                  <td style="padding:10px 16px; font-weight:700; color:var(--celeste-dark);">${escapeHtml(rol.nombre_rol)}</td>
-                  <td style="padding:10px 16px; color:var(--gray-600);">${escapeHtml(rol.descripcion || '-')}</td>
-                  <td style="padding:10px 16px;">
-                    <span class="badge ${personalCount > 0 ? 'badge-success' : 'badge-warning'}">
-                      ${personalCount} profesional(es)
+                  <td style="padding:10px 16px; font-weight:600; color:var(--gray-400); vertical-align:middle;">#${rol.id}</td>
+                  <td style="padding:10px 16px; font-weight:600; color:var(--gray-800); vertical-align:middle;">${escapeHtml(rol.nombre_rol)}</td>
+                  <td style="padding:10px 16px; color:var(--gray-600); vertical-align:middle;">${escapeHtml(rol.descripcion || '-')}</td>
+                  <td style="padding:10px 16px; vertical-align:middle;">
+                    <span class="badge" style="font-size:11px; padding:3px 8px; font-weight:500; ${personalCount > 0 ? 'background:#d1fae5; color:#065f46; border:1px solid #a7f3d0;' : 'background:#fef3c7; color:#92400e; border:1px solid #fde68a;'}">
+                      ${textPersonal}
                     </span>
                   </td>
-                  <td style="padding:10px 16px;">
-                    <div style="display:flex; gap:6px;">
+                  <td style="padding:10px 16px; vertical-align:middle; text-align:center;">
+                    <div style="display:flex; align-items:center; justify-content:center; gap:16px;">
                       <button class="action-link" onclick="openRolModal(${rol.id})">Editar</button>
-                      <button class="action-link danger" onclick="confirmDeleteRol(${rol.id})">Eliminar</button>
+                      <button class="action-link danger" onclick="confirmDeleteRol(${rol.id})" title="Eliminar Rol" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
+                        ${icon('trash', 16)}
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -718,9 +748,10 @@ function confirmDeleteRol(id) {
   const asignados = personalList.filter(p => p.id_rol_profesional === id || p.nombre_rol === rol.nombre_rol);
 
   if (asignados.length > 0) {
+    const cantText = asignados.length === 1 ? '1 profesional' : `${asignados.length} profesionales`;
     showConfirmModal({
       title: 'Bloqueo de Seguridad: Rol en Uso',
-      message: `${icon('alertTriangle')} No se puede eliminar el rol <strong>"${escapeHtml(rol.nombre_rol)}"</strong> porque hay <strong>${asignados.length} profesional(es)</strong> asignados a este rol.<br><br>Debe reasignar el rol de esos profesionales antes de poder eliminarlo.`,
+      message: `${icon('alertTriangle')} No se puede eliminar el rol <strong>"${escapeHtml(rol.nombre_rol)}"</strong> porque hay <strong>${cantText}</strong> asignados a este rol.<br><br>Debe reasignar el rol de esos profesionales antes de poder eliminarlo.`,
       isAlertOnly: true
     });
     return;
