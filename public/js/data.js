@@ -59,6 +59,70 @@ function generateInitialCamas() {
   return camas;
 }
 
+let AREAS = AREAS_DATA.map(a => a.nombre);
+
+const ESTADOS = [
+  { value: 'resuelto', label: 'Exitoso (ROSC)', badge: 'badge-success' },
+  { value: 'fatal', label: 'Fatal (Fallecido)', badge: 'badge-danger' }
+];
+
+const CAUSAS_PREDEFINIDAS = [
+  'Paro Cardiorrespiratorio (PCR) Presenciado',
+  'Fibrilación Ventricular (FV) / Taquicardia Ventricular sin Pulso (TVSP)',
+  'Asistolia / Actividad Eléctrica sin Pulso (AESP)',
+  'Infarto Agudo de Miocardio (IAM) Complicado',
+  'Shock Cardiogénico Descompensado',
+  'Edema Agudo de Pulmón Severo / Falla Respiratoria',
+  'Politraumatismo con Shock Hipovolémico',
+  'Bloqueo AV Completo con Síncope',
+  'Estenosis Aórtica Severa Descompensada',
+  'Otro'
+];
+
+const ROLES_EN_EQUIPO = [
+  'Líder de Reanimación (Team Leader)',
+  'Vía Aérea y Ventilación',
+  'Compresiones Torácicas / RCP',
+  'Acceso Vascular / Farmacoterapia',
+  'Monitoreo y Desfibrilación',
+  'Registro y Cronómetro (Circulante)'
+];
+
+const INTERVENCIONES_LISTA = [
+  'RCP de Alta Calidad',
+  'Desfibrilación Precoz',
+  'Intubación Endotraqueal',
+  'Administración de Adrenalina',
+  'Administración de Amiodarona',
+  'Acceso Vascular / Vía Intraósea',
+  'Manejo Avanzado de Vía Aérea',
+  'Compresiones Torácicas Continuas',
+  'Monitoreo Multiparamétrico',
+  'Cardioversión Eléctrica'
+];
+
+let ROLES_SALUD = [
+  { id: 1, nombre_rol: 'Médico Especialista en Terapia Intensiva' },
+  { id: 2, nombre_rol: 'Médico Cardiólogo' },
+  { id: 3, nombre_rol: 'Médico Emergentólogo' },
+  { id: 4, nombre_rol: 'Lic. en Enfermería - Cuidados Críticos' },
+  { id: 5, nombre_rol: 'Enfermero/a de Guardia' },
+  { id: 6, nombre_rol: 'Kinesiólogo/a Respiratorio' }
+];
+
+let PERSONAL_SALUD = [
+  { id: 1, apellido: 'Méndez', nombre: 'Carlos', dni: '28345678', telefono: '11-4567-8901', id_rol_profesional: 1, nombre_rol: 'Médico Especialista en Terapia Intensiva', area: 'Unidad de Terapia Intensiva (UTI)' },
+  { id: 2, apellido: 'Gutiérrez', nombre: 'Laura', dni: '31234567', telefono: '11-5678-1234', id_rol_profesional: 2, nombre_rol: 'Médico Cardiólogo', area: 'Cardiología' },
+  { id: 3, apellido: 'Sánchez', nombre: 'Roberto', dni: '26789012', telefono: '11-6789-2345', id_rol_profesional: 3, nombre_rol: 'Médico Emergentólogo', area: 'Urgencias / Shock Room' },
+  { id: 4, apellido: 'Torres', nombre: 'María', dni: '33456789', telefono: '11-7890-3456', id_rol_profesional: 1, nombre_rol: 'Médico Especialista en Terapia Intensiva', area: 'Unidad de Terapia Intensiva (UTI)' },
+  { id: 5, apellido: 'López', nombre: 'Fernando', dni: '29876543', telefono: '11-8901-4567', id_rol_profesional: 2, nombre_rol: 'Médico Cardiólogo', area: 'Cardiología' },
+  { id: 6, apellido: 'Ramírez', nombre: 'Ana', dni: '35678901', telefono: '11-9012-5678', id_rol_profesional: 4, nombre_rol: 'Lic. en Enfermería - Cuidados Críticos', area: 'Piso 4A' },
+  { id: 7, apellido: 'Luna', nombre: 'Patricia', dni: '30123456', telefono: '11-2345-6789', id_rol_profesional: 4, nombre_rol: 'Lic. en Enfermería - Cuidados Críticos', area: 'Urgencias / Shock Room' },
+  { id: 8, apellido: 'López', nombre: 'María Elena', dni: '32145678', telefono: '11-4589-1234', id_rol_profesional: 4, nombre_rol: 'Lic. en Enfermería - Cuidados Críticos', area: 'Cardiología' },
+  { id: 9, apellido: 'Gómez', nombre: 'Juan Roberto', dni: '29876544', telefono: '11-5678-9012', id_rol_profesional: 5, nombre_rol: 'Enfermero/a de Guardia', area: 'Urgencias / Shock Room' },
+  { id: 10, apellido: 'Fernández', nombre: 'Ana Clara', dni: '35123987', telefono: '11-3456-7890', id_rol_profesional: 5, nombre_rol: 'Enfermero/a de Guardia', area: 'Centro Quirúrgico' }
+];
+
 let PACIENTES = [
   { id: 11, apellido: 'Pérez', nombre: 'Juan', dni: '14253647', edad: 68, fecha_nacimiento: '1956-05-14', causa: 'Infarto Agudo de Miocardio (IAM)', area: 'Cardiología', cama: 'CARD-04', grupo: 'A+', alergias: 'Penicilina', id_personal: 1, activo: true },
   { id: 12, apellido: 'García', nombre: 'María', dni: '12456789', edad: 72, fecha_nacimiento: '1952-10-25', causa: 'Insuficiencia Cardíaca Descompensada', area: 'Piso 4A', cama: '4A-02', grupo: 'O+', alergias: 'Ninguna', id_personal: 2, activo: true },
