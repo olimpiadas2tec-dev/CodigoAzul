@@ -15,30 +15,39 @@ let AREAS_DATA = [
   { id: 10, nombre: 'Maternidad', cantidad_camas: 6, descripcion: 'Obstetricia y neonatología' }
 ];
 
+// Genera un prefijo corto para cada área basado en su nombre
+function getAreaPrefix(nombre) {
+  if (nombre.includes('Shock') || nombre.includes('Urgencias')) return 'URG';
+  if (nombre.includes('UTI') || nombre.includes('Terapia Intensiva')) return 'UTI';
+  if (nombre.includes('Cardio')) return 'CARD';
+  if (nombre.includes('3A')) return '3A';
+  if (nombre.includes('3B')) return '3B';
+  if (nombre.includes('4A')) return '4A';
+  if (nombre.includes('4B')) return '4B';
+  if (nombre.includes('Cirugía') || nombre.includes('Cirugia')) return 'CIR';
+  if (nombre.includes('Quirúrgico') || nombre.includes('Quirofano')) return 'QX';
+  if (nombre.includes('Maternidad') || nombre.includes('Obstetricia')) return 'MAT';
+  // Fallback: tomar las primeras 3 letras en mayúsculas
+  return nombre.replace(/[^A-Za-záéíóúÁÉÍÓÚñÑ]/g, '').substring(0, 3).toUpperCase();
+}
+
+// Genera el nombre de cama con formato: PREFIJO-01, PREFIJO-02, etc.
+function generarNumeroCama(areaNombre, indexEnArea) {
+  const prefix = getAreaPrefix(areaNombre);
+  const num = String(indexEnArea).padStart(2, '0');
+  return `${prefix}-${num}`;
+}
+
 function generateInitialCamas() {
   const camas = [];
   let camaId = 1;
   AREAS_DATA.forEach(area => {
     for (let i = 1; i <= area.cantidad_camas; i++) {
-      let num = '';
-      if (area.nombre.includes('Shock') || area.nombre.includes('Urgencias')) {
-        num = i <= 3 ? `Box ${i}` : `Cama 10${i}`;
-      } else if (area.nombre.includes('UTI')) {
-        num = `UTI-0${i}`;
-      } else if (area.nombre.includes('Cardio')) {
-        num = `Cama 30${i}`;
-      } else if (area.nombre.includes('3A')) {
-        num = `Cama 31${i}`;
-      } else if (area.nombre.includes('4A')) {
-        num = `Cama 40${i}`;
-      } else {
-        num = `Cama ${area.id}0${i}`;
-      }
       camas.push({
         id: camaId++,
         id_area: area.id,
         area_nombre: area.nombre,
-        numero: num,
+        numero: generarNumeroCama(area.nombre, i),
         estado: i % 3 === 0 ? 'Ocupada' : 'Libre'
       });
     }
@@ -487,12 +496,17 @@ function saveAreas(list) {
 }
 
 // Helpers de Camas
+const CAMAS_DATA_VERSION = 2; // Bump this to force bed renaming
 function getCamas() {
+  const storedVersion = localStorage.getItem('codigoAzulCamasVersion');
   const stored = localStorage.getItem('codigoAzulCamas');
-  if (stored) {
+  if (stored && storedVersion && parseInt(storedVersion) >= CAMAS_DATA_VERSION) {
     CAMAS_DATA = JSON.parse(stored);
   } else {
+    // Regenerar con nuevo sistema de numeración
+    CAMAS_DATA = generateInitialCamas();
     localStorage.setItem('codigoAzulCamas', JSON.stringify(CAMAS_DATA));
+    localStorage.setItem('codigoAzulCamasVersion', String(CAMAS_DATA_VERSION));
   }
   return CAMAS_DATA;
 }
@@ -500,6 +514,7 @@ function getCamas() {
 function saveCamas(list) {
   CAMAS_DATA = list;
   localStorage.setItem('codigoAzulCamas', JSON.stringify(list));
+  localStorage.setItem('codigoAzulCamasVersion', String(CAMAS_DATA_VERSION));
   // Mantener consistencia con las áreas
   const areas = getAreas();
   areas.forEach(a => {
@@ -518,38 +533,35 @@ function syncCamasForArea(areaId, targetCount, areaNombre) {
     const maxCamaId = camas.length > 0 ? Math.max(...camas.map(c => c.id)) : 0;
     let nextId = maxCamaId + 1;
     for (let i = currentCount + 1; i <= targetCount; i++) {
-      let num = '';
-      if (areaNombre.includes('Shock') || areaNombre.includes('Urgencias')) {
-        num = `Box ${i}`;
-      } else if (areaNombre.includes('UTI')) {
-        num = `UTI-0${i}`;
-      } else {
-        num = `Cama ${areaId}${i < 10 ? '0' + i : i}`;
-      }
       camas.push({
         id: nextId++,
         id_area: areaId,
         area_nombre: areaNombre,
-        numero: num,
+        numero: generarNumeroCama(areaNombre, i),
         estado: 'Libre'
       });
     }
   } else if (targetCount < currentCount) {
-    // Reducir camas sólo si están libres
+    // Reducir camas sólo si están libres (quitar desde el final)
     const toRemoveCount = currentCount - targetCount;
     let removed = 0;
-    camas = camas.filter(c => {
-      if (c.id_area === areaId && removed < toRemoveCount && c.estado === 'Libre') {
+    // Reverse iterate to remove from the end first
+    for (let i = camas.length - 1; i >= 0 && removed < toRemoveCount; i--) {
+      if (camas[i].id_area === areaId && camas[i].estado === 'Libre') {
+        camas.splice(i, 1);
         removed++;
-        return false;
       }
-      return true;
-    });
+    }
   }
 
-  // Actualizar nombres de área en camas
+  // Actualizar nombres de área y renumerar secuencialmente todas las camas del área
+  let idx = 1;
   camas.forEach(c => {
-    if (c.id_area === areaId) c.area_nombre = areaNombre;
+    if (c.id_area === areaId) {
+      c.area_nombre = areaNombre;
+      c.numero = generarNumeroCama(areaNombre, idx);
+      idx++;
+    }
   });
 
   saveCamas(camas);

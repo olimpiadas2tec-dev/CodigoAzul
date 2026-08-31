@@ -253,57 +253,86 @@ function renderCamasTab() {
             <p>Ajuste los filtros o registre una nueva cama clínica</p>
           </div>
         ` : `
-          <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap:14px;">
-            ${filtered.map(cama => {
-              const isOcupada = cama.estado === 'Ocupada';
-              const pacInternado = isOcupada ? pacientesList.find(p => p.area === cama.area_nombre && p.cama === cama.numero && p.activo) : null;
+          ${(() => {
+            // Agrupar camas por área
+            const grouped = {};
+            filtered.forEach(cama => {
+              const key = cama.area_nombre;
+              if (!grouped[key]) grouped[key] = [];
+              grouped[key].push(cama);
+            });
+
+            return Object.keys(grouped).map(areaNombre => {
+              const camasDeArea = grouped[areaNombre];
+              const libresArea = camasDeArea.filter(c => c.estado === 'Libre').length;
+              const ocupadasArea = camasDeArea.filter(c => c.estado === 'Ocupada').length;
 
               return `
-                <div style="background:${isOcupada ? '#fef2f2' : '#f0fdf4'}; border:2px solid ${isOcupada ? '#f87171' : '#86efac'}; border-radius:var(--radius-lg); padding:14px; box-shadow:var(--shadow-sm); display:flex; flex-direction:column; justify-content:space-between; transition:transform 0.15s ease;" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform='translateY(0)'">
-                  <div>
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
-                      <strong style="font-size:16px; color:${isOcupada ? '#991b1b' : '#166534'};">
-                        ${icon('bed')} ${escapeHtml(cama.numero)}
-                      </strong>
-                      <span class="badge ${isOcupada ? 'badge-danger' : 'badge-success'}" style="font-size:10.5px;">
-                        ${cama.estado}
-                      </span>
+                <div style="margin-bottom:24px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; padding:10px 14px; background:var(--gray-50); border-radius:var(--radius-lg); border-left:4px solid var(--celeste-dark);">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                      ${icon('building')}
+                      <strong style="font-size:14px; color:var(--gray-800);">${escapeHtml(areaNombre)}</strong>
                     </div>
-                    
-                    <div style="font-size:12px; font-weight:600; color:var(--gray-700); margin-bottom:6px;">
-                      ${icon('mapPin')} ${escapeHtml(cama.area_nombre)}
+                    <div style="display:flex; gap:12px; font-size:12px; font-weight:600;">
+                      <span style="color:#059669;">${libresArea} libres</span>
+                      <span style="color:var(--gray-500);">|</span>
+                      <span style="color:${ocupadasArea > 0 ? '#dc2626' : 'var(--gray-400)'}">${ocupadasArea} ocupadas</span>
+                      <span style="color:var(--gray-500);">|</span>
+                      <span style="color:var(--gray-600);">${camasDeArea.length} total</span>
                     </div>
-
-                    ${isOcupada ? `
-                      <div style="font-size:11.5px; color:#7f1d1d; background:rgba(255,255,255,0.85); padding:6px 10px; border-radius:6px; margin-top:6px; border:1px solid #fca5a5; display:flex; align-items:center; gap:8px;">
-                        <span style="font-size:14px; color:#dc2626;">🛏️</span>
-                        <div>
-                          <strong style="color:#991b1b;">${pacInternado ? escapeHtml(pacInternado.apellido + ', ' + pacInternado.nombre) : 'Paciente Internado'}</strong>
-                          ${pacInternado?.dni ? `<div style="font-size:10px; color:#b91c1c;">DNI: ${formatDNI(pacInternado.dni)}</div>` : ''}
-                        </div>
-                      </div>
-                    ` : `
-                      <div style="font-size:11.5px; color:#15803d; padding:6px 0; display:flex; align-items:center; gap:4px; font-weight:600;">
-                        ${icon('checkCircle', 13)} Disponible para asignación
-                      </div>
-                    `}
                   </div>
+                  <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:12px;">
+                    ${camasDeArea.map(cama => {
+                      const isOcupada = cama.estado === 'Ocupada';
+                      const pacInternado = isOcupada ? pacientesList.find(p => p.area === cama.area_nombre && p.cama === cama.numero && p.activo) : null;
 
-                  <div style="margin-top:12px; padding-top:10px; border-top:1px solid ${isOcupada ? '#fecaca' : '#bbf7d0'}; display:flex; justify-content:space-between; align-items:center;">
-                    <button class="btn btn-sm" style="font-size:11.5px; padding:4px 10px; font-weight:600; background:${isOcupada ? '#f1f5f9' : 'var(--celeste-dark)'}; color:${isOcupada ? '#334155' : '#ffffff'}; border:${isOcupada ? '1px solid #cbd5e1' : 'none'}; border-radius:6px; display:inline-flex; align-items:center; gap:4px; cursor:pointer;" onclick="toggleCamaEstado(${cama.id})">
-                      ${isOcupada ? icon('check', 12) + ' Liberar' : icon('plus', 12) + ' Ocupar'}
-                    </button>
-                    <div style="display:flex; align-items:center; gap:12px;">
-                      <button class="action-link" style="font-size:12px;" onclick="openCamaModal(${cama.id})">Editar</button>
-                      <button class="action-link danger" style="font-size:12px; display:inline-flex; align-items:center; justify-content:center; border:none; background:none;" onclick="confirmDeleteCama(${cama.id})" title="Eliminar Cama">
-                        ${icon('trash', 15)}
-                      </button>
-                    </div>
+                      return `
+                        <div style="background:${isOcupada ? '#fef2f2' : '#f0fdf4'}; border:2px solid ${isOcupada ? '#f87171' : '#86efac'}; border-radius:var(--radius-lg); padding:12px; box-shadow:var(--shadow-sm); display:flex; flex-direction:column; justify-content:space-between; transition:transform 0.15s ease;" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform='translateY(0)'">
+                          <div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                              <strong style="font-size:15px; color:${isOcupada ? '#991b1b' : '#166534'};">
+                                ${icon('bed')} ${escapeHtml(cama.numero)}
+                              </strong>
+                              <span class="badge ${isOcupada ? 'badge-danger' : 'badge-success'}" style="font-size:10px; padding:2px 6px;">
+                                ${cama.estado}
+                              </span>
+                            </div>
+
+                            ${isOcupada ? `
+                              <div style="font-size:11px; color:#7f1d1d; background:rgba(255,255,255,0.85); padding:5px 8px; border-radius:6px; margin-top:4px; border:1px solid #fca5a5; display:flex; align-items:center; gap:6px;">
+                                <span style="font-size:13px; color:#dc2626;">🛏️</span>
+                                <div>
+                                  <strong style="color:#991b1b; font-size:11px;">${pacInternado ? escapeHtml(pacInternado.apellido + ', ' + pacInternado.nombre) : 'Paciente Internado'}</strong>
+                                  ${pacInternado?.dni ? `<div style="font-size:10px; color:#b91c1c;">DNI: ${formatDNI(pacInternado.dni)}</div>` : ''}
+                                </div>
+                              </div>
+                            ` : `
+                              <div style="font-size:11px; color:#15803d; padding:4px 0; display:flex; align-items:center; gap:4px; font-weight:600;">
+                                ${icon('checkCircle', 12)} Disponible
+                              </div>
+                            `}
+                          </div>
+
+                          <div style="margin-top:10px; padding-top:8px; border-top:1px solid ${isOcupada ? '#fecaca' : '#bbf7d0'}; display:flex; justify-content:space-between; align-items:center;">
+                            <button class="btn btn-sm" style="font-size:11px; padding:3px 8px; font-weight:600; background:${isOcupada ? '#f1f5f9' : 'var(--celeste-dark)'}; color:${isOcupada ? '#334155' : '#ffffff'}; border:${isOcupada ? '1px solid #cbd5e1' : 'none'}; border-radius:5px; display:inline-flex; align-items:center; gap:3px; cursor:pointer;" onclick="toggleCamaEstado(${cama.id})">
+                              ${isOcupada ? icon('check', 11) + ' Liberar' : icon('plus', 11) + ' Ocupar'}
+                            </button>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                              <button class="action-link" style="font-size:11px;" onclick="openCamaModal(${cama.id})">Editar</button>
+                              <button class="action-link danger" style="font-size:11px; display:inline-flex; align-items:center; justify-content:center; border:none; background:none;" onclick="confirmDeleteCama(${cama.id})" title="Eliminar Cama">
+                                ${icon('trash', 14)}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      `;
+                    }).join('')}
                   </div>
                 </div>
               `;
-            }).join('')}
-          </div>
+            }).join('');
+          })()}
         `}
       </div>
     </div>
@@ -505,6 +534,13 @@ function openCamaModal(editId = null) {
   overlay.className = 'modal-overlay active cama-modal-overlay';
   overlay.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(17,24,39,0.7); z-index:9999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px); padding:20px;';
 
+  // Preview del código que se va a generar para nueva cama
+  const firstArea = areasList[0];
+  const previewAreaId = cama ? cama.id_area : (firstArea ? firstArea.id : 1);
+  const previewAreaNombre = cama ? cama.area_nombre : (firstArea ? firstArea.nombre : 'Área');
+  const camasEnAreaPreview = camasList.filter(c => c.id_area === previewAreaId).length;
+  const previewCode = isEdit ? cama.numero : generarNumeroCama(previewAreaNombre, camasEnAreaPreview + 1);
+
   overlay.innerHTML = `
     <div class="modal scale-in" style="background:var(--white); border-radius:var(--radius-xl); width:90%; max-width:480px; box-shadow:var(--shadow-lg); overflow:hidden;">
       <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; padding:18px 24px; border-bottom:1px solid var(--gray-200); background:var(--gray-50);">
@@ -524,8 +560,13 @@ function openCamaModal(editId = null) {
           </div>
 
           <div class="form-group" style="margin-bottom:14px;">
-            <label>Número / Código de Cama *</label>
-            <input type="text" id="cm-num" required placeholder="Ej: Box 4, Cama 308, UTI-05" value="${cama ? escapeHtml(cama.numero) : ''}" />
+            <label>Código de Cama</label>
+            <div id="cm-code-preview" style="background:var(--gray-100); border:1px solid var(--gray-200); border-radius:var(--radius-md); padding:10px 14px; font-size:16px; font-weight:700; color:var(--celeste-dark); letter-spacing:1px;">
+              ${escapeHtml(previewCode)}
+            </div>
+            <span style="font-size:11px; color:var(--gray-500); margin-top:4px; display:block;">
+              ${icon('zap')} El código se genera automáticamente según el área seleccionada.
+            </span>
           </div>
 
           <div class="form-group">
@@ -547,13 +588,23 @@ function openCamaModal(editId = null) {
 
   document.body.appendChild(overlay);
 
+  // Actualizar preview al cambiar área
+  document.getElementById('cm-area').addEventListener('change', () => {
+    const selAreaId = parseInt(document.getElementById('cm-area').value);
+    const selArea = areasList.find(a => a.id === selAreaId);
+    if (selArea) {
+      const camasEnArea = camasList.filter(c => c.id_area === selAreaId).length;
+      const nextNum = isEdit ? cama.numero : generarNumeroCama(selArea.nombre, camasEnArea + 1);
+      document.getElementById('cm-code-preview').textContent = nextNum;
+    }
+  });
+
   document.getElementById('cama-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const id_area = parseInt(document.getElementById('cm-area').value);
-    const numero = document.getElementById('cm-num').value.trim();
     const estado = document.getElementById('cm-estado').value;
 
-    if (!id_area || !numero) return;
+    if (!id_area) return;
 
     const areaObj = areasList.find(a => a.id === id_area);
     const area_nombre = areaObj ? areaObj.nombre : 'Área';
@@ -562,14 +613,33 @@ function openCamaModal(editId = null) {
     if (isEdit) {
       const idx = currentCamas.findIndex(c => c.id === editId);
       if (idx !== -1) {
-        currentCamas[idx] = { ...currentCamas[idx], id_area, area_nombre, numero, estado };
+        currentCamas[idx] = { ...currentCamas[idx], id_area, area_nombre, estado };
+        // Renumerar todas las camas del área de destino
+        let seqIdx = 1;
+        currentCamas.forEach(c => {
+          if (c.id_area === id_area) {
+            c.numero = generarNumeroCama(area_nombre, seqIdx);
+            seqIdx++;
+          }
+        });
         saveCamas(currentCamas);
         showToast('Cama actualizada');
       }
     } else {
       const newId = currentCamas.length > 0 ? Math.max(...currentCamas.map(c => c.id)) + 1 : 1;
+      const camasEnArea = currentCamas.filter(c => c.id_area === id_area).length;
+      const numero = generarNumeroCama(area_nombre, camasEnArea + 1);
       currentCamas.push({ id: newId, id_area, area_nombre, numero, estado });
       saveCamas(currentCamas);
+
+      // Actualizar cantidad_camas del área
+      const currentAreas = getAreas();
+      const areaTarget = currentAreas.find(a => a.id === id_area);
+      if (areaTarget) {
+        areaTarget.cantidad_camas = currentCamas.filter(c => c.id_area === id_area).length;
+        saveAreas(currentAreas);
+      }
+
       showToast('Cama registrada exitosamente');
     }
 
@@ -605,32 +675,23 @@ function confirmDeleteCama(id) {
 
   showConfirmModal({
     title: 'Eliminar Cama Clínica',
-    message: `¿Está seguro de eliminar la cama <strong>"${escapeHtml(cama.numero)}"</strong> del área <strong>${escapeHtml(cama.area_nombre)}</strong>?<br><br>Las camas posteriores de esta área restarán 1 a su numeración.`,
+    message: `¿Está seguro de eliminar la cama <strong>"${escapeHtml(cama.numero)}"</strong> del área <strong>${escapeHtml(cama.area_nombre)}</strong>?<br><br>Las camas restantes del área serán renumeradas automáticamente.`,
     onConfirm: () => {
-      // 1. Obtener número numérico de la cama eliminada (ej: 1002 de "Cama 1002" o "1002")
-      const numMatch = cama.numero.match(/\d+/);
-      const deletedNum = numMatch ? parseInt(numMatch[0]) : null;
-
-      // 2. Filtrar las camas restantes
+      // 1. Filtrar la cama eliminada
       const rest = currentCamas.filter(c => c.id !== id);
 
-      // 3. Restar 1 a todas las camas de esa misma área cuyo número sea mayor al eliminado
+      // 2. Renumerar secuencialmente todas las camas de esa área
+      let idx = 1;
       rest.forEach(c => {
         if (c.id_area === cama.id_area) {
-          const matchCurrent = c.numero.match(/\d+/);
-          if (matchCurrent && deletedNum !== null) {
-            const currentNum = parseInt(matchCurrent[0]);
-            if (currentNum > deletedNum) {
-              const newNum = currentNum - 1;
-              c.numero = c.numero.replace(/\d+/, newNum);
-            }
-          }
+          c.numero = generarNumeroCama(c.area_nombre, idx);
+          idx++;
         }
       });
 
       saveCamas(rest);
 
-      // 4. Mantener consistencia en la cantidad declarada en el área
+      // 3. Mantener consistencia en la cantidad declarada en el área
       const currentAreas = getAreas();
       const areaTarget = currentAreas.find(a => a.id === cama.id_area);
       if (areaTarget) {
@@ -638,7 +699,7 @@ function confirmDeleteCama(id) {
         saveAreas(currentAreas);
       }
 
-      showToast('Cama eliminada y numeración de camas subsiguientes decrementada (-1)', 'success');
+      showToast('Cama eliminada y numeración actualizada correctamente', 'success');
       renderApp();
     }
   });
