@@ -26,6 +26,10 @@ COPY . /var/www/html
 # Install dependencies
 RUN composer install --no-dev --optimize-autoloader
 
+# Create .env and generate key
+RUN cp .env.example .env && php artisan key:generate
+
+
 
 # Create storage and bootstrap/cache directories if missing
 RUN mkdir -p /var/www/html/storage/framework/views \
@@ -40,6 +44,8 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 
 # Configure Apache DocumentRoot to point to /var/www/html/public
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
+ENV LOG_CHANNEL=stderr
+ENV APP_DEBUG=true
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/000-default.conf
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 
