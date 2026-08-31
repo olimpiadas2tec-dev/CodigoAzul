@@ -851,22 +851,23 @@ function openAsignarPersonalEquipoModal(equipoId) {
       <form id="asig-pers-form">
         <div class="modal-body" style="padding:20px 24px;">
           <div class="form-group" style="margin-bottom:14px;">
-            <label>Buscar Profesional Disponible *</label>
-            <div class="search-input-wrapper" style="margin-bottom:8px;">
-              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input type="text" id="filter-asig-pers-input" placeholder="Filtrar por nombre o rol en tiempo real..." style="font-size:12.5px; padding:8px 10px 8px 36px; border:1.5px solid var(--celeste-300); border-radius:6px; width:100%;" />
+            <label>Buscar y Seleccionar Profesional *</label>
+            <div class="search-input-wrapper" style="position:relative; margin-bottom:0;">
+              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute; left:12px; top:11px; width:16px; color:var(--gray-400);"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="filter-asig-pers-input" placeholder="Escriba para filtrar por nombre o rol..." autocomplete="off" style="font-size:13px; padding:10px 10px 10px 36px; border:1.5px solid var(--gray-300); border-radius:6px; width:100%; transition:border-color 0.2s;" />
+              <input type="hidden" id="asig-p-id" required />
+              
+              <ul id="custom-pers-dropdown" style="display:none; position:absolute; top:100%; left:0; width:100%; max-height:220px; overflow-y:auto; background:white; border:1px solid var(--gray-200); border-radius:6px; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1); margin:4px 0 0 0; padding:0; list-style:none; z-index:10;">
+                ${availablePersonal.length === 0 ? `
+                  <li style="padding:12px; color:var(--gray-500); font-size:13px; text-align:center;">${icon('alertTriangle')} No hay personal libre</li>
+                ` : availablePersonal.map(pers => `
+                  <li class="custom-pers-option" data-value="${pers.id}" data-text="${escapeHtml(pers.apellido + ' ' + pers.nombre + ' ' + (pers.nombre_rol || ''))}" style="padding:10px 12px; border-bottom:1px solid var(--gray-100); cursor:pointer; font-size:13px; transition:background 0.2s;">
+                    <div style="font-weight:600; color:var(--gray-800);">${escapeHtml(pers.apellido)}, ${escapeHtml(pers.nombre)}</div>
+                    <div style="font-size:11px; color:var(--gray-500); margin-top:2px;">[${escapeHtml(pers.nombre_rol || 'Personal')}] (${escapeHtml(pers.area || 'Guardia')})</div>
+                  </li>
+                `).join('')}
+              </ul>
             </div>
-            
-            <select id="asig-p-id" required style="font-size:13px; padding:10px; width:100%;">
-              <option value="">-- Seleccionar Profesional Disponible (${availablePersonal.length} libres) --</option>
-              ${availablePersonal.length === 0 ? `
-                <option value="" disabled>${icon('alertTriangle')} No hay personal disponible sin equipo</option>
-              ` : availablePersonal.map(pers => `
-                <option value="${pers.id}" data-text="${escapeHtml(pers.apellido + ' ' + pers.nombre + ' ' + (pers.nombre_rol || ''))}">
-                  ${pers.apellido}, ${pers.nombre} — [${pers.nombre_rol || 'Personal'}] (${pers.area || 'Guardia'})
-                </option>
-              `).join('')}
-            </select>
           </div>
 
           <div class="form-group">
@@ -891,16 +892,45 @@ function openAsignarPersonalEquipoModal(equipoId) {
 
   document.body.appendChild(overlay);
 
-  // Filtro en tiempo real (sin importar tildes)
+  // Filtro en tiempo real y combobox
   const filterInput = document.getElementById('filter-asig-pers-input');
-  const persSelect = document.getElementById('asig-p-id');
-  if (filterInput && persSelect) {
+  const hiddenPersId = document.getElementById('asig-p-id');
+  const dropdownList = document.getElementById('custom-pers-dropdown');
+  
+  if (filterInput && dropdownList) {
+    const options = dropdownList.querySelectorAll('.custom-pers-option');
+    
+    filterInput.addEventListener('focus', () => {
+      dropdownList.style.display = 'block';
+      filterInput.style.borderColor = 'var(--celeste-main)';
+    });
+    
+    filterInput.addEventListener('blur', () => {
+      setTimeout(() => {
+        dropdownList.style.display = 'none';
+        filterInput.style.borderColor = 'var(--gray-300)';
+      }, 150);
+    });
+    
     filterInput.addEventListener('input', () => {
       const q = normalizeText(filterInput.value);
-      Array.from(persSelect.options).forEach(opt => {
-        if (!opt.value) return;
-        const text = normalizeText(opt.getAttribute('data-text') || opt.text);
-        opt.style.display = (!q || text.includes(q)) ? '' : 'none';
+      hiddenPersId.value = ''; // Se borra la selección al seguir escribiendo
+      options.forEach(opt => {
+        const text = normalizeText(opt.getAttribute('data-text'));
+        opt.style.display = (!q || text.includes(q)) ? 'block' : 'none';
+      });
+      dropdownList.style.display = 'block';
+    });
+    
+    options.forEach(opt => {
+      opt.addEventListener('mouseenter', () => opt.style.backgroundColor = 'var(--gray-50)');
+      opt.addEventListener('mouseleave', () => opt.style.backgroundColor = 'transparent');
+      
+      opt.addEventListener('mousedown', (e) => {
+        e.preventDefault(); // previene que el input pierda foco antes de capturar el click
+        hiddenPersId.value = opt.getAttribute('data-value');
+        filterInput.value = opt.querySelector('div').innerText;
+        dropdownList.style.display = 'none';
       });
     });
   }
