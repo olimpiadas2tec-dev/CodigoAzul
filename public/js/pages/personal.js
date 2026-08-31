@@ -1321,5 +1321,59 @@ window.openAsignacionTurnoModal = openAsignacionTurnoModal;
 window.deleteAsignacionTurno = deleteAsignacionTurno;
 window.showConfirmModal = showConfirmModal;
 
-f u n c t i o n   m o s t r a r I n f o P e r s o n a l ( i d )   { }  
- 
+function mostrarInfoPersonal(id) {
+  if (!id) return;
+  const p = getPersonalSalud().find(item => item.id === id);
+  if (!p) return;
+  
+  document.querySelector('.info-personal-overlay')?.remove();
+  
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay active info-personal-overlay';
+  overlay.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(17,24,39,0.7); z-index:9999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px); padding:20px;';
+  
+  const initials = (p.nombre.charAt(0) + p.apellido.charAt(0)).toUpperCase();
+  
+  overlay.innerHTML = `
+    <div class="modal scale-in" style="background:var(--white); border-radius:var(--radius-xl); width:90%; max-width:400px; box-shadow:var(--shadow-lg); overflow:hidden;">
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:flex-start; padding:24px 24px 0 24px; border:none; background:var(--white);">
+        <div style="display:flex; align-items:center; gap:16px;">
+          <div style="min-width:56px; height:56px; border-radius:50%; background:var(--celeste-100); color:var(--celeste-dark); display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:20px;">
+            ${initials}
+          </div>
+          <div>
+            <h2 style="font-size:20px; font-weight:700; color:var(--gray-900); margin:0;">${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}</h2>
+            <div style="font-size:14px; color:var(--celeste-dark); font-weight:600; margin-top:4px;">${escapeHtml(p.nombre_rol || 'Personal de Salud')}</div>
+          </div>
+        </div>
+        <button class="modal-close" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--gray-400); margin-top:-8px; margin-right:-8px;" onclick="this.closest('.info-personal-overlay').remove()">&times;</button>
+      </div>
+      
+      <div class="modal-body" style="padding:24px;">
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <span style="font-size:12px; color:var(--gray-500); text-transform:uppercase; font-weight:600;">Documento (DNI)</span>
+            <span style="font-size:15px; color:var(--gray-800);">${escapeHtml(p.dni || 'No registrado')}</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <span style="font-size:12px; color:var(--gray-500); text-transform:uppercase; font-weight:600;">Especialidad / Rol Base</span>
+            <span style="font-size:15px; color:var(--gray-800);">${escapeHtml(p.nombre_rol || 'No asignado')}</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <span style="font-size:12px; color:var(--gray-500); text-transform:uppercase; font-weight:600;">Estado en Sistema</span>
+            <span style="font-size:15px; color:#059669; font-weight:600; display:flex; align-items:center; gap:6px;">
+              <span style="width:8px; height:8px; border-radius:50%; background:#10b981;"></span> Activo
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer" style="padding:16px 24px; border-top:1px solid var(--gray-200); background:var(--gray-50); display:flex; justify-content:center;">
+        <button class="btn btn-primary" style="width:100%;" onclick="this.closest('.info-personal-overlay').remove()">Cerrar</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+window.mostrarInfoPersonal = mostrarInfoPersonal;
