@@ -86,8 +86,9 @@ function renderPersonalTab() {
     <div class="card scale-in">
       <div class="card-body" style="padding-bottom:0;">
         <div class="filters-bar" style="display:flex; flex-wrap:wrap; gap:10px;">
-          <div class="filter-group" style="flex:1; min-width:240px;">
-            <input type="text" id="personal-search" placeholder="?? Filtrar personal por nombre, apellido, DNI o área..." value="${escapeHtml(personalTabState.searchPersonal)}" />
+          <div class="filter-group search-input-wrapper" style="flex:1; min-width:240px;">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="personal-search" placeholder="Filtrar personal por nombre, apellido, DNI o área..." value="${escapeHtml(personalTabState.searchPersonal)}" />
           </div>
           <div class="filter-group">
             <select id="personal-rol-filter">
@@ -236,22 +237,24 @@ function renderEquiposTab() {
         const integrantes = eq.integrantes || [];
         return `
           <div class="card scale-in">
-            <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; background:var(--celeste-50);">
-              <div style="display:flex; align-items:center; gap:8px;">
-                <span style="font-size:20px;">${icon('truck')}</span>
-                <div>
-                  <h2 style="color:var(--celeste-dark); font-weight:700; margin:0;">${escapeHtml(eq.nombre)}</h2>
-                  <span style="font-size:11px; color:var(--gray-500);">${escapeHtml(eq.descripcion || 'Brigada de Paro Cardíaco')}</span>
+            <div class="card-header" style="display:flex; flex-direction:column; gap:12px; background:var(--celeste-50);">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; width:100%;">
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                  <span style="font-size:24px; color:var(--celeste-dark);">${icon('truck')}</span>
+                  <div>
+                    <h2 style="color:var(--celeste-dark); font-weight:700; margin:0; line-height:1.2;">${escapeHtml(eq.nombre)}</h2>
+                    <div style="font-size:12px; color:var(--gray-500); margin-top:2px;">${escapeHtml(eq.descripcion || 'Brigada de Paro Cardíaco')}</div>
+                  </div>
                 </div>
-              </div>
-              <div style="display:flex; gap:4px;">
-                <button class="btn btn-outline btn-sm" onclick="openAsignarPersonalEquipoModal(${eq.id})" title="Asignar Integrante">
-                  + Asignar
-                </button>
-                <button class="btn btn-secondary btn-sm" onclick="openEquipoModal(${eq.id})" title="Editar Equipo" style="padding:4px 8px; font-size:12px;">
-                  ${icon('edit')}
-                </button>
-                <button class="action-link danger" onclick="confirmDeleteEquipo(${eq.id})" style="font-size:16px; padding:4px 8px;" title="Eliminar Equipo">&times;</button>
+                <div style="display:flex; gap:8px;">
+                  <button class="btn btn-outline btn-sm" onclick="openAsignarPersonalEquipoModal(${eq.id})" title="Asignar Integrante">
+                    + Asignar
+                  </button>
+                  <button class="btn btn-secondary btn-sm" onclick="openEquipoModal(${eq.id})" title="Editar Equipo" style="padding:4px 8px; font-size:12px;">
+                    ${icon('edit')}
+                  </button>
+                  <button class="btn btn-outline danger btn-sm" onclick="if(confirm('¿Está seguro de eliminar este equipo?')) confirmDeleteEquipo(${eq.id})" style="padding:4px 8px;" title="Eliminar Equipo">&times;</button>
+                </div>
               </div>
             </div>
             <div class="card-body" style="padding:16px;">
@@ -266,19 +269,29 @@ function renderEquiposTab() {
                     const p = personalList.find(item => item.id === integ.id_personal);
                     const pName = p ? `${p.apellido}, ${p.nombre}` : `Personal #${integ.id_personal}`;
                     const pRol = p ? (p.nombre_rol || 'Personal') : 'Salud';
+                    const isLeader = integ.rol_en_equipo && integ.rol_en_equipo.toLowerCase().includes('líder');
+                    const initials = (p && p.nombre && p.apellido) ? (p.nombre.charAt(0) + p.apellido.charAt(0)).toUpperCase() : 'P';
                     return `
-                      <li style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--gray-100);">
-                        <div>
-                          <div style="font-weight:700; font-size:13px; color:var(--gray-800);">
-                            ${escapeHtml(pName)} <span style="font-size:11px; color:var(--gray-500); font-weight:normal;">[${escapeHtml(pRol)}]</span>
+                      <li style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--gray-100); min-height:64px;">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                          <div style="min-width:36px; height:36px; border-radius:50%; background:var(--celeste-100); color:var(--celeste-dark); display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:13px;">
+                            ${initials}
                           </div>
-                          <div style="font-size:11px; color:var(--celeste-dark); font-weight:600;">
-                            ${icon('star')} ${escapeHtml(integ.rol_en_equipo || 'Miembro de Equipo')}
+                          <div>
+                            <div style="font-weight:700; font-size:13px; color:var(--gray-800); line-height:1.2;">
+                              ${escapeHtml(pName)} <span style="font-size:11px; color:var(--gray-500); font-weight:normal;">[${escapeHtml(pRol)}]</span>
+                            </div>
+                            <div style="margin-top:4px;">
+                              ${isLeader ? 
+                                `<span class="badge" style="background:#fef3c7;color:#d97706;border:1px solid #fde68a;font-size:10px;padding:2px 6px;">⭐ Líder de Reanimación</span>` : 
+                                `<span style="color:var(--gray-400);font-size:10px;vertical-align:middle;margin-right:2px;">&#9679;</span><span style="font-size:11px; color:var(--gray-500); font-weight:600;">${escapeHtml(integ.rol_en_equipo || 'Miembro de Equipo')}</span>`
+                              }
+                            </div>
                           </div>
                         </div>
-                        <div style="display:flex; gap:4px;">
-                          <button class="action-link" onclick="openEditarIntegranteModal(${eq.id}, ${integ.id_personal})" title="Cambiar rol en brigada" style="font-size:11px;">Editar</button>
-                          <button class="action-link danger" onclick="removerIntegranteEquipo(${eq.id}, ${integ.id_personal})" title="Quitar del equipo" style="font-size:13px;">${icon('x', 13)}</button>
+                        <div style="display:flex; gap:8px; align-items:center;">
+                          <button class="btn btn-outline btn-sm" onclick="openEditarIntegranteModal(${eq.id}, ${integ.id_personal})" title="Cambiar rol en brigada" style="padding:4px 8px; font-size:11px;">Editar</button>
+                          <button class="btn btn-outline danger btn-sm" onclick="if(confirm('¿Seguro que desea quitar a este integrante del equipo?')) removerIntegranteEquipo(${eq.id}, ${integ.id_personal})" title="Quitar del equipo" style="padding:4px 8px; font-size:13px;">&times;</button>
                         </div>
                       </li>
                     `;
@@ -486,7 +499,10 @@ function openPersonalModal(editId = null) {
           <!-- ÁREA ASIGNADA (CON TODAS LAS ÁREAS DISPONIBLES + BUSCADOR EN VIVO + SIN DESIGNAR) -->
           <div class="form-group">
             <label style="color:var(--celeste-dark); font-weight:700;">Área / Servicio Asignado *</label>
-            <input type="text" id="filter-pers-area" placeholder="?? Filtrar área en tiempo real..." style="font-size:12px; padding:6px 10px; margin-bottom:6px; border:1px solid var(--gray-300); border-radius:6px; width:100%;" />
+            <div class="search-input-wrapper" style="margin-bottom:6px;">
+              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="filter-pers-area" placeholder="Filtrar área en tiempo real..." style="font-size:12px; padding:6px 10px 6px 36px; border:1px solid var(--gray-300); border-radius:6px; width:100%;" />
+            </div>
             <select id="p-area" required style="font-weight:600;">
               <option value="Sin Designar" ${pers && (!pers.area || pers.area === 'Sin Designar') ? 'selected' : ''}>Sin Designar</option>
               ${areasList.map(a => `
@@ -818,7 +834,10 @@ function openAsignarPersonalEquipoModal(equipoId) {
         <div class="modal-body" style="padding:20px 24px;">
           <div class="form-group" style="margin-bottom:14px;">
             <label>Buscar Profesional Disponible *</label>
-            <input type="text" id="filter-asig-pers-input" placeholder="?? Filtrar por nombre o rol en tiempo real..." style="font-size:12.5px; padding:8px 10px; margin-bottom:8px; border:1.5px solid var(--celeste-300); border-radius:6px; width:100%;" />
+            <div class="search-input-wrapper" style="margin-bottom:8px;">
+              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="filter-asig-pers-input" placeholder="Filtrar por nombre o rol en tiempo real..." style="font-size:12.5px; padding:8px 10px 8px 36px; border:1.5px solid var(--celeste-300); border-radius:6px; width:100%;" />
+            </div>
             
             <select id="asig-p-id" required style="font-size:13px; padding:10px; width:100%;">
               <option value="">-- Seleccionar Profesional Disponible (${availablePersonal.length} libres) --</option>

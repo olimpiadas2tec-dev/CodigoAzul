@@ -97,8 +97,9 @@ function renderAreasTab() {
     <div class="card scale-in">
       <div class="card-body" style="padding-bottom:0;">
         <div class="filters-bar" style="display:flex; flex-wrap:wrap; gap:10px;">
-          <div class="filter-group" style="flex:1; min-width:240px;">
-            <input type="text" id="area-search" placeholder="?? Buscar área por nombre o descripción..." value="${escapeHtml(areasTabState.searchArea)}" />
+          <div class="filter-group search-input-wrapper" style="flex:1; min-width:240px;">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="area-search" placeholder="Buscar área por nombre o descripción..." value="${escapeHtml(areasTabState.searchArea)}" />
           </div>
           <button class="btn btn-secondary btn-sm" onclick="areasTabState.searchArea=''; renderApp();">Limpiar</button>
         </div>
@@ -208,8 +209,9 @@ function renderCamasTab() {
     <div class="card scale-in">
       <div class="card-body" style="padding-bottom:0;">
         <div class="filters-bar" style="display:flex; flex-wrap:wrap; gap:10px;">
-          <div class="filter-group" style="flex:1; min-width:200px;">
-            <input type="text" id="cama-search" placeholder="?? Filtrar cama (Ej: Box 1, UTI-02, 301)..." value="${escapeHtml(areasTabState.searchCama)}" />
+          <div class="filter-group search-input-wrapper" style="flex:1; min-width:200px;">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="cama-search" placeholder="Filtrar cama (Ej: Box 1, UTI-02, 301)..." value="${escapeHtml(areasTabState.searchCama)}" />
           </div>
           <div class="filter-group">
             <select id="cama-area-filter">

@@ -14,8 +14,8 @@ function renderLogin() {
             <input type="text" id="login-user" placeholder="Ingrese su usuario" autocomplete="off" />
           </div>
           <div class="form-group">
-            <label>Contrasena</label>
-            <input type="password" id="login-pass" placeholder="Ingrese su contrasena" />
+            <label>Contraseña</label>
+            <input type="password" id="login-pass" placeholder="Ingrese su contraseña" />
           </div>
           <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; margin-top:8px; padding:13px;">
             Iniciar Sesion

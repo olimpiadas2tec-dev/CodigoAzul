@@ -121,8 +121,9 @@ function renderHistorial() {
       <div class="card scale-in">
         <div class="card-body" style="padding-bottom:0;">
           <div class="filters-bar" style="display:flex;flex-wrap:wrap;gap:10px;">
-            <div class="filter-group" style="flex:1;min-width:220px;">
-              <input type="text" id="filter-search" placeholder="?? Filtrar en tiempo real por nombre, causa, DNI, equipo..." value="${escapeHtml(historialState.search)}" autofocus />
+            <div class="filter-group search-input-wrapper" style="flex:1;min-width:220px;">
+              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="filter-search" placeholder="Filtrar en tiempo real por nombre, causa, DNI, equipo..." value="${escapeHtml(historialState.search)}" autofocus />
             </div>
             <div class="filter-group">
               <select id="filter-area">

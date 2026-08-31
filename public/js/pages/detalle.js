@@ -1,4 +1,5 @@
 function renderDetalle(id) {
+  window.scrollTo(0, 0);
   const codigo = getCodigoById(id);
 
   if (!codigo) {

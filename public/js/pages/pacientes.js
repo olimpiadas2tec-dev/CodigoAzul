@@ -46,8 +46,9 @@ function renderPacientes() {
       <div class="card scale-in">
         <div class="card-body" style="padding-bottom:0;">
           <div class="filters-bar" style="display:flex; flex-wrap:wrap; gap:10px;">
-            <div class="filter-group" style="flex:1; min-width:240px;">
-              <input type="text" id="paciente-search" placeholder="?? Filtrar por nombre, apellido, DNI o causa..." value="${escapeHtml(pacientesState.search)}" />
+            <div class="filter-group search-input-wrapper" style="flex:1; min-width:240px;">
+              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="paciente-search" placeholder="Filtrar por nombre, apellido, DNI o causa..." value="${escapeHtml(pacientesState.search)}" />
             </div>
             <div class="filter-group">
               <select id="paciente-area-filter">
@@ -264,7 +265,10 @@ function openPacienteModal(editId = null) {
             <!-- Médico / Personal a Cargo con Buscador en Tiempo Real -->
             <div class="form-group full-width" style="grid-column: 1 / -1;">
               <label style="color:var(--celeste-dark); font-weight:700;">Médico / Personal de Salud a Cargo *</label>
-              <input type="text" id="filter-modal-personal" placeholder="?? Filtrar personal por nombre, apellido o rol..." style="font-size:12.5px; padding:6px 10px; margin-bottom:6px; border:1.5px solid var(--celeste-300); border-radius:6px; width:100%;" />
+              <div class="search-input-wrapper" style="margin-bottom:6px;">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="filter-modal-personal" placeholder="Filtrar personal por nombre, apellido o rol..." style="font-size:12.5px; padding:6px 10px 6px 36px; border:1.5px solid var(--celeste-300); border-radius:6px; width:100%;" />
+              </div>
               <select id="m-personal" required style="font-weight:600; padding:8px 10px; border-radius:6px; width:100%;">
                 <option value="">-- Seleccionar Profesional Responsable --</option>
                 ${personalList.map(pers => `

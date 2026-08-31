@@ -112,5 +112,5 @@ function renderDetalle(id) {
 }
 
 function setupDetalle() {
-  // Timeline animations or interactions could go here
+  window.scrollTo(0, 0);
 }
