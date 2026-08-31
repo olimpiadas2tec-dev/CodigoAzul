@@ -230,12 +230,17 @@ function renderHistorial() {
                 return `
                   <tr style="${isFatal ? 'background:#fff8f8; border-left:4px solid #ef4444;' : 'border-left:4px solid #10b981;'}">
                     <td style="vertical-align:middle; font-weight:600; color:var(--gray-400);">${d.id}</td>
-                    <td style="vertical-align:middle;">
-                      <a href="#/detalle/${d.id}" style="text-decoration:none; color:inherit; display:block; padding:4px 0;" title="Haga clic para ver el detalle clínico del paciente">
-                        <div style="font-weight:700; color:var(--celeste-dark); font-size:13.5px; transition:color 0.15s ease;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
-                          ${escapeHtml(d.paciente)} <span style="font-size:11px; opacity:0.7;">↗</span>
+                    <td style="vertical-align:middle; padding:4px 6px;">
+                      <a href="#/detalle/${d.id}" class="paciente-hover-card" title="Haga clic para seleccionar y ver la Ficha Clínica de ${escapeHtml(d.paciente)}">
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
+                          <div class="paciente-hover-title" style="font-weight:700; color:var(--gray-900); font-size:13.5px; transition:color 0.15s ease;">
+                            ${escapeHtml(d.paciente)}
+                          </div>
+                          <span class="paciente-hover-badge" style="font-size:10.5px; font-weight:700; background:var(--gray-200); color:var(--gray-700); padding:2px 7px; border-radius:6px; transition:all 0.15s ease;">
+                            Ver Ficha 👁️
+                          </span>
                         </div>
-                        <div style="font-size:11.5px; color:var(--gray-500); margin-top:2px;">
+                        <div style="font-size:11.5px; color:var(--gray-500); margin-top:3px;">
                           DNI: ${escapeHtml(d.dni ? formatDNI(d.dni) : 'S/D')} &middot; <span style="color:var(--gray-700); font-weight:600;">${escapeHtml(d.area)} [${escapeHtml(d.cama || 'Cama')}]</span>
                         </div>
                       </a>

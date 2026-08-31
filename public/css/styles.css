@@ -1532,3 +1532,32 @@ tbody tr:last-child td {
 .ico svg { width: 100%; height: 100%; }
 .kpi-icon .ico { width: 32px; height: 32px; }
 
+/* ===== PACIENTE SELECTION CARD IN HISTORIAL ===== */
+.paciente-hover-card {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1.5px solid transparent;
+  background: transparent;
+  transition: all 0.18s ease-in-out;
+  cursor: pointer;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.paciente-hover-card:hover {
+  background: #eff6ff !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 3px 10px rgba(59, 130, 246, 0.15);
+  transform: translateY(-1px);
+}
+
+.paciente-hover-card:hover .paciente-hover-title {
+  color: #1d4ed8 !important;
+}
+
+.paciente-hover-card:hover .paciente-hover-badge {
+  background: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
