@@ -54,6 +54,21 @@ function getFilteredData() {
   return data;
 }
 
+function toggleExportDropdown() {
+  const menu = document.getElementById('export-dropdown-menu');
+  if (menu) {
+    menu.style.display = (menu.style.display === 'none' || !menu.style.display) ? 'block' : 'none';
+  }
+}
+
+document.addEventListener('click', (e) => {
+  const container = document.getElementById('export-dropdown-container');
+  const menu = document.getElementById('export-dropdown-menu');
+  if (container && menu && !container.contains(e.target)) {
+    menu.style.display = 'none';
+  }
+});
+
 function renderHistorial() {
   const filtered = getFilteredData();
   const totalPages = Math.ceil(filtered.length / historialState.perPage);
@@ -61,7 +76,7 @@ function renderHistorial() {
   const start = (page - 1) * historialState.perPage;
   const pageData = filtered.slice(start, start + historialState.perPage);
 
-  // Métricas dinámicas calculadas sobre el subconjunto filtrado
+  // Métricas dinámicas calculadas sobre el subconjunto filtrado (KPIs Contextuales)
   const totalEventos = filtered.length;
   const tiempoPromedio = totalEventos > 0
     ? (filtered.reduce((acc, curr) => acc + (parseFloat(curr.tiempoRespuesta) || 0), 0) / totalEventos).toFixed(1)
@@ -75,18 +90,40 @@ function renderHistorial() {
         <h1>Historial de Códigos Azules</h1>
         <p>Registro oficial de eventos clínicos, causas, equipos intervinientes y resultados</p>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn btn-outline btn-sm" onclick="exportExcel(getFilteredData())" title="Descargar como Planilla Excel">
-          ${icon('fileSpreadsheet')} Excel
-        </button>
-        <button class="btn btn-outline btn-sm" onclick="exportCSV(getFilteredData())" title="Exportar y Previsualizar CSV">
-          ${icon('barChart')} CSV
-        </button>
-        <button class="btn btn-outline btn-sm" onclick="exportPDF(getFilteredData())" title="Exportar Documento PDF">
-          ${icon('fileText')} PDF
-        </button>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        
+        <!-- Botón Único Unificado de Exportación con Dropdown -->
+        <div id="export-dropdown-container" style="position:relative; display:inline-block;">
+          <button class="btn btn-outline btn-sm" onclick="toggleExportDropdown()" style="font-weight:700; gap:6px; background:#fff; border-color:var(--gray-300);" title="Exportar registros en diferentes formatos">
+            ${icon('download')} Exportar Datos <span style="font-size:10px; margin-left:2px;">▼</span>
+          </button>
+          <div id="export-dropdown-menu" style="display:none; position:absolute; right:0; top:110%; background:#fff; border:1px solid var(--gray-300); border-radius:8px; box-shadow:0 10px 25px rgba(0,0,0,0.1); z-index:100; min-width:210px; padding:6px 0;">
+            <button onclick="exportExcel(getFilteredData()); toggleExportDropdown();" style="width:100%; text-align:left; padding:9px 14px; background:none; border:none; cursor:pointer; font-size:13px; font-weight:600; color:var(--gray-800); display:flex; align-items:center; gap:10px;">
+              ${icon('fileSpreadsheet', 16)} 
+              <div>
+                <div>Excel (.xlsx)</div>
+                <div style="font-size:10.5px; color:var(--gray-400); font-weight:normal;">Planilla tabular completa</div>
+              </div>
+            </button>
+            <button onclick="exportCSV(getFilteredData()); toggleExportDropdown();" style="width:100%; text-align:left; padding:9px 14px; background:none; border:none; cursor:pointer; font-size:13px; font-weight:600; color:var(--gray-800); display:flex; align-items:center; gap:10px;">
+              ${icon('barChart', 16)} 
+              <div>
+                <div>CSV (Texto Plano)</div>
+                <div style="font-size:10.5px; color:var(--gray-400); font-weight:normal;">Ideal para análisis estadístico</div>
+              </div>
+            </button>
+            <button onclick="exportPDF(getFilteredData()); toggleExportDropdown();" style="width:100%; text-align:left; padding:9px 14px; background:none; border:none; cursor:pointer; font-size:13px; font-weight:600; color:var(--gray-800); display:flex; align-items:center; gap:10px;">
+              ${icon('fileText', 16)} 
+              <div>
+                <div>PDF (Informe Legal)</div>
+                <div style="font-size:10.5px; color:var(--gray-400); font-weight:normal;">Documento oficial listo para imprimir</div>
+              </div>
+            </button>
+          </div>
+        </div>
+
         <a href="#/nuevo" class="btn btn-primary btn-sm">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           + Registrar Código
         </a>
       </div>
@@ -120,7 +157,7 @@ function renderHistorial() {
 
       <div class="card scale-in">
         <div class="card-body" style="padding-bottom:0;">
-          <div class="filters-bar" style="display:flex;flex-wrap:wrap;gap:10px;">
+          <div class="filters-bar" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
             <div class="filter-group search-input-wrapper" style="flex:1;min-width:220px;">
               <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               <input type="text" id="filter-search" placeholder="Filtrar en tiempo real por nombre, causa, DNI, equipo..." value="${escapeHtml(historialState.search)}" autofocus />
@@ -143,21 +180,26 @@ function renderHistorial() {
                 ${ESTADOS.map(e => `<option value="${e.value}" ${historialState.estado === e.value ? 'selected' : ''}>${e.label}</option>`).join('')}
               </select>
             </div>
-            <div class="filter-group">
-              <input type="date" id="filter-from" value="${historialState.dateFrom}" title="Desde" />
+
+            <!-- Selectores de Fecha con Labels Explícitos "Desde:" y "Hasta:" -->
+            <div class="filter-group" style="display:flex; align-items:center; gap:6px;">
+              <label for="filter-from" style="font-size:12px; font-weight:700; color:var(--gray-600);">Desde:</label>
+              <input type="date" id="filter-from" value="${historialState.dateFrom}" style="padding:6px 10px; border-radius:6px; border:1px solid var(--gray-300); font-size:12.5px;" />
             </div>
-            <div class="filter-group">
-              <input type="date" id="filter-to" value="${historialState.dateTo}" title="Hasta" />
+            <div class="filter-group" style="display:flex; align-items:center; gap:6px;">
+              <label for="filter-to" style="font-size:12px; font-weight:700; color:var(--gray-600);">Hasta:</label>
+              <input type="date" id="filter-to" value="${historialState.dateTo}" style="padding:6px 10px; border-radius:6px; border:1px solid var(--gray-300); font-size:12.5px;" />
             </div>
+
             <button class="btn btn-secondary btn-sm" onclick="clearFilters()">Limpiar</button>
           </div>
         </div>
 
-        <div class="table-container table-stagger">
+        <div class="table-container table-stagger" style="overflow-x:auto;">
           <table>
             <thead>
               <tr>
-                <th>#</th>
+                <th style="width:40px;">#</th>
                 <th>Paciente & Ubicación</th>
                 <th>Causa / Diagnóstico</th>
                 <th>Aviso Por</th>
@@ -165,7 +207,7 @@ function renderHistorial() {
                 <th>Materiales</th>
                 <th>Resultado</th>
                 <th>Tiempo</th>
-                <th>Acciones</th>
+                <th style="text-align:right;">Acciones</th>
               </tr>
             </thead>
             <tbody id="historial-tbody">
@@ -183,64 +225,67 @@ function renderHistorial() {
               ` : pageData.map(d => {
                 const matCount = (d.materiales || []).reduce((acc, m) => acc + (m.cantidad || 1), 0);
                 const matList = (d.materiales || []).map(m => `${m.nombre.split(' ')[0]} (x${m.cantidad})`).join(', ');
+                const isFatal = d.estado.value === 'fatal';
 
                 return `
-                  <tr>
-                    <td style="font-weight:600;color:var(--gray-400);">${d.id}</td>
-                    <td>
+                  <tr style="${isFatal ? 'background:#fff8f8; border-left:4px solid #ef4444;' : 'border-left:4px solid #10b981;'}">
+                    <td style="vertical-align:middle; font-weight:600; color:var(--gray-400);">${d.id}</td>
+                    <td style="vertical-align:middle;">
                       <a href="#/detalle/${d.id}" style="text-decoration:none; color:inherit;">
                         <div style="font-weight:700; color:var(--gray-900);">${escapeHtml(d.paciente)}</div>
-                        <div style="font-size:11px; color:var(--gray-500); margin-top:2px;">
-                          DNI: ${escapeHtml(d.dni || 'S/D')} &middot; <strong style="color:var(--celeste-dark);">${escapeHtml(d.area)} [${escapeHtml(d.cama || 'Cama')}]</strong>
+                        <div style="font-size:11.5px; color:var(--gray-500); margin-top:2px;">
+                          DNI: ${escapeHtml(d.dni ? formatDNI(d.dni) : 'S/D')} &middot; <span style="color:var(--gray-700); font-weight:600;">${escapeHtml(d.area)} [${escapeHtml(d.cama || 'Cama')}]</span>
                         </div>
                       </a>
                     </td>
-                    <td>
-                      <span style="font-size:12px; font-weight:700; color:#0369a1; background:var(--celeste-50); padding:3px 8px; border-radius:6px; display:inline-block;">
+                    <td style="vertical-align:middle;">
+                      <span style="font-size:12px; font-weight:700; color:var(--gray-800); background:var(--gray-100); border:1px solid var(--gray-300); padding:4px 8px; border-radius:6px; display:inline-block;">
                         ${escapeHtml(d.causa || 'Paro Cardiorrespiratorio')}
                       </span>
                     </td>
-                    <td>
+                    <td style="vertical-align:middle;">
                       <div style="font-size:12px; font-weight:600; color:var(--gray-800);">${escapeHtml(d.quienHizoLlamada || 'Guardia')}</div>
-                      <div style="font-size:10px; color:var(--gray-400);">${formatDate(d.fecha)}</div>
+                      <div style="font-size:10.5px; color:var(--gray-400);">${formatDate(d.fecha)}</div>
                     </td>
-                    <td>
-                      <div style="display:flex; align-items:center; gap:6px;">
-                        <span class="badge" style="background:#f1f5f9; color:#334155; font-weight:700; font-size:11px;">
-                          ${escapeHtml(d.equipoEncargado || 'Equipo A')}
+                    <td style="vertical-align:middle;">
+                      <button class="btn btn-outline btn-xs" style="font-size:11.5px; font-weight:700; background:var(--gray-50); color:var(--gray-800); border:1px solid var(--gray-300); display:inline-flex; align-items:center; gap:5px; padding:4px 8px; cursor:pointer; border-radius:6px;" onclick="showEquipoIntegrantesModal('${escapeHtml(d.equipoEncargado || 'Equipo A')}', '${escapeHtml(d.turno || 'Guardia')}')" title="Ver integrantes del ${escapeHtml(d.equipoEncargado || 'Equipo A')}">
+                        ${icon('users', 13)} ${escapeHtml(d.equipoEncargado || 'Equipo A')}
+                      </button>
+                      <div style="font-size:10.5px; color:var(--gray-400); margin-top:3px;">${escapeHtml(d.turno || 'Guardia')}</div>
+                    </td>
+                    <td style="vertical-align:middle;">
+                      <span title="${escapeHtml(matList || 'Ninguno')}" style="font-size:12px; color:var(--gray-700); font-weight:600; display:inline-flex; align-items:center; gap:4px; cursor:help;">
+                        ${icon('package', 14)} <strong>${matCount}</strong> insumos
+                      </span>
+                    </td>
+                    <td style="vertical-align:middle;">
+                      ${isFatal ? `
+                        <span class="badge" style="background:#fef2f2; color:#991b1b; border:1px solid #fca5a5; font-weight:700; font-size:11.5px;">
+                          <span class="badge-dot" style="background:#dc2626;"></span>
+                          Fatal (Defunción)
                         </span>
-                        <button style="background:none; border:none; cursor:pointer; font-size:12px; padding:2px;" onclick="showEquipoIntegrantesModal('${escapeHtml(d.equipoEncargado || 'Equipo A')}', '${escapeHtml(d.turno || 'Guardia')}')" title="Ver integrantes del equipo">
-                          ${icon('users')}
-                        </button>
-                      </div>
-                      <div style="font-size:10px; color:var(--gray-400); margin-top:2px;">${escapeHtml(d.turno || 'Guardia')}</div>
+                      ` : `
+                        <span class="badge" style="background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; font-weight:700; font-size:11.5px;">
+                          <span class="badge-dot" style="background:#059669;"></span>
+                          Exitoso (ROSC)
+                        </span>
+                      `}
                     </td>
-                    <td>
-                      <span title="${escapeHtml(matList || 'Ninguno')}" style="font-size:12px; color:var(--gray-600); cursor:help;">
-                        ${icon('pill')} <strong>${matCount}</strong> arts.
-                      </span>
-                    </td>
-                    <td>
-                      <span class="badge ${d.estado.badge}" style="font-weight:700;">
-                        <span class="badge-dot"></span>
-                        ${d.estado.label}
-                      </span>
-                    </td>
-                    <td>
-                      <span style="font-size:12px; font-weight:700; color:${d.tiempoRespuesta <= 3.5 ? 'var(--success)' : 'var(--warning)'};">
+                    <td style="vertical-align:middle;">
+                      <span style="font-size:12.5px; font-weight:700; color:${d.tiempoRespuesta <= 3.5 ? '#059669' : '#d97706'};">
                         ${d.tiempoRespuesta}m
                       </span>
                     </td>
-                    <td>
-                      <div style="display:flex;gap:4px;">
-                        <a href="#/detalle/${d.id}" class="btn btn-ghost btn-sm" title="Ver Detalle Clínico">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <td style="vertical-align:middle; text-align:right;">
+                      <div style="display:inline-flex; gap:6px; justify-content:flex-end;">
+                        <a href="#/detalle/${d.id}" class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11.5px; font-weight:700; color:var(--celeste-dark); border-color:var(--celeste-300); background:#fff;" title="Ver Ficha Clínica Completa">
+                          ${icon('eye', 13)} Ver
                         </a>
-                        <a href="#/editar/${d.id}" class="btn btn-ghost btn-sm" title="Editar">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        <a href="#/editar/${d.id}" class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11.5px; font-weight:700; color:var(--gray-700); border-color:var(--gray-300); background:#fff;" title="Editar Registro">
+                          ${icon('edit', 13)} Editar
                         </a>
-                        <button class="btn btn-ghost btn-sm" style="color:var(--danger);" onclick="confirmDeleteCodigo(${d.id})" title="Eliminar Registro de Código Azul">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                        <button class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11.5px; font-weight:700; color:#b91c1c; border-color:#fca5a5; background:#fef2f2;" onclick="confirmDeleteCodigo(${d.id})" title="Eliminar Registro de Auditoría">
+                          ${icon('trash', 13)} Eliminar
                         </button>
                       </div>
                     </td>
@@ -284,7 +329,6 @@ function setupHistorial() {
       historialState.search = e.target.value;
       historialState.page = 1;
       
-      // Re-render dinámico manteniendo el foco en el input
       const cursorPosition = e.target.selectionStart;
       renderApp();
       requestAnimationFrame(() => {
@@ -340,4 +384,4 @@ function confirmDeleteCodigo(id) {
 window.goToPage = goToPage;
 window.clearFilters = clearFilters;
 window.confirmDeleteCodigo = confirmDeleteCodigo;
-
+window.toggleExportDropdown = toggleExportDropdown;
