@@ -46,7 +46,7 @@ function renderCodigoForm(editId = null) {
   const selectedMaterials = codigo && Array.isArray(codigo.materiales) ? codigo.materiales : [];
   const currentCausa = codigo ? (codigo.causa || '') : '';
   const isCausaPredefinida = CAUSAS_PREDEFINIDAS.slice(0, -1).includes(currentCausa);
-  const currentEstado = codigo ? codigo.estado.value : 'resuelto';
+  const currentEstado = codigo ? codigo.estado.value : '';
   const datosCierre = (codigo && codigo.datosCierre) ? codigo.datosCierre : {};
 
   const hasPacienteSelected = isEdit && !!codigo && !!selectedPacienteId;
@@ -60,7 +60,7 @@ function renderCodigoForm(editId = null) {
           <p>${isEdit ? 'Actualización de intervenciones y cierre clínico' : 'Carga posterior a la emergencia con certificación médica de resultado'}</p>
         </div>
         <div style="display:flex; align-items:center; gap:8px;">
-          <span class="badge" style="background:#eff6ff; color:#1d4ed8; font-weight:700; border:1px solid #bfdbfe;">
+          <span class="badge" style="background:var(--gray-100); color:var(--gray-800); font-weight:700; border:1px solid var(--gray-300);">
             ${icon('clock')} Guardia Activa: ${escapeHtml(autoTurnoEquipo.turno)} &middot; ${escapeHtml(autoTurnoEquipo.equipo)}
           </span>
         </div>
@@ -82,6 +82,31 @@ function renderCodigoForm(editId = null) {
         </div>
       ` : ''}
 
+      <!-- Stepper / Indicador de Progreso del Formulario -->
+      <div class="card scale-in" style="margin-bottom:20px; padding:14px 20px; background:var(--gray-50); border:1px solid var(--gray-200);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <span style="font-size:13px; font-weight:700; color:var(--gray-700);">Progreso del Formulario de Registro</span>
+          <span style="font-size:12px; font-weight:700; color:var(--celeste-dark);">5 Secciones Clínicas</span>
+        </div>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap:8px;">
+          <div style="background:var(--celeste-50); border:1.5px solid var(--celeste-dark); border-radius:6px; padding:6px 8px; text-align:center;">
+            <div style="font-size:10.5px; font-weight:800; color:var(--celeste-dark);">1. Paciente & Causa</div>
+          </div>
+          <div style="background:var(--white); border:1px solid var(--gray-300); border-radius:6px; padding:6px 8px; text-align:center;">
+            <div style="font-size:10.5px; font-weight:700; color:var(--gray-600);">2. Equipo & Aviso</div>
+          </div>
+          <div style="background:var(--white); border:1px solid var(--gray-300); border-radius:6px; padding:6px 8px; text-align:center;">
+            <div style="font-size:10.5px; font-weight:700; color:var(--gray-600);">3. Cierre Clínico</div>
+          </div>
+          <div style="background:var(--white); border:1px solid var(--gray-300); border-radius:6px; padding:6px 8px; text-align:center;">
+            <div style="font-size:10.5px; font-weight:700; color:var(--gray-600);">4. Materiales</div>
+          </div>
+          <div style="background:var(--white); border:1px solid var(--gray-300); border-radius:6px; padding:6px 8px; text-align:center;">
+            <div style="font-size:10.5px; font-weight:700; color:var(--gray-600);">5. Intervenciones</div>
+          </div>
+        </div>
+      </div>
+
       <div class="card scale-in">
         <div class="card-body">
           <form id="codigo-form" novalidate>
@@ -99,7 +124,7 @@ function renderCodigoForm(editId = null) {
                   <span>Paciente Internado *</span>
                 </label>
 
-                <!-- Tarjeta del Paciente Seleccionado (Visible solo al seleccionar) -->
+                <!-- Tarjeta del Paciente Seleccionado -->
                 <div id="paciente-selected-card" style="display:${hasPacienteSelected ? 'flex' : 'none'}; justify-content:space-between; align-items:center; background:#f0fdf4; border:2px solid #22c55e; border-radius:8px; padding:12px 16px; margin-bottom:8px;">
                   <div style="display:flex; align-items:center; gap:12px;">
                     <span style="font-size:24px;">${icon('user')}</span>
@@ -118,11 +143,14 @@ function renderCodigoForm(editId = null) {
                   </button>
                 </div>
 
-                <!-- Buscador y Lista de selección de pacientes (Visible por defecto si no hay seleccionado) -->
+                <!-- Buscador y Lista de selección de pacientes -->
                 <div id="paciente-dropdown-wrapper" style="display:${hasPacienteSelected ? 'none' : 'block'}; margin-top:6px;">
-                  <input type="text" id="filter-paciente-input" placeholder="?? Filtrar pacientes por nombre, DNI o área..." style="font-size:13px; padding:10px 14px; border:1.5px solid var(--celeste-300); border-radius:8px; width:100%; margin-bottom:8px;" />
+                  <div style="position:relative; margin-bottom:8px;">
+                    <input type="text" id="filter-paciente-input" placeholder="Filtrar pacientes por nombre, DNI o área..." style="font-size:13px; padding:10px 14px 10px 36px; border:1.5px solid var(--celeste-300); border-radius:8px; width:100%;" />
+                    <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--gray-400);">${icon('search', 16)}</span>
+                  </div>
                   
-                  <div id="pacientes-list-container" style="max-height:200px; overflow-y:auto; border:1.5px solid var(--gray-300); border-radius:8px; background:var(--white); padding:4px;">
+                  <div id="pacientes-list-container" style="max-height:220px; overflow-y:auto; border:1.5px solid var(--gray-300); border-radius:8px; background:var(--white); padding:6px; box-shadow:inset 0 2px 4px rgba(0,0,0,0.03);">
                     ${pacientesList.length === 0 ? `
                       <div style="padding:16px; text-align:center; color:var(--gray-400); font-size:13px;">No hay pacientes internados activos.</div>
                     ` : pacientesList.map(p => {
@@ -132,9 +160,9 @@ function renderCodigoForm(editId = null) {
                           onclick="selectPacienteItem(${p.id})">
                           <div>
                             <strong style="font-size:14px; color:var(--gray-900);">${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}</strong>
-                            <span style="font-size:12px; color:var(--gray-500); margin-left:8px;">DNI: ${p.dni || 'S/D'}</span>
+                            <span style="font-size:12px; color:var(--gray-500); margin-left:8px;">DNI: ${p.dni ? formatDNI(p.dni) : 'S/D'}</span>
                           </div>
-                          <span class="badge" style="background:#dbeafe; color:#1e40af; font-size:11px; font-weight:700;">
+                          <span class="badge" style="background:var(--gray-100); color:var(--gray-800); border:1px solid var(--gray-300); font-size:11px; font-weight:700;">
                             ${escapeHtml(p.area)} [${escapeHtml(p.cama || 'Cama')}]
                           </span>
                         </div>
@@ -171,13 +199,13 @@ function renderCodigoForm(editId = null) {
             </h3>
             <div class="form-grid">
               
-              <!-- Personal Activador (Con Tarjeta Única Seleccionada) -->
+              <!-- Personal Activador -->
               <div class="form-group full-width" style="grid-column: 1 / -1;">
                 <label style="color:var(--celeste-dark); font-weight:700; display:flex; justify-content:space-between; align-items:center;">
                   <span>Personal que Realizó el Aviso (Quién Llamó) *</span>
                 </label>
 
-                <!-- Tarjeta del Personal Seleccionado (Visible solo al seleccionar) -->
+                <!-- Tarjeta del Personal Seleccionado -->
                 <div id="activador-selected-card" style="display:${hasActivadorSelected ? 'flex' : 'none'}; justify-content:space-between; align-items:center; background:#f0fdf4; border:2px solid #22c55e; border-radius:8px; padding:12px 16px; margin-bottom:8px;">
                   <div style="display:flex; align-items:center; gap:12px;">
                     <span style="font-size:24px;">${icon('user')}</span>
@@ -196,11 +224,14 @@ function renderCodigoForm(editId = null) {
                   </button>
                 </div>
 
-                <!-- Buscador y Lista de selección de Personal (Visible por defecto si no hay seleccionado) -->
+                <!-- Buscador y Lista de selección de Personal -->
                 <div id="activador-dropdown-wrapper" style="display:${hasActivadorSelected ? 'none' : 'block'}; margin-top:6px;">
-                  <input type="text" id="filter-activador-input" placeholder="?? Filtrar personal por nombre, rol o sector en tiempo real..." style="font-size:13px; padding:10px 14px; border:1.5px solid var(--celeste-300); border-radius:8px; width:100%; margin-bottom:8px;" />
+                  <div style="position:relative; margin-bottom:8px;">
+                    <input type="text" id="filter-activador-input" placeholder="Filtrar personal por nombre, rol o sector en tiempo real..." style="font-size:13px; padding:10px 14px 10px 36px; border:1.5px solid var(--celeste-300); border-radius:8px; width:100%;" />
+                    <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--gray-400);">${icon('search', 16)}</span>
+                  </div>
                   
-                  <div id="activador-list-container" style="max-height:180px; overflow-y:auto; border:1.5px solid var(--gray-300); border-radius:8px; background:var(--white); padding:4px;">
+                  <div id="activador-list-container" style="max-height:200px; overflow-y:auto; border:1.5px solid var(--gray-300); border-radius:8px; background:var(--white); padding:6px; box-shadow:inset 0 2px 4px rgba(0,0,0,0.03);">
                     ${personalList.map(pers => {
                       return `
                         <div class="activador-select-item" data-id="${pers.id}" data-nombre="${escapeHtml(pers.apellido + ', ' + pers.nombre)}" data-rol="${escapeHtml(pers.nombre_rol || 'Personal')}" data-dni="${pers.dni || ''}" data-tel="${pers.telefono || ''}" data-area="${pers.area || ''}"
@@ -210,7 +241,7 @@ function renderCodigoForm(editId = null) {
                             <strong style="font-size:14px; color:var(--gray-900);">${escapeHtml(pers.apellido)}, ${escapeHtml(pers.nombre)}</strong>
                             <span style="font-size:12px; color:var(--gray-500); margin-left:8px;">[${escapeHtml(pers.nombre_rol || 'Personal')}]</span>
                           </div>
-                          <span style="font-size:11.5px; color:var(--gray-600);">DNI: ${pers.dni || 'S/D'} (${pers.area || 'Guardia'})</span>
+                          <span style="font-size:11.5px; color:var(--gray-600);">DNI: ${pers.dni ? formatDNI(pers.dni) : 'S/D'} (${pers.area || 'Guardia'})</span>
                         </div>
                       `;
                     }).join('')}
@@ -249,7 +280,7 @@ function renderCodigoForm(editId = null) {
                 </select>
               </div>
 
-              <!-- Médico Líder: Autoselecciona por defecto al Líder del Equipo -->
+              <!-- Médico Líder -->
               <div class="form-group full-width" style="grid-column: 1 / -1;">
                 <label style="color:var(--celeste-dark); font-weight:700;">
                   Médico Líder de Reanimación (ACLS) — [Personal del <span id="equipo-label-resp">${escapeHtml(selectedEquipo)}</span>] *
@@ -271,6 +302,7 @@ function renderCodigoForm(editId = null) {
               <div class="form-group">
                 <label style="color:var(--celeste-dark); font-weight:700;">Resultado Clínico del Evento *</label>
                 <select id="form-estado" style="border:2px solid var(--celeste-300); font-weight:700; padding:10px 12px; border-radius:8px;">
+                  <option value="" ${!currentEstado ? 'selected' : ''}>-- Seleccionar Resultado Clínico --</option>
                   ${ESTADOS.map(e => `<option value="${e.value}" ${currentEstado === e.value ? 'selected' : ''}>${e.label}</option>`).join('')}
                 </select>
               </div>
@@ -283,9 +315,19 @@ function renderCodigoForm(editId = null) {
 
             <!-- SECCIÓN 3: PROTOCOLO DE CIERRE CLÍNICO Y CERTIFICACIÓN MÉDICA -->
             <div id="section-cierre-clinico" style="margin-top:28px;">
-              <h3 style="font-size:16px; font-weight:700; color:#065f46; margin-bottom:16px; border-bottom:2px solid #a7f3d0; padding-bottom:8px; display:flex; align-items:center; gap:8px;">
+              <h3 style="font-size:16px; font-weight:700; color:var(--celeste-dark); margin-bottom:16px; border-bottom:2px solid var(--celeste-100); padding-bottom:8px; display:flex; align-items:center; gap:8px;">
                 <span>${icon('clipboard')}</span> 3. Protocolo de Cierre Clínico y Certificación
               </h3>
+
+              <div id="cierre-banner-info" style="margin-bottom:14px; padding:12px 16px; border-radius:var(--radius); font-size:13px; font-weight:600; display:flex; align-items:center; gap:8px; transition:all 0.2s ease; ${currentEstado === 'resuelto' ? 'background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0;' : (currentEstado === 'fatal' ? 'background:#fef2f2; color:#991b1b; border:1px solid #fca5a5;' : 'background:var(--gray-100); color:var(--gray-700); border:1px solid var(--gray-300);')}">
+                ${currentEstado === 'resuelto' ? `
+                  <span>✨</span> <strong>Resultado Exitoso (ROSC):</strong> Complete la certificación de retorno de circulación espontánea y destino de traslado.
+                ` : (currentEstado === 'fatal' ? `
+                  <span>⚠️</span> <strong>Resultado Fatal (Defunción):</strong> Complete la certificación médica de defunción y cese de maniobras.
+                ` : `
+                  <span>ℹ️</span> <strong>Certificación Médica:</strong> Seleccione el Resultado Clínico en la Sección 2 para habilitar el protocolo de certificación correspondiente.
+                `)}
+              </div>
 
               <!-- Cierre ROSC -->
               <div id="cierre-rosc-panel" style="display:${currentEstado === 'resuelto' ? 'block' : 'none'}; background:#ecfdf5; border:1px solid #a7f3d0; border-radius:var(--radius); padding:16px; margin-bottom:20px;">
@@ -348,24 +390,32 @@ function renderCodigoForm(editId = null) {
             <h3 style="font-size:16px; font-weight:700; color:var(--celeste-dark); margin:28px 0 16px 0; border-bottom:2px solid var(--celeste-100); padding-bottom:8px; display:flex; align-items:center; gap:8px;">
               <span>${icon('pill')}</span> 4. Materiales e Insumos Utilizados del Carro de Paro
             </h3>
-            <div style="background:var(--gray-50); padding:16px; border-radius:var(--radius); margin-bottom:20px; border:1px solid var(--gray-200);">
+            <div style="background:var(--gray-50); padding:16px; border-radius:var(--radius-lg); margin-bottom:20px; border:1px solid var(--gray-200);">
               <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:12px;" id="materials-container">
                 ${materialesList.map(mat => {
                   const current = selectedMaterials.find(m => m.nombre === mat.nombre || m.id_material === mat.id);
                   const isChecked = !!current;
                   const qty = current ? current.cantidad : 1;
                   const stockMax = mat.stock !== undefined ? mat.stock : 50;
+                  const isStockBajo = stockMax <= 15;
+
                   return `
-                    <div style="display:flex; align-items:center; justify-content:space-between; background:var(--white); padding:8px 12px; border-radius:var(--radius); border:1px solid ${isChecked ? 'var(--celeste)' : 'var(--gray-200)'};">
-                      <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; font-weight:600; color:var(--gray-800); flex:1;">
-                        <input type="checkbox" class="material-checkbox" data-id="${mat.id}" data-nombre="${escapeHtml(mat.nombre)}" data-tipo="${mat.tipo}" data-unidad="${mat.unidad}" data-stock="${stockMax}" ${isChecked ? 'checked' : ''} style="accent-color:var(--celeste);" />
+                    <div class="material-row-item" style="display:flex; align-items:center; justify-content:space-between; background:var(--white); padding:10px 14px; border-radius:8px; border:1.5px solid ${isChecked ? 'var(--celeste)' : 'var(--gray-200)'}; transition:all 0.15s ease;">
+                      <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:13px; font-weight:600; color:var(--gray-800); flex:1;">
+                        <input type="checkbox" class="material-checkbox" data-id="${mat.id}" data-nombre="${escapeHtml(mat.nombre)}" data-tipo="${mat.tipo}" data-unidad="${mat.unidad}" data-stock="${stockMax}" ${isChecked ? 'checked' : ''} style="accent-color:var(--celeste); width:16px; height:16px;" onchange="toggleMaterialRow(this)" />
                         <div>
-                          <div>${escapeHtml(mat.nombre)}</div>
-                          <span style="font-size:10px; color:${stockMax <= 5 ? 'var(--danger)' : 'var(--gray-400)'}; font-weight:${stockMax <= 5 ? '700' : 'normal'};">Stock: ${stockMax} ${mat.unidad}</span>
+                          <div style="font-size:13px; color:var(--gray-900); font-weight:600;">${escapeHtml(mat.nombre)}</div>
+                          ${isStockBajo ? `
+                            <span class="badge" style="background:#fef2f2; color:#dc2626; border:1px solid #fca5a5; font-weight:700; font-size:10px; padding:2px 6px; display:inline-flex; align-items:center; gap:3px; margin-top:2px;">
+                              ${icon('alertTriangle', 10)} Stock Crítico: ${stockMax} ${mat.unidad}
+                            </span>
+                          ` : `
+                            <span style="font-size:11px; color:var(--gray-400);">Stock disponible: ${stockMax} ${mat.unidad}</span>
+                          `}
                         </div>
                       </label>
-                      <div style="display:flex; align-items:center; gap:4px;">
-                        <input type="number" class="material-qty" min="1" max="${Math.max(stockMax, 100)}" value="${qty}" style="width:50px; padding:4px; font-size:12px; text-align:center; border:1px solid var(--gray-300); border-radius:6px;" title="Cantidad a usar" />
+                      <div style="display:flex; align-items:center; gap:6px; opacity:${isChecked ? '1' : '0.4'}; transition:opacity 0.15s ease;">
+                        <input type="number" class="material-qty" min="1" max="${Math.max(stockMax, 100)}" value="${qty}" ${isChecked ? '' : 'disabled'} style="width:55px; padding:5px; font-size:12px; text-align:center; border:1px solid var(--gray-300); border-radius:6px; background:${isChecked ? '#ffffff' : '#f1f5f9'}; font-weight:700;" title="Cantidad utilizada" />
                         <span style="font-size:11px; color:var(--gray-500); font-weight:500;">${mat.unidad}</span>
                       </div>
                     </div>
@@ -380,15 +430,57 @@ function renderCodigoForm(editId = null) {
             </h3>
             <div class="form-grid">
               <div class="form-group full-width" style="grid-column: 1 / -1;">
-                <label>Intervenciones Realizadas</label>
-                <div id="form-intervenciones" style="display:flex;flex-wrap:wrap;gap:8px;">
-                  ${INTERVENCIONES_LISTA.map(int => `
-                    <label style="display:flex;align-items:center;gap:6px;padding:8px 14px;border:1.5px solid var(--gray-200);border-radius:var(--radius);cursor:pointer;font-size:13px;font-weight:500;color:var(--gray-600);transition:var(--transition);"
-                      class="intervencion-check">
-                      <input type="checkbox" value="${int}" ${codigo && codigo.intervenciones && codigo.intervenciones.includes(int) ? 'checked' : ''} style="accent-color:var(--celeste);" />
-                      ${int}
-                    </label>
-                  `).join('')}
+                <label style="font-weight:700; color:var(--gray-800); margin-bottom:12px; display:block;">
+                  Intervenciones Realizadas (Agrupadas por Secuencia Resucitatoria ACLS)
+                </label>
+                
+                <div style="display:flex; flex-direction:column; gap:14px;" id="form-intervenciones">
+                  
+                  <!-- Bloque Vía Aérea -->
+                  <div style="background:var(--gray-50); border:1px solid var(--gray-200); border-radius:8px; padding:12px 16px;">
+                    <div style="font-size:12px; font-weight:800; color:#0369a1; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+                      🫁 Vía Aérea y Ventilación
+                    </div>
+                    <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                      ${['Intubación Endotraqueal', 'Manejo Avanzado de Vía Aérea', 'Aspiración de Secreciones / Ventilación Ambu'].map(int => `
+                        <label style="display:flex;align-items:center;gap:6px;padding:7px 12px;border:1.5px solid var(--gray-200);border-radius:6px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--gray-700);background:#fff;transition:var(--transition);" class="intervencion-check">
+                          <input type="checkbox" value="${int}" ${codigo && codigo.intervenciones && codigo.intervenciones.includes(int) ? 'checked' : ''} style="accent-color:var(--celeste);" />
+                          ${int}
+                        </label>
+                      `).join('')}
+                    </div>
+                  </div>
+
+                  <!-- Bloque Circulación y Desfibrilación -->
+                  <div style="background:var(--gray-50); border:1px solid var(--gray-200); border-radius:8px; padding:12px 16px;">
+                    <div style="font-size:12px; font-weight:800; color:#b91c1c; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+                      ⚡ Circulación y Desfibrilación
+                    </div>
+                    <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                      ${['RCP de Alta Calidad', 'Compresiones Torácicas Continuas', 'Desfibrilación Precoz', 'Cardioversión Eléctrica', 'Monitoreo Multiparamétrico'].map(int => `
+                        <label style="display:flex;align-items:center;gap:6px;padding:7px 12px;border:1.5px solid var(--gray-200);border-radius:6px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--gray-700);background:#fff;transition:var(--transition);" class="intervencion-check">
+                          <input type="checkbox" value="${int}" ${codigo && codigo.intervenciones && codigo.intervenciones.includes(int) ? 'checked' : ''} style="accent-color:var(--celeste);" />
+                          ${int}
+                        </label>
+                      `).join('')}
+                    </div>
+                  </div>
+
+                  <!-- Bloque Fármacos y Accesos -->
+                  <div style="background:var(--gray-50); border:1px solid var(--gray-200); border-radius:8px; padding:12px 16px;">
+                    <div style="font-size:12px; font-weight:800; color:#047857; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+                      💊 Fármacos y Soporte Vascular
+                    </div>
+                    <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                      ${['Administración de Adrenalina', 'Administración de Amiodarona', 'Acceso Vascular / Vía Intraósea'].map(int => `
+                        <label style="display:flex;align-items:center;gap:6px;padding:7px 12px;border:1.5px solid var(--gray-200);border-radius:6px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--gray-700);background:#fff;transition:var(--transition);" class="intervencion-check">
+                          <input type="checkbox" value="${int}" ${codigo && codigo.intervenciones && codigo.intervenciones.includes(int) ? 'checked' : ''} style="accent-color:var(--celeste);" />
+                          ${int}
+                        </label>
+                      `).join('')}
+                    </div>
+                  </div>
+
                 </div>
               </div>
               <div class="form-group full-width" style="grid-column: 1 / -1;">
@@ -476,6 +568,29 @@ function selectActivadorItem(id) {
   }
 }
 
+function toggleMaterialRow(checkboxEl) {
+  if (!checkboxEl) return;
+  const container = checkboxEl.closest('.material-row-item');
+  if (!container) return;
+  const qtyInput = container.querySelector('.material-qty');
+  const qtyWrapper = qtyInput ? qtyInput.parentElement : null;
+  if (checkboxEl.checked) {
+    if (qtyInput) {
+      qtyInput.disabled = false;
+      qtyInput.style.background = '#ffffff';
+    }
+    if (qtyWrapper) qtyWrapper.style.opacity = '1';
+    container.style.borderColor = 'var(--celeste)';
+  } else {
+    if (qtyInput) {
+      qtyInput.disabled = true;
+      qtyInput.style.background = '#f1f5f9';
+    }
+    if (qtyWrapper) qtyWrapper.style.opacity = '0.4';
+    container.style.borderColor = 'var(--gray-200)';
+  }
+}
+
 function setupCodigoForm(editId = null) {
   const filterPacienteInput = document.getElementById('filter-paciente-input');
   const filterActivadorInput = document.getElementById('filter-activador-input');
@@ -488,6 +603,7 @@ function setupCodigoForm(editId = null) {
   const estadoSelect = document.getElementById('form-estado');
   const roscPanel = document.getElementById('cierre-rosc-panel');
   const fatalPanel = document.getElementById('cierre-fatal-panel');
+  const closureBanner = document.getElementById('cierre-banner-info');
 
   // Inicializar preview de paciente y personal
   if (selectedPacienteId) {
@@ -497,7 +613,7 @@ function setupCodigoForm(editId = null) {
     selectActivadorItem(selectedActivadorId);
   }
 
-  // Actualizar lista de médicos líderes según el equipo seleccionado y autoseleccionar al Líder
+  // Actualizar lista de médicos líderes según el equipo seleccionado
   const updateResponsablesForEquipo = () => {
     if (!equipoSelect || !responsableSelect) return;
     const selectedEquipo = equipoSelect.value;
@@ -514,7 +630,6 @@ function setupCodigoForm(editId = null) {
       personalDelEquipo = personalList.filter(p => eqObj.integrantes.some(i => i.id_personal === p.id));
       if (personalDelEquipo.length === 0) personalDelEquipo = personalList;
 
-      // Buscar al que tenga el rol de Líder en el equipo
       const leaderInteg = eqObj.integrantes.find(i => (i.rol_en_equipo || '').toLowerCase().includes('líder') || (i.rol_en_equipo || '').toLowerCase().includes('lider'));
       if (leaderInteg) {
         const lp = personalList.find(p => p.id === leaderInteg.id_personal);
@@ -548,7 +663,7 @@ function setupCodigoForm(editId = null) {
     equipoSelect.addEventListener('change', updateResponsablesForEquipo);
   }
 
-  // Filtro en tiempo real para Pacientes (sin importar tildes o mayúsculas)
+  // Filtro en tiempo real para Pacientes
   if (filterPacienteInput) {
     filterPacienteInput.addEventListener('input', () => {
       const q = normalizeText(filterPacienteInput.value);
@@ -559,7 +674,7 @@ function setupCodigoForm(editId = null) {
     });
   }
 
-  // Filtro en tiempo real para Personal Activador (sin importar tildes o mayúsculas)
+  // Filtro en tiempo real para Personal Activador
   if (filterActivadorInput) {
     filterActivadorInput.addEventListener('input', () => {
       const q = normalizeText(filterActivadorInput.value);
@@ -570,12 +685,38 @@ function setupCodigoForm(editId = null) {
     });
   }
 
-  // Conmutar paneles de cierre clínico según estado
+  // Conmutar paneles de cierre clínico según estado seleccionado
   if (estadoSelect) {
     estadoSelect.addEventListener('change', () => {
       const val = estadoSelect.value;
-      if (roscPanel) roscPanel.style.display = val === 'resuelto' ? 'block' : 'none';
-      if (fatalPanel) fatalPanel.style.display = val === 'fatal' ? 'block' : 'none';
+      if (val === 'resuelto') {
+        if (roscPanel) roscPanel.style.display = 'block';
+        if (fatalPanel) fatalPanel.style.display = 'none';
+        if (closureBanner) {
+          closureBanner.style.background = '#ecfdf5';
+          closureBanner.style.color = '#065f46';
+          closureBanner.style.borderColor = '#a7f3d0';
+          closureBanner.innerHTML = `<span>✨</span> <strong>Resultado Exitoso (ROSC):</strong> Complete la certificación de retorno de circulación espontánea y destino de traslado.`;
+        }
+      } else if (val === 'fatal') {
+        if (roscPanel) roscPanel.style.display = 'none';
+        if (fatalPanel) fatalPanel.style.display = 'block';
+        if (closureBanner) {
+          closureBanner.style.background = '#fef2f2';
+          closureBanner.style.color = '#991b1b';
+          closureBanner.style.borderColor = '#fca5a5';
+          closureBanner.innerHTML = `<span>⚠️</span> <strong>Resultado Fatal (Defunción):</strong> Complete la certificación médica de defunción y cese de maniobras.`;
+        }
+      } else {
+        if (roscPanel) roscPanel.style.display = 'none';
+        if (fatalPanel) fatalPanel.style.display = 'none';
+        if (closureBanner) {
+          closureBanner.style.background = 'var(--gray-100)';
+          closureBanner.style.color = 'var(--gray-700)';
+          closureBanner.style.borderColor = 'var(--gray-300)';
+          closureBanner.innerHTML = `<span>ℹ️</span> <strong>Certificación Médica:</strong> Seleccione el Resultado Clínico en la Sección 2 para habilitar el protocolo de certificación correspondiente.`;
+        }
+      }
     });
   }
 
@@ -673,20 +814,19 @@ function submitCodigoForm(editId = null) {
     return;
   }
 
+  // Validar Resultado Clínico Obligatorio
+  const estadoVal = estadoSelect ? estadoSelect.value : '';
+  if (!estadoVal) {
+    markError(estadoSelect, 'Seleccione el Resultado Clínico del Evento (ROSC o Defunción)');
+    return;
+  }
+
   const fecha = fechaInput ? fechaInput.value : new Date().toISOString().slice(0, 16);
   const origenLlamada = origenSelect ? origenSelect.value : 'Consola Central';
   const equipoEncargado = equipoSelect ? equipoSelect.value : 'Equipo A';
   const turno = turnoSelect ? turnoSelect.value : 'Turno Mañana';
-  const estadoVal = estadoSelect ? estadoSelect.value : 'resuelto';
   const tiempoRespuesta = tiempoInput ? (parseFloat(tiempoInput.value) || 3.2) : 3.2;
   const notas = notasInput ? notasInput.value.trim() : '';
-
-  // Bloquear múltiples clicks
-  isSubmittingCodigo = true;
-  if (btnSubmit) {
-    btnSubmit.disabled = true;
-    btnSubmit.innerHTML = icon('loader') + ' Registrando...';
-  }
 
   // Empaquetar Cierre Clínico
   const datosCierre = {};
@@ -712,8 +852,8 @@ function submitCodigoForm(editId = null) {
   // Materiales
   const materiales = [];
   document.querySelectorAll('#materials-container .material-checkbox:checked').forEach(cb => {
-    const container = cb.closest('div');
-    const qtyInput = container.querySelector('.material-qty');
+    const container = cb.closest('.material-row-item');
+    const qtyInput = container ? container.querySelector('.material-qty') : null;
     const qty = parseInt(qtyInput?.value) || 1;
 
     materiales.push({
@@ -727,6 +867,41 @@ function submitCodigoForm(editId = null) {
 
   const estado = ESTADOS.find(e => e.value === estadoVal) || ESTADOS[0];
   const fechaISO = new Date(fecha).toISOString();
+
+  // Modal de Confirmación previo al guardado definitivo
+  const estadoLabel = estado.label || (estadoVal === 'resuelto' ? 'Exitoso (ROSC)' : 'Fatal (Defunción)');
+
+  if (typeof showConfirmModal === 'function') {
+    showConfirmModal({
+      title: isEdit ? 'Confirmar Edición de Código Azul' : 'Confirmación de Registro de Código Azul',
+      message: `
+        <div style="font-size:13.5px; color:var(--gray-700); line-height:1.5;">
+          <p style="margin:0 0 10px 0;">¿Confirma asentar oficialmente los siguientes datos del evento?</p>
+          <div style="background:var(--gray-50); border:1px solid var(--gray-200); border-radius:8px; padding:12px; font-size:12.5px; display:flex; flex-direction:column; gap:4px;">
+            <div><strong>Paciente:</strong> ${escapeHtml(pacienteObj.apellido + ', ' + pacienteObj.nombre)} (DNI: ${pacienteObj.dni ? formatDNI(pacienteObj.dni) : 'S/D'})</div>
+            <div><strong>Ubicación:</strong> ${escapeHtml(pacienteObj.area)} [${escapeHtml(pacienteObj.cama || 'Cama')}]</div>
+            <div><strong>Causa del Paro:</strong> ${escapeHtml(causa)}</div>
+            <div><strong>Resultado Clínico:</strong> <strong style="color:${estadoVal === 'resuelto' ? '#059669' : '#dc2626'}">${escapeHtml(estadoLabel)}</strong></div>
+            <div><strong>Médico Líder:</strong> ${escapeHtml(responsable)}</div>
+            <div><strong>Insumos / Intervenciones:</strong> ${materiales.length} materiales · ${intervenciones.length} intervenciones</div>
+          </div>
+        </div>
+      `,
+      onConfirm: () => {
+        executeSaveCodigo(isEdit, editId, pacienteObj, causa, activadorData, quienHizoLlamada, responsable, fechaISO, origenLlamada, equipoEncargado, turno, estado, tiempoRespuesta, materiales, intervenciones, notas, datosCierre, btnSubmit);
+      }
+    });
+  } else {
+    executeSaveCodigo(isEdit, editId, pacienteObj, causa, activadorData, quienHizoLlamada, responsable, fechaISO, origenLlamada, equipoEncargado, turno, estado, tiempoRespuesta, materiales, intervenciones, notas, datosCierre, btnSubmit);
+  }
+}
+
+function executeSaveCodigo(isEdit, editId, pacienteObj, causa, activadorData, quienHizoLlamada, responsable, fechaISO, origenLlamada, equipoEncargado, turno, estado, tiempoRespuesta, materiales, intervenciones, notas, datosCierre, btnSubmit) {
+  isSubmittingCodigo = true;
+  if (btnSubmit) {
+    btnSubmit.disabled = true;
+    btnSubmit.innerHTML = icon('loader') + ' Registrando...';
+  }
 
   if (isEdit) {
     const existing = getCodigoById(editId);
@@ -768,23 +943,23 @@ function submitCodigoForm(editId = null) {
         tipo: 'start'
       },
       {
-        hora: new Date(new Date(fecha).getTime() + 1.5 * 60000).toISOString(),
+        hora: new Date(new Date(fechaISO).getTime() + 1.5 * 60000).toISOString(),
         titulo: 'Arribo de Equipo y RCP Avanzada',
         descripcion: `${equipoEncargado} en el lugar. Líder ACLS: ${responsable}`,
         tipo: 'action'
       }
     ];
 
-    if (estadoVal === 'resuelto') {
+    if (estado.value === 'resuelto') {
       timeline.push({
-        hora: new Date(new Date(fecha).getTime() + tiempoRespuesta * 60000 + 3 * 60000).toISOString(),
+        hora: new Date(new Date(fechaISO).getTime() + tiempoRespuesta * 60000 + 3 * 60000).toISOString(),
         titulo: 'Retorno de Circulación Espontánea (ROSC)',
         descripcion: `Estabilizado con ritmo ${datosCierre.ritmoSalida}. Traslado a ${datosCierre.destinoTraslado}.`,
         tipo: 'end'
       });
     } else {
       timeline.push({
-        hora: new Date(new Date(fecha).getTime() + tiempoRespuesta * 60000 + 4 * 60000).toISOString(),
+        hora: new Date(new Date(fechaISO).getTime() + tiempoRespuesta * 60000 + 4 * 60000).toISOString(),
         titulo: 'Cese de Maniobras de RCP / Defunción',
         descripcion: `Certificado por ${datosCierre.medicoCertificante} (Mat. ${datosCierre.matricula}). Causa: ${datosCierre.causaDefuncion}.`,
         tipo: 'end'
@@ -825,5 +1000,6 @@ window.togglePacienteList = togglePacienteList;
 window.toggleActivadorList = toggleActivadorList;
 window.selectPacienteItem = selectPacienteItem;
 window.selectActivadorItem = selectActivadorItem;
+window.toggleMaterialRow = toggleMaterialRow;
 window.submitCodigoForm = submitCodigoForm;
 
