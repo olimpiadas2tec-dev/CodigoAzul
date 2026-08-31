@@ -231,8 +231,10 @@ function renderHistorial() {
                   <tr style="${isFatal ? 'background:#fff8f8; border-left:4px solid #ef4444;' : 'border-left:4px solid #10b981;'}">
                     <td style="vertical-align:middle; font-weight:600; color:var(--gray-400);">${d.id}</td>
                     <td style="vertical-align:middle;">
-                      <a href="#/detalle/${d.id}" style="text-decoration:none; color:inherit;">
-                        <div style="font-weight:700; color:var(--gray-900);">${escapeHtml(d.paciente)}</div>
+                      <a href="#/detalle/${d.id}" style="text-decoration:none; color:inherit; display:block; padding:4px 0;" title="Haga clic para ver el detalle clínico del paciente">
+                        <div style="font-weight:700; color:var(--celeste-dark); font-size:13.5px; transition:color 0.15s ease;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                          ${escapeHtml(d.paciente)} <span style="font-size:11px; opacity:0.7;">↗</span>
+                        </div>
                         <div style="font-size:11.5px; color:var(--gray-500); margin-top:2px;">
                           DNI: ${escapeHtml(d.dni ? formatDNI(d.dni) : 'S/D')} &middot; <span style="color:var(--gray-700); font-weight:600;">${escapeHtml(d.area)} [${escapeHtml(d.cama || 'Cama')}]</span>
                         </div>
@@ -278,13 +280,10 @@ function renderHistorial() {
                     </td>
                     <td style="vertical-align:middle; text-align:right;">
                       <div style="display:inline-flex; gap:6px; justify-content:flex-end;">
-                        <a href="#/detalle/${d.id}" class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11.5px; font-weight:700; color:var(--celeste-dark); border-color:var(--celeste-300); background:#fff;" title="Ver Ficha Clínica Completa">
-                          ${icon('eye', 13)} Ver
-                        </a>
-                        <a href="#/editar/${d.id}" class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11.5px; font-weight:700; color:var(--gray-700); border-color:var(--gray-300); background:#fff;" title="Editar Registro">
+                        <a href="#/editar/${d.id}" class="btn btn-outline btn-sm" style="padding:4px 10px; font-size:11.5px; font-weight:700; color:var(--gray-700); border-color:var(--gray-300); background:#fff;" title="Editar Registro de Código Azul">
                           ${icon('edit', 13)} Editar
                         </a>
-                        <button class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11.5px; font-weight:700; color:#b91c1c; border-color:#fca5a5; background:#fef2f2;" onclick="confirmDeleteCodigo(${d.id})" title="Eliminar Registro de Auditoría">
+                        <button class="btn btn-outline btn-sm" style="padding:4px 10px; font-size:11.5px; font-weight:700; color:#b91c1c; border-color:#fca5a5; background:#fef2f2;" onclick="confirmDeleteCodigo(${d.id})" title="Eliminar Registro de Auditoría">
                           ${icon('trash', 13)} Eliminar
                         </button>
                       </div>
