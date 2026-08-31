@@ -336,9 +336,9 @@ function renderTurnosTab() {
       
       <!-- Card 1: Horarios de Turnos -->
       <div class="card scale-in" style="background:#fafafa; border:1px solid var(--gray-200); box-shadow:none;">
-        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; min-height:64px;">
           <div>
-            <h2 style="margin:0;">Horarios de Turnos (Mañana, Tarde, Noche)</h2>
+            <h2 style="margin:0; font-size:16px;">Horarios de Turnos</h2>
             <p style="font-size:12px; color:var(--gray-500); margin:0;">Franjas horarias no solapadas</p>
           </div>
           <button class="btn btn-primary btn-sm" onclick="openTurnoModal()">
@@ -360,11 +360,13 @@ function renderTurnosTab() {
                 const isCovered = asignacionesList.some(a => a.turno_nombre === t.nombre);
                 return `
                 <tr style="border-bottom:1px solid var(--gray-100);">
-                  <td style="padding:10px 14px; font-weight:700; vertical-align:middle;">
-                    ${escapeHtml(t.nombre)}
-                    <span class="badge" style="margin-left:8px; font-size:10px; padding:2px 6px; ${isCovered ? 'background:#d1fae5; color:#065f46; border:1px solid #a7f3d0;' : 'background:#fee2e2; color:#991b1b; border:1px solid #fecaca;'}">
-                      ${isCovered ? 'Cubierto' : 'Sin asignar'}
-                    </span>
+                  <td style="padding:10px 14px; font-weight:700; vertical-align:middle; white-space:nowrap;">
+                    <div style="display:inline-flex; align-items:center; gap:6px;">
+                      <span>${escapeHtml(t.nombre)}</span>
+                      <span class="badge" style="font-size:10px; padding:2px 6px; ${isCovered ? 'background:#d1fae5; color:#065f46; border:1px solid #a7f3d0;' : 'background:#fee2e2; color:#991b1b; border:1px solid #fecaca;'}">
+                        ${isCovered ? 'Cubierto' : 'Sin asignar'}
+                      </span>
+                    </div>
                   </td>
                   <td style="padding:10px 14px; color:var(--gray-600); vertical-align:middle;">${t.hora_inicio}</td>
                   <td style="padding:10px 14px; color:var(--gray-600); vertical-align:middle;">${t.hora_fin}</td>
@@ -385,9 +387,9 @@ function renderTurnosTab() {
 
       <!-- Card 2: Asignación de Equipos a Turnos -->
       <div class="card scale-in">
-        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; min-height:64px;">
           <div>
-            <h2 style="margin:0;">Asignación de Equipos a Turnos</h2>
+            <h2 style="margin:0; font-size:16px;">Asignación de Equipos a Turnos</h2>
             <p style="font-size:12px; color:var(--gray-500); margin:0;">Regla 1 a 1: 1 equipo por turno</p>
           </div>
           <button class="btn btn-primary btn-sm" onclick="openAsignacionTurnoModal()" style="background:var(--celeste); border:none;">
@@ -420,7 +422,9 @@ function renderTurnosTab() {
                     ${asig.fecha_desde} &rarr; ${asig.fecha_hasta || 'Indefinido'}
                   </td>
                   <td style="padding:10px 14px; vertical-align:middle;">
-                    <button class="action-link" style="color:var(--gray-500);" onclick="deleteAsignacionTurno(${asig.id})">Quitar</button>
+                    <button class="action-link danger" onclick="deleteAsignacionTurno(${asig.id})" title="Quitar asignación" style="display:flex; align-items:center; border:none; background:none;">
+                      ${icon('trash', 16)}
+                    </button>
                   </td>
                 </tr>
               `).join('')}
