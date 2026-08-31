@@ -1483,7 +1483,11 @@ function mostrarInfoPersonal(id) {
         <div style="display:flex; flex-direction:column; gap:16px;">
           <div style="display:flex; flex-direction:column; gap:4px;">
             <span style="font-size:12px; color:var(--gray-500); text-transform:uppercase; font-weight:600;">Documento (DNI)</span>
-            <span style="font-size:15px; color:var(--gray-800);">${escapeHtml(p.dni || 'No registrado')}</span>
+            <span style="font-size:15px; color:var(--gray-800); font-weight:600;">${formatDNI(p.dni)}</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <span style="font-size:12px; color:var(--gray-500); text-transform:uppercase; font-weight:600;">Teléfono de Contacto</span>
+            <span style="font-size:15px; color:var(--gray-800); font-weight:600;">${escapeHtml(p.telefono || 'No registrado')}</span>
           </div>
           <div style="display:flex; flex-direction:column; gap:4px;">
             <span style="font-size:12px; color:var(--gray-500); text-transform:uppercase; font-weight:600;">Especialidad / Rol Base</span>
