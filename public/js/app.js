@@ -25,26 +25,12 @@ function logout() {
   window.location.hash = '#/login';
 }
 
-function handleLogout() {
-  if (typeof showConfirmModal === 'function') {
-    showConfirmModal({
-      title: 'Cerrar Sesión',
-      message: '¿Está seguro de que desea salir del sistema Código Azul?',
-      onConfirm: () => {
-        logout();
-      }
-    });
-  } else {
-    logout();
-  }
-}
-
 function renderLayout(content, activeRoute) {
   const user = getUser();
   const activeCodes = (typeof getData === 'function' ? getData() : []).filter(d => d.estado && d.estado.value === 'pendiente');
 
   const alertBanner = activeCodes.length > 0 ? `
-    <div class="alert-banner-wrapper" style="background:#fef2f2; border-bottom:2px solid #ef4444; padding:10px 24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+    <div style="background:#fef2f2; border-bottom:2px solid #ef4444; padding:10px 24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
       <div style="display:flex; align-items:center; gap:10px;">
         <span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:#dc2626; box-shadow:0 0 0 4px rgba(220,38,38,0.25);"></span>
         <strong style="color:#991b1b; font-size:13px;">${icon('alertTriangle')} CÓDIGO AZUL EN CURSO:</strong>
@@ -101,35 +87,9 @@ function renderLayout(content, activeRoute) {
           </button>
         </div>
       </aside>
-
       <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
-        <!-- Header superior principal -->
-        <header class="app-header">
-          <div style="display:flex; align-items:center; gap:10px;">
-            <strong style="font-size:14px; color:var(--gray-800);">Sistema de Gestión de Emergencias</strong>
-            <span style="background:var(--celeste-100); color:var(--celeste-dark); font-size:11px; font-weight:700; padding:2px 8px; border-radius:12px; border:1px solid var(--celeste-200);">
-              Código Azul
-            </span>
-          </div>
-          <div style="display:flex; align-items:center; gap:14px;">
-            <div style="display:flex; align-items:center; gap:8px; background:var(--gray-50); padding:4px 12px 4px 6px; border-radius:20px; border:1px solid var(--gray-200);">
-              <span style="width:28px; height:28px; border-radius:50%; background:var(--celeste-dark); color:#ffffff; display:flex; align-items:center; justify-content:center; font-size:11.5px; font-weight:700;">
-                ${user?.initials || 'AD'}
-              </span>
-              <div style="display:flex; flex-direction:column;">
-                <span style="font-size:12px; font-weight:700; color:var(--gray-800); line-height:1.2;">${user?.user || 'Administrador'}</span>
-                <span style="font-size:10px; color:var(--gray-500); line-height:1.2;">${user?.role || 'Personal Médico'}</span>
-              </div>
-            </div>
-            <button onclick="handleLogout()" class="btn-header-logout" title="Cerrar Sesión Segura">
-              ${SVG.logout}
-              <span>Cerrar Sesión</span>
-            </button>
-          </div>
-        </header>
-
         ${alertBanner}
-        <main class="main-content" style="flex:1; overflow-y:auto; margin-left:0;">
+        <main class="main-content" style="flex:1; overflow-y:auto;">
           ${content}
         </main>
       </div>
@@ -137,7 +97,7 @@ function renderLayout(content, activeRoute) {
   `;
 }
 
-window.handleLogout = handleLogout;
+window.handleLogout = logout;
 
 function parseRoute() {
   const hash = window.location.hash.replace('#/', '') || 'login';
