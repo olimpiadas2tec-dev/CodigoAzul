@@ -68,6 +68,35 @@ function renderPersonal() {
 // -------------------------------------------------------------
 // TAB 1: PERSONAL DE SALUD
 // -------------------------------------------------------------
+function formatDNI(dniStr) {
+  if (!dniStr) return 'S/D';
+  const clean = String(dniStr).replace(/\D/g, '');
+  if (clean.length === 8) {
+    return clean.replace(/^(\d{2})(\d{3})(\d{3})$/, '$1.$2.$3');
+  }
+  if (clean.length === 7) {
+    return clean.replace(/^(\d{1})(\d{3})(\d{3})$/, '$1.$2.$3');
+  }
+  return dniStr;
+}
+
+function getRolBadgeStyle(rolName) {
+  if (!rolName || rolName === 'Sin Designar') {
+    return 'background:#fef3c7; color:#92400e; border:1px solid #fde68a;';
+  }
+  const norm = rolName.toLowerCase();
+  if (norm.includes('médico') || norm.includes('medico') || norm.includes('dr.')) {
+    return 'background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd;';
+  }
+  if (norm.includes('enfermer') || norm.includes('lic.')) {
+    return 'background:#d1fae5; color:#047857; border:1px solid #a7f3d0;';
+  }
+  if (norm.includes('kinesi') || norm.includes('terap')) {
+    return 'background:#f3e8ff; color:#6b21a8; border:1px solid #e9d5ff;';
+  }
+  return 'background:#f1f5f9; color:#475569; border:1px solid #cbd5e1;';
+}
+
 function renderPersonalTab() {
   const personalList = getPersonalSalud();
   const rolesList = getRolesSalud();
@@ -90,8 +119,8 @@ function renderPersonalTab() {
 
   return `
     <div class="card scale-in">
-      <div class="card-body" style="padding-bottom:0;">
-        <div class="filters-bar" style="display:flex; flex-wrap:wrap; gap:10px;">
+      <div class="card-body" style="padding-bottom:12px;">
+        <div class="filters-bar" style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
           <div class="filter-group search-input-wrapper" style="flex:1; min-width:240px;">
             <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input type="text" id="personal-search" placeholder="Filtrar personal por nombre, apellido, DNI o área..." value="${escapeHtml(personalTabState.searchPersonal)}" />
@@ -104,20 +133,25 @@ function renderPersonalTab() {
             </select>
           </div>
           <button class="btn btn-secondary btn-sm" onclick="personalTabState.searchPersonal=''; personalTabState.filterRol=''; renderApp();">Limpiar</button>
+          <div style="font-size:12px; color:var(--gray-600); font-weight:600; margin-left:auto;">
+            <span class="badge" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; font-weight:600; padding:4px 10px; font-size:11px;">
+              Mostrando ${filtered.length} de ${personalList.length} profesionales
+            </span>
+          </div>
         </div>
       </div>
 
-      <div class="table-container table-stagger">
-        <table>
+      <div class="table-container table-stagger" style="padding:0;">
+        <table style="width:100%; border-collapse:collapse; font-size:13px;">
           <thead>
-            <tr>
-              <th>#</th>
-              <th>Profesional</th>
-              <th>DNI</th>
-              <th>Rol Profesional</th>
-              <th>Teléfono</th>
-              <th>Área Asignada</th>
-              <th>Acciones</th>
+            <tr style="border-bottom:2px solid var(--gray-200); background:var(--gray-50); text-align:left;">
+              <th style="padding:10px 14px; width:50px; text-align:center;">#</th>
+              <th style="padding:10px 14px;">Profesional</th>
+              <th style="padding:10px 14px;">DNI</th>
+              <th style="padding:10px 14px;">Rol Profesional</th>
+              <th style="padding:10px 14px;">Teléfono</th>
+              <th style="padding:10px 14px;">Área Asignada</th>
+              <th style="padding:10px 14px; text-align:center;">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -130,28 +164,30 @@ function renderPersonalTab() {
                   </div>
                 </td>
               </tr>
-            ` : filtered.map(p => `
-              <tr>
-                <td style="font-weight:600; color:var(--gray-400);">${p.id}</td>
-                <td style="font-weight:700; color:var(--gray-800); font-size:13.5px;">
+            ` : filtered.map((p, idx) => `
+              <tr style="border-bottom:1px solid var(--gray-100); background:${idx % 2 === 0 ? 'var(--white)' : '#f8fafc'};">
+                <td style="padding:10px 14px; font-weight:600; color:var(--gray-400); text-align:center; vertical-align:middle;">#${p.id}</td>
+                <td style="padding:10px 14px; font-weight:700; color:var(--gray-800); font-size:13.5px; vertical-align:middle; white-space:nowrap;">
                   ${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}
                 </td>
-                <td style="font-weight:600; font-size:12px;">${p.dni || 'S/D'}</td>
-                <td>
-                  <span class="badge ${p.nombre_rol === 'Sin Designar' ? 'badge-warning' : 'badge-info'}" style="font-weight:700;">
+                <td style="padding:10px 14px; font-weight:600; font-size:12px; color:var(--gray-700); vertical-align:middle; white-space:nowrap;">${formatDNI(p.dni)}</td>
+                <td style="padding:10px 14px; vertical-align:middle;">
+                  <span class="badge" title="${escapeHtml(p.nombre_rol || 'Sin Designar')}" style="font-weight:600; font-size:11px; padding:3px 8px; max-width:220px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; display:inline-block; vertical-align:middle; ${getRolBadgeStyle(p.nombre_rol)}">
                     ${escapeHtml(p.nombre_rol || 'Sin Designar')}
                   </span>
                 </td>
-                <td style="color:var(--gray-600); font-size:12px;">${escapeHtml(p.telefono || '-')}</td>
-                <td>
-                  <span style="font-weight:600; color:${p.area === 'Sin Designar' ? 'var(--gray-400)' : 'var(--celeste-dark)'}; font-size:12.5px;">
+                <td style="padding:10px 14px; color:var(--gray-600); font-size:12px; vertical-align:middle; white-space:nowrap;">${escapeHtml(p.telefono || '-')}</td>
+                <td style="padding:10px 14px; vertical-align:middle;">
+                  <span style="font-weight:600; color:${p.area === 'Sin Designar' ? 'var(--gray-400)' : 'var(--gray-700)'}; font-size:12.5px;">
                     ${escapeHtml(p.area || 'Sin Designar')}
                   </span>
                 </td>
-                <td>
-                  <div style="display:flex; gap:6px;">
+                <td style="padding:10px 14px; vertical-align:middle; text-align:center;">
+                  <div style="display:flex; align-items:center; justify-content:center; gap:16px;">
                     <button class="action-link" onclick="openPersonalModal(${p.id})">Editar</button>
-                    <button class="action-link danger" onclick="confirmDeletePersonal(${p.id})">Eliminar</button>
+                    <button class="action-link danger" onclick="confirmDeletePersonal(${p.id})" title="Eliminar Personal" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
+                      ${icon('trash', 16)}
+                    </button>
                   </div>
                 </td>
               </tr>
