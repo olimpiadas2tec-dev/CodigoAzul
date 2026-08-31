@@ -217,8 +217,8 @@ function renderCamasTab() {
 
   return `
     <div class="card scale-in">
-      <div class="card-body" style="padding-bottom:0;">
-        <div class="filters-bar" style="display:flex; flex-wrap:wrap; gap:10px;">
+      <div class="card-body" style="padding-bottom:12px;">
+        <div class="filters-bar" style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
           <div class="filter-group search-input-wrapper" style="flex:1; min-width:200px;">
             <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input type="text" id="cama-search" placeholder="Filtrar cama (Ej: Box 1, UTI-02, 301)..." value="${escapeHtml(areasTabState.searchCama)}" />
@@ -237,6 +237,11 @@ function renderCamasTab() {
             </select>
           </div>
           <button class="btn btn-secondary btn-sm" onclick="areasTabState.searchCama=''; areasTabState.filterAreaCamas=''; areasTabState.filterEstadoCamas=''; renderApp();">Limpiar</button>
+          <div style="font-size:12px; color:var(--gray-600); font-weight:600; margin-left:auto;">
+            <span class="badge" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; font-weight:600; padding:4px 10px; font-size:11px;">
+              Mostrando ${filtered.length} de ${camasList.length} camas
+            </span>
+          </div>
         </div>
       </div>
 
@@ -270,24 +275,29 @@ function renderCamasTab() {
                     </div>
 
                     ${isOcupada ? `
-                      <div style="font-size:11.5px; color:#7f1d1d; background:rgba(255,255,255,0.7); padding:6px 8px; border-radius:6px; margin-top:6px; border:1px dashed #fca5a5;">
-                        ${icon('user')} <strong>${pacInternado ? escapeHtml(pacInternado.apellido + ', ' + pacInternado.nombre) : 'Paciente Internado'}</strong>
-                        ${pacInternado?.dni ? `<div style="font-size:10px; color:#991b1b;">DNI: ${pacInternado.dni}</div>` : ''}
+                      <div style="font-size:11.5px; color:#7f1d1d; background:rgba(255,255,255,0.85); padding:6px 10px; border-radius:6px; margin-top:6px; border:1px solid #fca5a5; display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:14px; color:#dc2626;">🛏️</span>
+                        <div>
+                          <strong style="color:#991b1b;">${pacInternado ? escapeHtml(pacInternado.apellido + ', ' + pacInternado.nombre) : 'Paciente Internado'}</strong>
+                          ${pacInternado?.dni ? `<div style="font-size:10px; color:#b91c1c;">DNI: ${formatDNI(pacInternado.dni)}</div>` : ''}
+                        </div>
                       </div>
                     ` : `
-                      <div style="font-size:11.5px; color:#15803d; padding:6px 0;">
-                        ${icon('star')} Disponible para asignación
+                      <div style="font-size:11.5px; color:#15803d; padding:6px 0; display:flex; align-items:center; gap:4px; font-weight:600;">
+                        ${icon('checkCircle', 13)} Disponible para asignación
                       </div>
                     `}
                   </div>
 
                   <div style="margin-top:12px; padding-top:10px; border-top:1px solid ${isOcupada ? '#fecaca' : '#bbf7d0'}; display:flex; justify-content:space-between; align-items:center;">
-                    <button class="btn btn-sm" style="font-size:11px; padding:3px 8px; font-weight:700; background:${isOcupada ? '#059669' : '#dc2626'}; color:#fff; border:none;" onclick="toggleCamaEstado(${cama.id})">
-                      ${isOcupada ? icon('check', 12) + ' Liberar' : icon('lock', 12) + ' Ocupar'}
+                    <button class="btn btn-sm" style="font-size:11.5px; padding:4px 10px; font-weight:600; background:${isOcupada ? '#f1f5f9' : 'var(--celeste-dark)'}; color:${isOcupada ? '#334155' : '#ffffff'}; border:${isOcupada ? '1px solid #cbd5e1' : 'none'}; border-radius:6px; display:inline-flex; align-items:center; gap:4px; cursor:pointer;" onclick="toggleCamaEstado(${cama.id})">
+                      ${isOcupada ? icon('check', 12) + ' Liberar' : icon('plus', 12) + ' Ocupar'}
                     </button>
-                    <div style="display:flex; gap:6px;">
+                    <div style="display:flex; align-items:center; gap:12px;">
                       <button class="action-link" style="font-size:12px;" onclick="openCamaModal(${cama.id})">Editar</button>
-                      <button class="action-link danger" style="font-size:12px;" onclick="confirmDeleteCama(${cama.id})">Eliminar</button>
+                      <button class="action-link danger" style="font-size:12px; display:inline-flex; align-items:center; justify-content:center; border:none; background:none;" onclick="confirmDeleteCama(${cama.id})" title="Eliminar Cama">
+                        ${icon('trash', 15)}
+                      </button>
                     </div>
                   </div>
                 </div>
