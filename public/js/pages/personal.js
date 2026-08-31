@@ -302,24 +302,22 @@ function renderEquiposTab() {
         });
         return `
           <div class="card scale-in">
-            <div class="card-header" style="display:flex; flex-direction:column; gap:12px; background:var(--celeste-50);">
-              <div style="display:flex; justify-content:space-between; align-items:flex-start; width:100%;">
-                <div style="display:flex; flex-direction:column; gap:8px;">
-                  <span style="font-size:24px; color:var(--celeste-dark);">${icon('truck')}</span>
-                  <div>
-                    <h2 style="color:var(--celeste-dark); font-weight:700; margin:0; line-height:1.2;">${escapeHtml(eq.nombre)}</h2>
-                    <div style="font-size:12px; color:var(--gray-500); margin-top:2px;">${escapeHtml(eq.descripcion || 'Brigada de Paro Cardíaco')}</div>
-                  </div>
+            <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:var(--celeste-50);">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <span style="font-size:20px; color:var(--celeste-dark); display:flex; align-items:center;">${icon('truck')}</span>
+                <div>
+                  <h3 style="color:var(--celeste-dark); font-weight:700; margin:0; font-size:15px; line-height:1.2;">${escapeHtml(eq.nombre)}</h3>
+                  <div style="font-size:11px; color:var(--gray-500); margin-top:2px;">${escapeHtml(eq.descripcion || 'Brigada de Paro Cardíaco')}</div>
                 </div>
-                <div style="display:flex; gap:12px; align-items:center;">
-                  <button class="btn btn-outline btn-sm" onclick="openAsignarPersonalEquipoModal(${eq.id})" title="Asignar Integrante">
-                    + Asignar
-                  </button>
-                  <button class="action-link" onclick="openEquipoModal(${eq.id})" title="Editar Equipo">Editar</button>
-                  <button class="action-link danger" onclick="confirmDeleteEquipo(${eq.id})" title="Eliminar Equipo" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
-                    ${icon('trash', 16)}
-                  </button>
-                </div>
+              </div>
+              <div style="display:flex; align-items:center; gap:10px;">
+                <button class="btn btn-outline btn-sm" onclick="openAsignarPersonalEquipoModal(${eq.id})" title="Asignar Integrante" style="padding:4px 8px; font-size:12px;">
+                  + Asignar
+                </button>
+                <button class="action-link" onclick="openEquipoModal(${eq.id})" title="Editar Equipo" style="font-size:12px;">Editar</button>
+                <button class="action-link danger" onclick="confirmDeleteEquipo(${eq.id})" title="Eliminar Equipo" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
+                  ${icon('trash', 15)}
+                </button>
               </div>
             </div>
             <div class="card-body" style="padding:16px;">
