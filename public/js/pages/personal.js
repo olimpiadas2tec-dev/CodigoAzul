@@ -234,7 +234,11 @@ function renderEquiposTab() {
 
     <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap:20px;">
       ${equiposList.map(eq => {
-        const integrantes = eq.integrantes || [];
+        const integrantes = (eq.integrantes || []).sort((a, b) => {
+          const aIsLeader = a.rol_en_equipo && a.rol_en_equipo.toLowerCase().includes('líder') ? 1 : 0;
+          const bIsLeader = b.rol_en_equipo && b.rol_en_equipo.toLowerCase().includes('líder') ? 1 : 0;
+          return bIsLeader - aIsLeader;
+        });
         return `
           <div class="card scale-in">
             <div class="card-header" style="display:flex; flex-direction:column; gap:12px; background:var(--celeste-50);">
@@ -253,7 +257,7 @@ function renderEquiposTab() {
                   <button class="btn btn-secondary btn-sm" onclick="openEquipoModal(${eq.id})" title="Editar Equipo" style="padding:4px 8px; font-size:12px;">
                     ${icon('edit')}
                   </button>
-                  <button class="btn btn-outline danger btn-sm" onclick="if(confirm('¿Está seguro de eliminar este equipo?')) confirmDeleteEquipo(${eq.id})" style="padding:4px 8px;" title="Eliminar Equipo">&times;</button>
+                  <button class="btn btn-outline danger btn-sm" onclick="confirmDeleteEquipo(${eq.id})" style="padding:4px 8px;" title="Eliminar Equipo">&times;</button>
                 </div>
               </div>
             </div>
@@ -264,6 +268,20 @@ function renderEquiposTab() {
               ${integrantes.length === 0 ? `
                 <p style="color:var(--gray-400); font-size:13px; text-align:center; padding:15px;">Sin personal asignado a este equipo.</p>
               ` : `
+                <style>
+                  .equipo-member-item {
+                    transition: all 0.2s ease;
+                    border: 1px solid transparent;
+                    border-bottom: 1px solid var(--gray-100);
+                    border-radius: 4px;
+                    cursor: pointer;
+                  }
+                  .equipo-member-item:hover {
+                    background-color: #e0f2fe; /* Light blue */
+                    border-color: #3b82f6; /* Blue border */
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                  }
+                </style>
                 <ul style="list-style:none; padding:0; margin:0;">
                   ${integrantes.map(integ => {
                     const p = personalList.find(item => item.id === integ.id_personal);
@@ -272,7 +290,7 @@ function renderEquiposTab() {
                     const isLeader = integ.rol_en_equipo && integ.rol_en_equipo.toLowerCase().includes('líder');
                     const initials = (p && p.nombre && p.apellido) ? (p.nombre.charAt(0) + p.apellido.charAt(0)).toUpperCase() : 'P';
                     return `
-                      <li style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--gray-100); min-height:64px;">
+                      <li class="equipo-member-item" onclick="mostrarInfoPersonal(${p ? p.id : 'null'})" style="display:flex; justify-content:space-between; align-items:center; padding:12px 8px; min-height:64px; margin-bottom:4px;">
                         <div style="display:flex; align-items:center; gap:12px;">
                           <div style="min-width:36px; height:36px; border-radius:50%; background:var(--celeste-100); color:var(--celeste-dark); display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:13px;">
                             ${initials}
@@ -289,9 +307,9 @@ function renderEquiposTab() {
                             </div>
                           </div>
                         </div>
-                        <div style="display:flex; gap:8px; align-items:center;">
+                        <div style="display:flex; gap:8px; align-items:center;" onclick="event.stopPropagation()">
                           <button class="btn btn-outline btn-sm" onclick="openEditarIntegranteModal(${eq.id}, ${integ.id_personal})" title="Cambiar rol en brigada" style="padding:4px 8px; font-size:11px;">Editar</button>
-                          <button class="btn btn-outline danger btn-sm" onclick="if(confirm('¿Seguro que desea quitar a este integrante del equipo?')) removerIntegranteEquipo(${eq.id}, ${integ.id_personal})" title="Quitar del equipo" style="padding:4px 8px; font-size:13px;">&times;</button>
+                          <button class="btn btn-outline danger btn-sm" onclick="showConfirmModal({ title: 'Quitar Integrante', message: '¿Seguro que desea quitar a este integrante del equipo?', onConfirm: () => removerIntegranteEquipo(${eq.id}, ${integ.id_personal}) })" title="Quitar del equipo" style="padding:4px 8px; font-size:13px;">&times;</button>
                         </div>
                       </li>
                     `;
@@ -1303,3 +1321,5 @@ window.openAsignacionTurnoModal = openAsignacionTurnoModal;
 window.deleteAsignacionTurno = deleteAsignacionTurno;
 window.showConfirmModal = showConfirmModal;
 
+f u n c t i o n   m o s t r a r I n f o P e r s o n a l ( i d )   { }  
+ 
