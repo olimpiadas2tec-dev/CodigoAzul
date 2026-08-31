@@ -98,7 +98,7 @@ function renderAreasTab() {
       <div class="card-body" style="padding-bottom:0;">
         <div class="filters-bar" style="display:flex; flex-wrap:wrap; gap:10px;">
           <div class="filter-group" style="flex:1; min-width:240px;">
-            <input type="text" id="area-search" placeholder="${icon('search')} Buscar área por nombre o descripción..." value="${escapeHtml(areasTabState.searchArea)}" />
+            <input type="text" id="area-search" placeholder="?? Buscar área por nombre o descripción..." value="${escapeHtml(areasTabState.searchArea)}" />
           </div>
           <button class="btn btn-secondary btn-sm" onclick="areasTabState.searchArea=''; renderApp();">Limpiar</button>
         </div>
@@ -209,7 +209,7 @@ function renderCamasTab() {
       <div class="card-body" style="padding-bottom:0;">
         <div class="filters-bar" style="display:flex; flex-wrap:wrap; gap:10px;">
           <div class="filter-group" style="flex:1; min-width:200px;">
-            <input type="text" id="cama-search" placeholder="${icon('search')} Filtrar cama (Ej: Box 1, UTI-02, 301)..." value="${escapeHtml(areasTabState.searchCama)}" />
+            <input type="text" id="cama-search" placeholder="?? Filtrar cama (Ej: Box 1, UTI-02, 301)..." value="${escapeHtml(areasTabState.searchCama)}" />
           </div>
           <div class="filter-group">
             <select id="cama-area-filter">
@@ -628,3 +628,4 @@ window.confirmDeleteArea = confirmDeleteArea;
 window.openCamaModal = openCamaModal;
 window.toggleCamaEstado = toggleCamaEstado;
 window.confirmDeleteCama = confirmDeleteCama;
+

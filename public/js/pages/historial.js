@@ -122,7 +122,7 @@ function renderHistorial() {
         <div class="card-body" style="padding-bottom:0;">
           <div class="filters-bar" style="display:flex;flex-wrap:wrap;gap:10px;">
             <div class="filter-group" style="flex:1;min-width:220px;">
-              <input type="text" id="filter-search" placeholder="${icon('search')} Filtrar en tiempo real por nombre, causa, DNI, equipo..." value="${escapeHtml(historialState.search)}" autofocus />
+              <input type="text" id="filter-search" placeholder="?? Filtrar en tiempo real por nombre, causa, DNI, equipo..." value="${escapeHtml(historialState.search)}" autofocus />
             </div>
             <div class="filter-group">
               <select id="filter-area">
@@ -339,3 +339,4 @@ function confirmDeleteCodigo(id) {
 window.goToPage = goToPage;
 window.clearFilters = clearFilters;
 window.confirmDeleteCodigo = confirmDeleteCodigo;
+

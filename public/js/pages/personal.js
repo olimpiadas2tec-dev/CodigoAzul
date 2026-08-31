@@ -87,7 +87,7 @@ function renderPersonalTab() {
       <div class="card-body" style="padding-bottom:0;">
         <div class="filters-bar" style="display:flex; flex-wrap:wrap; gap:10px;">
           <div class="filter-group" style="flex:1; min-width:240px;">
-            <input type="text" id="personal-search" placeholder="${icon('search')} Filtrar personal por nombre, apellido, DNI o área..." value="${escapeHtml(personalTabState.searchPersonal)}" />
+            <input type="text" id="personal-search" placeholder="?? Filtrar personal por nombre, apellido, DNI o área..." value="${escapeHtml(personalTabState.searchPersonal)}" />
           </div>
           <div class="filter-group">
             <select id="personal-rol-filter">
@@ -486,7 +486,7 @@ function openPersonalModal(editId = null) {
           <!-- ÁREA ASIGNADA (CON TODAS LAS ÁREAS DISPONIBLES + BUSCADOR EN VIVO + SIN DESIGNAR) -->
           <div class="form-group">
             <label style="color:var(--celeste-dark); font-weight:700;">Área / Servicio Asignado *</label>
-            <input type="text" id="filter-pers-area" placeholder="${icon('search')} Filtrar área en tiempo real..." style="font-size:12px; padding:6px 10px; margin-bottom:6px; border:1px solid var(--gray-300); border-radius:6px; width:100%;" />
+            <input type="text" id="filter-pers-area" placeholder="?? Filtrar área en tiempo real..." style="font-size:12px; padding:6px 10px; margin-bottom:6px; border:1px solid var(--gray-300); border-radius:6px; width:100%;" />
             <select id="p-area" required style="font-weight:600;">
               <option value="Sin Designar" ${pers && (!pers.area || pers.area === 'Sin Designar') ? 'selected' : ''}>Sin Designar</option>
               ${areasList.map(a => `
@@ -818,7 +818,7 @@ function openAsignarPersonalEquipoModal(equipoId) {
         <div class="modal-body" style="padding:20px 24px;">
           <div class="form-group" style="margin-bottom:14px;">
             <label>Buscar Profesional Disponible *</label>
-            <input type="text" id="filter-asig-pers-input" placeholder="${icon('search')} Filtrar por nombre o rol en tiempo real..." style="font-size:12.5px; padding:8px 10px; margin-bottom:8px; border:1.5px solid var(--celeste-300); border-radius:6px; width:100%;" />
+            <input type="text" id="filter-asig-pers-input" placeholder="?? Filtrar por nombre o rol en tiempo real..." style="font-size:12.5px; padding:8px 10px; margin-bottom:8px; border:1.5px solid var(--celeste-300); border-radius:6px; width:100%;" />
             
             <select id="asig-p-id" required style="font-size:13px; padding:10px; width:100%;">
               <option value="">-- Seleccionar Profesional Disponible (${availablePersonal.length} libres) --</option>
@@ -1283,3 +1283,4 @@ window.confirmDeleteTurno = confirmDeleteTurno;
 window.openAsignacionTurnoModal = openAsignacionTurnoModal;
 window.deleteAsignacionTurno = deleteAsignacionTurno;
 window.showConfirmModal = showConfirmModal;
+

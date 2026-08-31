@@ -120,7 +120,7 @@ function renderCodigoForm(editId = null) {
 
                 <!-- Buscador y Lista de selección de pacientes (Visible por defecto si no hay seleccionado) -->
                 <div id="paciente-dropdown-wrapper" style="display:${hasPacienteSelected ? 'none' : 'block'}; margin-top:6px;">
-                  <input type="text" id="filter-paciente-input" placeholder="${icon('search')} Filtrar pacientes por nombre, DNI o área..." style="font-size:13px; padding:10px 14px; border:1.5px solid var(--celeste-300); border-radius:8px; width:100%; margin-bottom:8px;" />
+                  <input type="text" id="filter-paciente-input" placeholder="?? Filtrar pacientes por nombre, DNI o área..." style="font-size:13px; padding:10px 14px; border:1.5px solid var(--celeste-300); border-radius:8px; width:100%; margin-bottom:8px;" />
                   
                   <div id="pacientes-list-container" style="max-height:200px; overflow-y:auto; border:1.5px solid var(--gray-300); border-radius:8px; background:var(--white); padding:4px;">
                     ${pacientesList.length === 0 ? `
@@ -198,7 +198,7 @@ function renderCodigoForm(editId = null) {
 
                 <!-- Buscador y Lista de selección de Personal (Visible por defecto si no hay seleccionado) -->
                 <div id="activador-dropdown-wrapper" style="display:${hasActivadorSelected ? 'none' : 'block'}; margin-top:6px;">
-                  <input type="text" id="filter-activador-input" placeholder="${icon('search')} Filtrar personal por nombre, rol o sector en tiempo real..." style="font-size:13px; padding:10px 14px; border:1.5px solid var(--celeste-300); border-radius:8px; width:100%; margin-bottom:8px;" />
+                  <input type="text" id="filter-activador-input" placeholder="?? Filtrar personal por nombre, rol o sector en tiempo real..." style="font-size:13px; padding:10px 14px; border:1.5px solid var(--celeste-300); border-radius:8px; width:100%; margin-bottom:8px;" />
                   
                   <div id="activador-list-container" style="max-height:180px; overflow-y:auto; border:1.5px solid var(--gray-300); border-radius:8px; background:var(--white); padding:4px;">
                     ${personalList.map(pers => {
@@ -826,3 +826,4 @@ window.toggleActivadorList = toggleActivadorList;
 window.selectPacienteItem = selectPacienteItem;
 window.selectActivadorItem = selectActivadorItem;
 window.submitCodigoForm = submitCodigoForm;
+

@@ -37,7 +37,7 @@ function renderMateriales() {
         <div class="card-body" style="padding-bottom:0;">
           <div class="filters-bar" style="display:flex; flex-wrap:wrap; gap:10px;">
             <div class="filter-group" style="flex:1; min-width:240px;">
-              <input type="text" id="mat-search" placeholder="${icon('search')} Buscar por nombre, droga o descripción..." value="${escapeHtml(materialesState.search)}" />
+              <input type="text" id="mat-search" placeholder="?? Buscar por nombre, droga o descripción..." value="${escapeHtml(materialesState.search)}" />
             </div>
             <div class="filter-group">
               <select id="mat-tipo-filter">
@@ -260,3 +260,4 @@ function confirmDeleteMaterial(id) {
 
 window.openMaterialModal = openMaterialModal;
 window.confirmDeleteMaterial = confirmDeleteMaterial;
+

@@ -47,7 +47,7 @@ function renderPacientes() {
         <div class="card-body" style="padding-bottom:0;">
           <div class="filters-bar" style="display:flex; flex-wrap:wrap; gap:10px;">
             <div class="filter-group" style="flex:1; min-width:240px;">
-              <input type="text" id="paciente-search" placeholder="${icon('search')} Filtrar por nombre, apellido, DNI o causa..." value="${escapeHtml(pacientesState.search)}" />
+              <input type="text" id="paciente-search" placeholder="?? Filtrar por nombre, apellido, DNI o causa..." value="${escapeHtml(pacientesState.search)}" />
             </div>
             <div class="filter-group">
               <select id="paciente-area-filter">
@@ -264,7 +264,7 @@ function openPacienteModal(editId = null) {
             <!-- Médico / Personal a Cargo con Buscador en Tiempo Real -->
             <div class="form-group full-width" style="grid-column: 1 / -1;">
               <label style="color:var(--celeste-dark); font-weight:700;">Médico / Personal de Salud a Cargo *</label>
-              <input type="text" id="filter-modal-personal" placeholder="${icon('search')} Filtrar personal por nombre, apellido o rol..." style="font-size:12.5px; padding:6px 10px; margin-bottom:6px; border:1.5px solid var(--celeste-300); border-radius:6px; width:100%;" />
+              <input type="text" id="filter-modal-personal" placeholder="?? Filtrar personal por nombre, apellido o rol..." style="font-size:12.5px; padding:6px 10px; margin-bottom:6px; border:1.5px solid var(--celeste-300); border-radius:6px; width:100%;" />
               <select id="m-personal" required style="font-weight:600; padding:8px 10px; border-radius:6px; width:100%;">
                 <option value="">-- Seleccionar Profesional Responsable --</option>
                 ${personalList.map(pers => `
@@ -487,3 +487,4 @@ window.openPacienteModal = openPacienteModal;
 window.confirmAltaPaciente = confirmAltaPaciente;
 window.doAltaPaciente = doAltaPaciente;
 window.reingresarPaciente = reingresarPaciente;
+
