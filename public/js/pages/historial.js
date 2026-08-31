@@ -228,22 +228,15 @@ function renderHistorial() {
                 const isFatal = d.estado.value === 'fatal';
 
                 return `
-                  <tr style="${isFatal ? 'background:#fff8f8; border-left:4px solid #ef4444;' : 'border-left:4px solid #10b981;'}">
+                  <tr class="historial-row" onclick="window.location.hash='#/detalle/${d.id}'" title="Haga clic en la fila para ver la Ficha Clínica Completa de ${escapeHtml(d.paciente)}" style="${isFatal ? 'background:#fff8f8; border-left:4px solid #ef4444;' : 'border-left:4px solid #10b981;'}">
                     <td style="vertical-align:middle; font-weight:600; color:var(--gray-400);">${d.id}</td>
-                    <td style="vertical-align:middle; padding:4px 6px;">
-                      <a href="#/detalle/${d.id}" class="paciente-hover-card" title="Haga clic para seleccionar y ver la Ficha Clínica de ${escapeHtml(d.paciente)}">
-                        <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
-                          <div class="paciente-hover-title" style="font-weight:700; color:var(--gray-900); font-size:13.5px; transition:color 0.15s ease;">
-                            ${escapeHtml(d.paciente)}
-                          </div>
-                          <span class="paciente-hover-badge" style="font-size:10.5px; font-weight:700; background:var(--gray-200); color:var(--gray-700); padding:2px 7px; border-radius:6px; transition:all 0.15s ease;">
-                            Ver Ficha 👁️
-                          </span>
-                        </div>
-                        <div style="font-size:11.5px; color:var(--gray-500); margin-top:3px;">
-                          DNI: ${escapeHtml(d.dni ? formatDNI(d.dni) : 'S/D')} &middot; <span style="color:var(--gray-700); font-weight:600;">${escapeHtml(d.area)} [${escapeHtml(d.cama || 'Cama')}]</span>
-                        </div>
-                      </a>
+                    <td style="vertical-align:middle;">
+                      <div style="font-weight:700; color:var(--gray-900); font-size:14px;">
+                        ${escapeHtml(d.paciente)}
+                      </div>
+                      <div style="font-size:11.5px; color:var(--gray-500); margin-top:2px;">
+                        DNI: ${escapeHtml(d.dni ? formatDNI(d.dni) : 'S/D')} &middot; <span style="color:var(--gray-700); font-weight:600;">${escapeHtml(d.area)} [${escapeHtml(d.cama || 'Cama')}]</span>
+                      </div>
                     </td>
                     <td style="vertical-align:middle;">
                       <span style="font-size:12px; font-weight:700; color:var(--gray-800); background:var(--gray-100); border:1px solid var(--gray-300); padding:4px 8px; border-radius:6px; display:inline-block;">
@@ -255,7 +248,7 @@ function renderHistorial() {
                       <div style="font-size:10.5px; color:var(--gray-400);">${formatDate(d.fecha)}</div>
                     </td>
                     <td style="vertical-align:middle;">
-                      <button class="btn btn-outline btn-xs" style="font-size:11.5px; font-weight:700; background:var(--gray-50); color:var(--gray-800); border:1px solid var(--gray-300); display:inline-flex; align-items:center; gap:5px; padding:4px 8px; cursor:pointer; border-radius:6px;" onclick="showEquipoIntegrantesModal('${escapeHtml(d.equipoEncargado || 'Equipo A')}', '${escapeHtml(d.turno || 'Guardia')}')" title="Ver integrantes del ${escapeHtml(d.equipoEncargado || 'Equipo A')}">
+                      <button class="btn btn-outline btn-xs" style="font-size:11.5px; font-weight:700; background:var(--gray-50); color:var(--gray-800); border:1px solid var(--gray-300); display:inline-flex; align-items:center; gap:5px; padding:4px 8px; cursor:pointer; border-radius:6px;" onclick="event.stopPropagation(); showEquipoIntegrantesModal('${escapeHtml(d.equipoEncargado || 'Equipo A')}', '${escapeHtml(d.turno || 'Guardia')}')" title="Ver integrantes del ${escapeHtml(d.equipoEncargado || 'Equipo A')}">
                         ${icon('users', 13)} ${escapeHtml(d.equipoEncargado || 'Equipo A')}
                       </button>
                       <div style="font-size:10.5px; color:var(--gray-400); margin-top:3px;">${escapeHtml(d.turno || 'Guardia')}</div>
@@ -285,10 +278,10 @@ function renderHistorial() {
                     </td>
                     <td style="vertical-align:middle; text-align:right;">
                       <div style="display:inline-flex; gap:6px; justify-content:flex-end;">
-                        <a href="#/editar/${d.id}" class="btn btn-outline btn-sm" style="padding:4px 10px; font-size:11.5px; font-weight:700; color:var(--gray-700); border-color:var(--gray-300); background:#fff;" title="Editar Registro de Código Azul">
+                        <a href="#/editar/${d.id}" onclick="event.stopPropagation();" class="btn btn-outline btn-sm" style="padding:4px 10px; font-size:11.5px; font-weight:700; color:var(--gray-700); border-color:var(--gray-300); background:#fff;" title="Editar Registro de Código Azul">
                           ${icon('edit', 13)} Editar
                         </a>
-                        <button class="btn btn-outline btn-sm" style="padding:4px 10px; font-size:11.5px; font-weight:700; color:#b91c1c; border-color:#fca5a5; background:#fef2f2;" onclick="confirmDeleteCodigo(${d.id})" title="Eliminar Registro de Auditoría">
+                        <button class="btn btn-outline btn-sm" style="padding:4px 10px; font-size:11.5px; font-weight:700; color:#b91c1c; border-color:#fca5a5; background:#fef2f2;" onclick="event.stopPropagation(); confirmDeleteCodigo(${d.id});" title="Eliminar Registro de Auditoría">
                           ${icon('trash', 13)} Eliminar
                         </button>
                       </div>
