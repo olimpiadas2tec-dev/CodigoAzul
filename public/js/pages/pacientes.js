@@ -78,8 +78,8 @@ function renderPacientes() {
                 <th style="padding:12px 10px; vertical-align:middle; text-align:left;">Causa / Diagnóstico</th>
                 <th style="padding:12px 10px; vertical-align:middle; text-align:left;">Médico Responsable</th>
                 <th style="padding:12px 10px; vertical-align:middle; text-align:left;">Grupo & Alergias</th>
-                <th style="padding:12px 10px; vertical-align:middle; text-align:center;">Estado</th>
-                <th style="padding:12px 14px; vertical-align:middle; text-align:center; position:sticky; right:0; background:var(--gray-50); z-index:5; box-shadow:-4px 0 8px -2px rgba(0,0,0,0.06); white-space:nowrap;">Acciones</th>
+                <th style="padding:12px 16px; vertical-align:middle; text-align:center; white-space:nowrap;">Estado</th>
+                <th style="padding:8px 10px; vertical-align:middle; text-align:center; position:sticky; right:0; background:var(--gray-50); z-index:5; box-shadow:-6px 0 10px -4px rgba(0,0,0,0.08); white-space:nowrap;">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -139,20 +139,25 @@ function renderPacientes() {
                         `}
                       </div>
                     </td>
-                    <td style="padding:12px 10px; vertical-align:middle; text-align:center;">
-                      <span class="badge ${p.activo ? 'badge-success' : 'badge-warning'}">
+                    <td style="padding:10px 16px; vertical-align:middle; text-align:center; white-space:nowrap;">
+                      <span class="badge ${p.activo ? 'badge-success' : 'badge-warning'}" style="font-size:11px; padding:3px 8px;">
                         ${p.activo ? 'Internado' : 'Alta'}
                       </span>
                     </td>
-                    <td style="padding:12px 14px; vertical-align:middle; text-align:center; position:sticky; right:0; background:var(--white); z-index:2; box-shadow:-4px 0 8px -2px rgba(0,0,0,0.06); white-space:nowrap;">
-                      <div style="display:flex; gap:10px; align-items:center; justify-content:center;">
-                        <button class="action-link" style="font-size:12px; font-weight:600;" onclick="openPacienteModal(${p.id})">Editar</button>
+                    <td style="padding:8px 10px; vertical-align:middle; text-align:center; position:sticky; right:0; background:var(--white); z-index:2; box-shadow:-6px 0 10px -4px rgba(0,0,0,0.08); white-space:nowrap;">
+                      <div style="display:flex; gap:6px; align-items:center; justify-content:center;">
+                        <button class="action-link" style="font-size:11.5px; font-weight:600;" onclick="openPacienteModal(${p.id})">Editar</button>
                         ${p.activo ? `
-                          <button class="btn btn-sm" style="padding:4px 10px; font-size:11.5px; font-weight:600; background:#059669; color:#ffffff; border:none; border-radius:6px; display:inline-flex; align-items:center; gap:4px; box-shadow:0 1px 2px rgba(0,0,0,0.1); cursor:pointer;" onclick="confirmAltaPaciente(${p.id})" title="Registrar Alta Médica (Requiere confirmación)">
-                            ${icon('checkCircle', 12)} Dar de Alta
+                          <button class="btn btn-sm" style="padding:3px 7px; font-size:11px; font-weight:600; background:#059669; color:#ffffff; border:none; border-radius:5px; display:inline-flex; align-items:center; gap:3px; box-shadow:0 1px 2px rgba(0,0,0,0.08); cursor:pointer;" onclick="confirmAltaPaciente(${p.id})" title="Registrar Alta Médica (Requiere confirmación)">
+                            ${icon('checkCircle', 11)} Dar de Alta
                           </button>
                         ` : `
-                          <button class="btn btn-sm" style="padding:4px 10px; font-size:11.5px; font-weight:600; background:var(--celeste-dark); color:#ffffff; border:none; border-radius:6px; display:inline-flex; align-items:center; gap:4px; box-shadow:0 1px 2px rgba(0,0,0,0.1); cursor:pointer;" onclick="reingresarPaciente(${p.id})" title="Reingresar Paciente">
+                          <button class="btn btn-sm" style="padding:3px 7px; font-size:11px; font-weight:600; background:var(--celeste-dark); color:#ffffff; border:none; border-radius:5px; display:inline-flex; align-items:center; gap:3px; box-shadow:0 1px 2px rgba(0,0,0,0.08); cursor:pointer;" onclick="reingresarPaciente(${p.id})" title="Reingresar Paciente">
+                            ${icon('refreshCw', 11)} Reingresar
+                          </button>
+                        `}
+                      </div>
+                    </td>
                             ${icon('refreshCw', 12)} Reingresar
                           </button>
                         `}
