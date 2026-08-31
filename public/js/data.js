@@ -43,96 +43,36 @@ function generateInitialCamas() {
   let camaId = 1;
   AREAS_DATA.forEach(area => {
     for (let i = 1; i <= area.cantidad_camas; i++) {
+      const numCama = generarNumeroCama(area.nombre, i);
+      const pacObj = (typeof PACIENTES !== 'undefined' && Array.isArray(PACIENTES)) ? PACIENTES.find(p => p.activo && p.area === area.nombre && p.cama === numCama) : null;
       camas.push({
         id: camaId++,
         id_area: area.id,
         area_nombre: area.nombre,
-        numero: generarNumeroCama(area.nombre, i),
-        estado: i % 3 === 0 ? 'Ocupada' : 'Libre'
+        numero: numCama,
+        estado: pacObj ? 'Ocupada' : 'Libre',
+        id_paciente: pacObj ? pacObj.id : null,
+        paciente_nombre: pacObj ? `${pacObj.apellido}, ${pacObj.nombre}` : null
       });
     }
   });
   return camas;
 }
 
-let CAMAS_DATA = generateInitialCamas();
-
-let AREAS = AREAS_DATA.map(a => a.nombre);
-
-const ESTADOS = [
-  { value: 'resuelto', label: 'Exitoso (ROSC)', badge: 'badge-success' },
-  { value: 'fatal', label: 'Fatal (Fallecido)', badge: 'badge-danger' }
-];
-
-const CAUSAS_PREDEFINIDAS = [
-  'Paro Cardiorrespiratorio (PCR) Presenciado',
-  'Fibrilación Ventricular (FV) / Taquicardia Ventricular sin Pulso (TVSP)',
-  'Asistolia / Actividad Eléctrica sin Pulso (AESP)',
-  'Infarto Agudo de Miocardio (IAM) Complicado',
-  'Shock Cardiogénico Descompensado',
-  'Edema Agudo de Pulmón Severo / Falla Respiratoria',
-  'Politraumatismo con Shock Hipovolémico',
-  'Bloqueo AV Completo con Síncope',
-  'Estenosis Aórtica Severa Descompensada',
-  'Otro'
-];
-
-const ROLES_EN_EQUIPO = [
-  'Líder de Reanimación (Team Leader)',
-  'Vía Aérea y Ventilación',
-  'Compresiones Torácicas / RCP',
-  'Acceso Vascular / Farmacoterapia',
-  'Monitoreo y Desfibrilación',
-  'Registro y Cronómetro (Circulante)'
-];
-
-const INTERVENCIONES_LISTA = [
-  'RCP de Alta Calidad',
-  'Desfibrilación Precoz',
-  'Intubación Endotraqueal',
-  'Administración de Adrenalina',
-  'Administración de Amiodarona',
-  'Acceso Vascular / Vía Intraósea',
-  'Manejo Avanzado de Vía Aérea',
-  'Compresiones Torácicas Continuas',
-  'Monitoreo Multiparamétrico',
-  'Cardioversión Eléctrica'
-];
-
-let ROLES_SALUD = [
-  { id: 1, nombre_rol: 'Médico Especialista en Terapia Intensiva' },
-  { id: 2, nombre_rol: 'Médico Cardiólogo' },
-  { id: 3, nombre_rol: 'Médico Emergentólogo' },
-  { id: 4, nombre_rol: 'Lic. en Enfermería - Cuidados Críticos' },
-  { id: 5, nombre_rol: 'Enfermero/a de Guardia' },
-  { id: 6, nombre_rol: 'Kinesiólogo/a Respiratorio' }
-];
-
-let PERSONAL_SALUD = [
-  { id: 1, apellido: 'Méndez', nombre: 'Carlos', dni: '28345678', telefono: '11-4567-8901', id_rol_profesional: 1, nombre_rol: 'Médico Especialista en Terapia Intensiva', area: 'Unidad de Terapia Intensiva (UTI)' },
-  { id: 2, apellido: 'Gutiérrez', nombre: 'Laura', dni: '31234567', telefono: '11-5678-1234', id_rol_profesional: 2, nombre_rol: 'Médico Cardiólogo', area: 'Cardiología' },
-  { id: 3, apellido: 'Sánchez', nombre: 'Roberto', dni: '26789012', telefono: '11-6789-2345', id_rol_profesional: 3, nombre_rol: 'Médico Emergentólogo', area: 'Urgencias / Shock Room' },
-  { id: 4, apellido: 'Torres', nombre: 'María', dni: '33456789', telefono: '11-7890-3456', id_rol_profesional: 1, nombre_rol: 'Médico Especialista en Terapia Intensiva', area: 'Unidad de Terapia Intensiva (UTI)' },
-  { id: 5, apellido: 'López', nombre: 'Fernando', dni: '29876543', telefono: '11-8901-4567', id_rol_profesional: 2, nombre_rol: 'Médico Cardiólogo', area: 'Cardiología' },
-  { id: 6, apellido: 'Ramírez', nombre: 'Ana', dni: '35678901', telefono: '11-9012-5678', id_rol_profesional: 4, nombre_rol: 'Lic. en Enfermería - Cuidados Críticos', area: 'Piso 4A' },
-  { id: 7, apellido: 'Luna', nombre: 'Patricia', dni: '30123456', telefono: '11-2345-6789', id_rol_profesional: 4, nombre_rol: 'Lic. en Enfermería - Cuidados Críticos', area: 'Urgencias / Shock Room' },
-  { id: 8, apellido: 'López', nombre: 'María Elena', dni: '32145678', telefono: '11-4589-1234', id_rol_profesional: 4, nombre_rol: 'Lic. en Enfermería - Cuidados Críticos', area: 'Cardiología' },
-  { id: 9, apellido: 'Gómez', nombre: 'Juan Roberto', dni: '29876544', telefono: '11-5678-9012', id_rol_profesional: 5, nombre_rol: 'Enfermero/a de Guardia', area: 'Urgencias / Shock Room' },
-  { id: 10, apellido: 'Fernández', nombre: 'Ana Clara', dni: '35123987', telefono: '11-3456-7890', id_rol_profesional: 5, nombre_rol: 'Enfermero/a de Guardia', area: 'Centro Quirúrgico' }
-];
-
 let PACIENTES = [
-  { id: 11, apellido: 'Pérez', nombre: 'Juan', dni: '14253647', edad: 68, fecha_nacimiento: '1956-05-14', causa: 'Infarto Agudo de Miocardio (IAM)', area: 'Cardiología', cama: 'Cama 304', grupo: 'A+', alergias: 'Penicilina', id_personal: 1, activo: true },
-  { id: 12, apellido: 'García', nombre: 'María', dni: '12456789', edad: 72, fecha_nacimiento: '1952-10-25', causa: 'Insuficiencia Cardíaca Descompensada', area: 'Piso 4A', cama: 'Cama 412', grupo: 'O+', alergias: 'Ninguna', id_personal: 2, activo: true },
-  { id: 13, apellido: 'Rodríguez', nombre: 'Pedro', dni: '18976453', edad: 55, fecha_nacimiento: '1969-03-08', causa: 'Shock Cardiogénico / Fibrilación Ventricular', area: 'Urgencias / Shock Room', cama: 'Box 2', grupo: 'B+', alergias: 'Sulfas', id_personal: 3, activo: true },
-  { id: 14, apellido: 'Martínez', nombre: 'Ana', dni: '10987654', edad: 80, fecha_nacimiento: '1944-07-19', causa: 'Edema Agudo de Pulmón Severo', area: 'Piso 3A', cama: 'Cama 315', grupo: 'A-', alergias: 'Iodo', id_personal: 1, activo: true },
-  { id: 15, apellido: 'Hernández', Luis: 'Luis', apellido: 'Hernández', nombre: 'Luis', dni: '16789012', edad: 63, fecha_nacimiento: '1961-09-12', causa: 'Politraumatismo / Shock Hipovolémico', area: 'Urgencias / Shock Room', cama: 'Cama 108', grupo: 'O-', alergias: 'Ninguna', id_personal: 3, activo: true },
+  { id: 11, apellido: 'Pérez', nombre: 'Juan', dni: '14253647', edad: 68, fecha_nacimiento: '1956-05-14', causa: 'Infarto Agudo de Miocardio (IAM)', area: 'Cardiología', cama: 'CARD-04', grupo: 'A+', alergias: 'Penicilina', id_personal: 1, activo: true },
+  { id: 12, apellido: 'García', nombre: 'María', dni: '12456789', edad: 72, fecha_nacimiento: '1952-10-25', causa: 'Insuficiencia Cardíaca Descompensada', area: 'Piso 4A', cama: '4A-02', grupo: 'O+', alergias: 'Ninguna', id_personal: 2, activo: true },
+  { id: 13, apellido: 'Rodríguez', nombre: 'Pedro', dni: '18976453', edad: 55, fecha_nacimiento: '1969-03-08', causa: 'Shock Cardiogénico / Fibrilación Ventricular', area: 'Urgencias / Shock Room', cama: 'URG-03', grupo: 'B+', alergias: 'Sulfas', id_personal: 3, activo: true },
+  { id: 14, apellido: 'Martínez', nombre: 'Ana', dni: '10987654', edad: 80, fecha_nacimiento: '1944-07-19', causa: 'Edema Agudo de Pulmón Severo', area: 'Piso 3A', cama: '3A-05', grupo: 'A-', alergias: 'Iodo', id_personal: 1, activo: true },
+  { id: 15, apellido: 'Hernández', nombre: 'Luis', dni: '16789012', edad: 63, fecha_nacimiento: '1961-09-12', causa: 'Politraumatismo / Shock Hipovolémico', area: 'Urgencias / Shock Room', cama: 'URG-06', grupo: 'O-', alergias: 'Ninguna', id_personal: 3, activo: true },
   { id: 16, apellido: 'Flores', nombre: 'Carmen', dni: '13456789', edad: 75, fecha_nacimiento: '1949-01-30', causa: 'Postoperatorio Cirugía Cardiovascular / Asistolia', area: 'Unidad de Terapia Intensiva (UTI)', cama: 'UTI-02', grupo: 'AB+', alergias: 'AINEs', id_personal: 4, activo: true },
-  { id: 17, apellido: 'Sánchez', nombre: 'Roberto C.', dni: '21345678', edad: 49, fecha_nacimiento: '1975-04-18', causa: 'Bloqueo AV Completo con Síncope', area: 'Piso 5 - Cirugía', cama: 'Cama 504', grupo: 'B-', alergias: 'Ninguna', id_personal: 5, activo: true },
-  { id: 18, apellido: 'Torres', nombre: 'Isabel', dni: '09876543', edad: 83, fecha_nacimiento: '1941-12-05', causa: 'Estenosis Aórtica Severa / Paro Cardiorrespiratorio', area: 'Piso 4A', cama: 'Cama 402', grupo: 'O+', alergias: 'Látex', id_personal: 2, activo: true },
-  { id: 19, apellido: 'López', nombre: 'Fernando M.', dni: '17890123', edad: 58, fecha_nacimiento: '1966-08-22', causa: 'Cardiopatía Isquémica Crónica Agudizada', area: 'Piso 3B', cama: 'Cama 320', grupo: 'A+', alergias: 'Ninguna', id_personal: 5, activo: true },
+  { id: 17, apellido: 'Sánchez', nombre: 'Roberto C.', dni: '21345678', edad: 49, fecha_nacimiento: '1975-04-18', causa: 'Bloqueo AV Completo con Síncope', area: 'Piso 5 - Cirugía', cama: 'CIR-04', grupo: 'B-', alergias: 'Ninguna', id_personal: 5, activo: true },
+  { id: 18, apellido: 'Torres', nombre: 'Isabel', dni: '09876543', edad: 83, fecha_nacimiento: '1941-12-05', causa: 'Estenosis Aórtica Severa / Paro Cardiorrespiratorio', area: 'Piso 4A', cama: '4A-08', grupo: 'O+', alergias: 'Látex', id_personal: 2, activo: true },
+  { id: 19, apellido: 'López', nombre: 'Fernando M.', dni: '17890123', edad: 58, fecha_nacimiento: '1966-08-22', causa: 'Cardiopatía Isquémica Crónica Agudizada', area: 'Piso 3B', cama: '3B-04', grupo: 'A+', alergias: 'Ninguna', id_personal: 5, activo: true },
   { id: 20, apellido: 'Gómez', nombre: 'Carlos', dni: '20123456', edad: 52, fecha_nacimiento: '1973-11-15', causa: 'Paro Presenciado en Guardia / Taquicardia Ventricular', area: 'Unidad de Terapia Intensiva (UTI)', cama: 'UTI-05', grupo: 'O+', alergias: 'Dipirona', id_personal: 1, activo: true }
 ];
+
+let CAMAS_DATA = generateInitialCamas();
 
 let TURNOS = [
   { id: 1, nombre: 'Turno Mañana', hora_inicio: '06:00', hora_fin: '14:00' },

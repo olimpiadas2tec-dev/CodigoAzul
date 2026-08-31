@@ -119,7 +119,7 @@ function renderPacientes() {
                     </td>
                     <td style="padding:12px 10px; vertical-align:middle;">
                       <div style="font-weight:600; color:var(--gray-700);">${escapeHtml(p.area)}</div>
-                      <div style="font-size:11px; color:var(--celeste-dark); font-weight:700;">${icon('bed')} ${escapeHtml(p.cama || 'Cama Guardia')}</div>
+                      <div style="font-size:11px; color:var(--gray-700); font-weight:700;">${icon('bed')} ${escapeHtml(p.cama || 'Sin Cama')}</div>
                     </td>
                     <td style="padding:12px 10px; vertical-align:middle;">
                       <span style="font-size:12px; font-weight:600; color:var(--gray-800); background:var(--gray-100); border:1px solid var(--gray-200); padding:4px 8px; border-radius:6px; display:inline-block;">
