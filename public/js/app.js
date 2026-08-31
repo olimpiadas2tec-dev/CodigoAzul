@@ -69,28 +69,28 @@ function renderLayout(content, activeRoute) {
           <div class="sidebar-logo" title="Sistema Código Azul">${icon('heart')}</div>
         </div>
         <nav class="sidebar-nav">
-          <a href="#/dashboard" class="${activeRoute === 'dashboard' ? 'active' : ''}" data-tooltip="Dashboard">
+          <a href="#/dashboard" class="${activeRoute === 'dashboard' ? 'active' : ''}" data-tooltip="Dashboard" title="Dashboard">
             ${SVG.dashboard}
           </a>
-          <a href="#/historial" class="${activeRoute === 'historial' ? 'active' : ''}" data-tooltip="Historial">
+          <a href="#/historial" class="${activeRoute === 'historial' ? 'active' : ''}" data-tooltip="Historial" title="Historial">
             ${SVG.historial}
           </a>
-          <a href="#/nuevo" class="${activeRoute === 'nuevo' ? 'active' : ''}" data-tooltip="Nuevo Código">
+          <a href="#/nuevo" class="${activeRoute === 'nuevo' ? 'active' : ''}" data-tooltip="Nuevo Código" title="Nuevo Código de Emergencia">
             ${SVG.nuevo}
           </a>
-          <a href="#/pacientes" class="${activeRoute === 'pacientes' ? 'active' : ''}" data-tooltip="Pacientes">
+          <a href="#/pacientes" class="${activeRoute === 'pacientes' ? 'active' : ''}" data-tooltip="Pacientes" title="Gestión de Pacientes">
             ${SVG.pacientes}
           </a>
-          <a href="#/areas" class="${activeRoute === 'areas' ? 'active' : ''}" data-tooltip="Áreas y Camas">
+          <a href="#/areas" class="${activeRoute === 'areas' ? 'active' : ''}" data-tooltip="Áreas y Camas" title="Áreas y Camas Hospitalarias">
             ${SVG.areas}
           </a>
-          <a href="#/personal" class="${activeRoute === 'personal' ? 'active' : ''}" data-tooltip="Personal y Equipos">
+          <a href="#/personal" class="${activeRoute === 'personal' ? 'active' : ''}" data-tooltip="Personal y Equipos" title="Personal de Salud y Equipos">
             ${SVG.personal}
           </a>
-          <a href="#/materiales" class="${activeRoute === 'materiales' ? 'active' : ''}" data-tooltip="Carro de Paro">
+          <a href="#/materiales" class="${activeRoute === 'materiales' ? 'active' : ''}" data-tooltip="Carro de Paro" title="Materiales y Carro de Paro">
             ${SVG.materiales}
           </a>
-          <a href="#/reportes" class="${activeRoute === 'reportes' ? 'active' : ''}" data-tooltip="Reportes">
+          <a href="#/reportes" class="${activeRoute === 'reportes' ? 'active' : ''}" data-tooltip="Reportes" title="Reportes y Estadísticas">
             ${SVG.reportes}
           </a>
         </nav>
