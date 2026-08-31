@@ -25,6 +25,20 @@ function logout() {
   window.location.hash = '#/login';
 }
 
+function handleLogout() {
+  if (typeof showConfirmModal === 'function') {
+    showConfirmModal({
+      title: 'Cerrar Sesión',
+      message: '¿Está seguro de que desea salir del sistema Código Azul?',
+      onConfirm: () => {
+        logout();
+      }
+    });
+  } else {
+    logout();
+  }
+}
+
 function renderLayout(content, activeRoute) {
   const user = getUser();
   const activeCodes = (typeof getData === 'function' ? getData() : []).filter(d => d.estado && d.estado.value === 'pendiente');
@@ -81,10 +95,10 @@ function renderLayout(content, activeRoute) {
           </a>
         </nav>
         <div class="sidebar-footer">
-          <div class="sidebar-avatar" title="${user?.user || 'Admin'} (${user?.role || 'Admin'})">${user?.initials || 'AD'}</div>
           <button class="sidebar-logout" onclick="handleLogout()" title="Cerrar Sesión">
             ${SVG.logout}
           </button>
+          <div class="sidebar-avatar" title="${user?.user || 'Admin'} (${user?.role || 'Admin'})">${user?.initials || 'AD'}</div>
         </div>
       </aside>
       <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
@@ -97,7 +111,7 @@ function renderLayout(content, activeRoute) {
   `;
 }
 
-window.handleLogout = logout;
+window.handleLogout = handleLogout;
 
 function parseRoute() {
   const hash = window.location.hash.replace('#/', '') || 'login';

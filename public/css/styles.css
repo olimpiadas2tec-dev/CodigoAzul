@@ -299,24 +299,26 @@ body {
 .sidebar-logout {
   background: none;
   border: none;
-  color: rgba(255,255,255,0.5);
+  color: rgba(255,255,255,0.7);
   cursor: pointer;
-  padding: 8px;
+  padding: 10px;
   border-radius: 12px;
   transition: var(--transition);
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
+  width: 44px;
+  height: 44px;
 }
 
 .sidebar-logout:hover {
-  background: rgba(255,255,255,0.15);
-  color: var(--white);
+  background: rgba(239, 68, 68, 0.25);
+  color: #f87171;
 }
 
 .sidebar-logout::after {
-  content: 'Cerrar sesion';
+  content: 'Cerrar sesión';
   position: absolute;
   left: calc(100% + 12px);
   top: 50%;
@@ -330,23 +332,14 @@ body {
   white-space: nowrap;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  transform: translateY(-50%) translateX(-4px);
   z-index: 200;
 }
 
 .sidebar-logout:hover::after {
   opacity: 1;
-}
-  color: var(--gray-400);
-  cursor: pointer;
-  padding: 6px;
-  border-radius: var(--radius);
-  transition: var(--transition);
-}
-
-.sidebar-logout:hover {
-  background: var(--danger-light);
-  color: var(--danger);
+  transform: translateY(-50%) translateX(0);
 }
 
 /* ===== MAIN ===== */
