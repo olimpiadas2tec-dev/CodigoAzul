@@ -311,14 +311,14 @@ function renderEquiposTab() {
                     <div style="font-size:12px; color:var(--gray-500); margin-top:2px;">${escapeHtml(eq.descripcion || 'Brigada de Paro Cardíaco')}</div>
                   </div>
                 </div>
-                <div style="display:flex; gap:8px;">
+                <div style="display:flex; gap:12px; align-items:center;">
                   <button class="btn btn-outline btn-sm" onclick="openAsignarPersonalEquipoModal(${eq.id})" title="Asignar Integrante">
                     + Asignar
                   </button>
-                  <button class="btn btn-secondary btn-sm" onclick="openEquipoModal(${eq.id})" title="Editar Equipo" style="padding:4px 8px; font-size:12px;">
-                    ${icon('edit')}
+                  <button class="action-link" onclick="openEquipoModal(${eq.id})" title="Editar Equipo">Editar</button>
+                  <button class="action-link danger" onclick="confirmDeleteEquipo(${eq.id})" title="Eliminar Equipo" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
+                    ${icon('trash', 16)}
                   </button>
-                  <button class="btn btn-outline danger btn-sm" onclick="confirmDeleteEquipo(${eq.id})" style="padding:4px 8px;" title="Eliminar Equipo">&times;</button>
                 </div>
               </div>
             </div>
@@ -368,9 +368,11 @@ function renderEquiposTab() {
                             </div>
                           </div>
                         </div>
-                        <div style="display:flex; gap:8px; align-items:center;" onclick="event.stopPropagation()">
-                          <button class="btn btn-outline btn-sm" onclick="openEditarIntegranteModal(${eq.id}, ${integ.id_personal})" title="Cambiar rol en brigada" style="padding:4px 8px; font-size:11px;">Editar</button>
-                          <button class="btn btn-outline danger btn-sm" onclick="showConfirmModal({ title: 'Quitar Integrante', message: '¿Seguro que desea quitar a este integrante del equipo?', onConfirm: () => removerIntegranteEquipo(${eq.id}, ${integ.id_personal}) })" title="Quitar del equipo" style="padding:4px 8px; font-size:13px;">&times;</button>
+                        <div style="display:flex; gap:16px; align-items:center;" onclick="event.stopPropagation()">
+                          <button class="action-link" onclick="openEditarIntegranteModal(${eq.id}, ${integ.id_personal})" title="Cambiar rol en brigada">Editar</button>
+                          <button class="action-link danger" onclick="showConfirmModal({ title: 'Quitar Integrante', message: '¿Seguro que desea quitar a este integrante del equipo?', onConfirm: () => removerIntegranteEquipo(${eq.id}, ${integ.id_personal}) })" title="Quitar del equipo" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
+                            ${icon('trash', 16)}
+                          </button>
                         </div>
                       </li>
                     `;
