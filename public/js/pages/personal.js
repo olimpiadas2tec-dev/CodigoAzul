@@ -335,14 +335,14 @@ function renderTurnosTab() {
     <div class="two-col-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
       
       <!-- Card 1: Horarios de Turnos -->
-      <div class="card scale-in">
+      <div class="card scale-in" style="background:#fafafa; border:1px solid var(--gray-200); box-shadow:none;">
         <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
           <div>
             <h2 style="margin:0;">Horarios de Turnos (Mañana, Tarde, Noche)</h2>
             <p style="font-size:12px; color:var(--gray-500); margin:0;">Franjas horarias no solapadas</p>
           </div>
           <button class="btn btn-primary btn-sm" onclick="openTurnoModal()">
-            + Nuevo Turno Horario
+            ${icon('plus', 16)} Nuevo Turno Horario
           </button>
         </div>
         <div class="card-body" style="padding:0;">
@@ -356,19 +356,28 @@ function renderTurnosTab() {
               </tr>
             </thead>
             <tbody>
-              ${turnosList.map(t => `
+              ${turnosList.map(t => {
+                const isCovered = asignacionesList.some(a => a.turno_nombre === t.nombre);
+                return `
                 <tr style="border-bottom:1px solid var(--gray-100);">
-                  <td style="padding:10px 14px; font-weight:700;">${escapeHtml(t.nombre)}</td>
-                  <td style="padding:10px 14px; color:var(--gray-600);">${t.hora_inicio}</td>
-                  <td style="padding:10px 14px; color:var(--gray-600);">${t.hora_fin}</td>
-                  <td style="padding:10px 14px;">
-                    <div style="display:flex; gap:6px;">
+                  <td style="padding:10px 14px; font-weight:700; vertical-align:middle;">
+                    ${escapeHtml(t.nombre)}
+                    <span class="badge" style="margin-left:8px; font-size:10px; padding:2px 6px; ${isCovered ? 'background:#d1fae5; color:#065f46; border:1px solid #a7f3d0;' : 'background:#fee2e2; color:#991b1b; border:1px solid #fecaca;'}">
+                      ${isCovered ? 'Cubierto' : 'Sin asignar'}
+                    </span>
+                  </td>
+                  <td style="padding:10px 14px; color:var(--gray-600); vertical-align:middle;">${t.hora_inicio}</td>
+                  <td style="padding:10px 14px; color:var(--gray-600); vertical-align:middle;">${t.hora_fin}</td>
+                  <td style="padding:10px 14px; vertical-align:middle;">
+                    <div style="display:flex; align-items:center; gap:16px;">
                       <button class="action-link" onclick="openTurnoModal(${t.id})">Editar</button>
-                      <button class="action-link danger" onclick="confirmDeleteTurno(${t.id})">Eliminar</button>
+                      <button class="action-link danger" onclick="confirmDeleteTurno(${t.id})" title="Eliminar" style="display:flex; align-items:center; border:none; background:none;">
+                        ${icon('trash', 16)}
+                      </button>
                     </div>
                   </td>
                 </tr>
-              `).join('')}
+              `;}).join('')}
             </tbody>
           </table>
         </div>
@@ -382,7 +391,7 @@ function renderTurnosTab() {
             <p style="font-size:12px; color:var(--gray-500); margin:0;">Regla 1 a 1: 1 equipo por turno</p>
           </div>
           <button class="btn btn-primary btn-sm" onclick="openAsignacionTurnoModal()" style="background:var(--celeste); border:none;">
-            ${icon('calendar')} Asignar Turno a Equipo
+            ${icon('calendar', 16)} Asignar Turno a Equipo
           </button>
         </div>
         <div class="card-body" style="padding:0;">
@@ -400,13 +409,18 @@ function renderTurnosTab() {
                 <tr><td colspan="4" style="text-align:center; padding:20px; color:var(--gray-400);">Sin asignaciones registradas.</td></tr>
               ` : asignacionesList.map(asig => `
                 <tr style="border-bottom:1px solid var(--gray-100);">
-                  <td style="padding:10px 14px; font-weight:700; color:var(--celeste-dark);">${escapeHtml(asig.equipo_nombre)}</td>
-                  <td style="padding:10px 14px; font-weight:600;">${escapeHtml(asig.turno_nombre)}</td>
-                  <td style="padding:10px 14px; font-size:12px; color:var(--gray-600);">
+                  <td style="padding:10px 14px; font-weight:700; color:var(--celeste-dark); white-space:nowrap; vertical-align:middle;">
+                    <div style="display:flex; align-items:center; gap:6px;">
+                      ${icon('truck', 16)}
+                      ${escapeHtml(asig.equipo_nombre.replace('Equipo ', ''))}
+                    </div>
+                  </td>
+                  <td style="padding:10px 14px; font-weight:600; vertical-align:middle;">${escapeHtml(asig.turno_nombre)}</td>
+                  <td style="padding:10px 14px; font-size:12px; color:var(--gray-600); vertical-align:middle;">
                     ${asig.fecha_desde} &rarr; ${asig.fecha_hasta || 'Indefinido'}
                   </td>
-                  <td style="padding:10px 14px;">
-                    <button class="action-link danger" onclick="deleteAsignacionTurno(${asig.id})">Quitar</button>
+                  <td style="padding:10px 14px; vertical-align:middle;">
+                    <button class="action-link" style="color:var(--gray-500);" onclick="deleteAsignacionTurno(${asig.id})">Quitar</button>
                   </td>
                 </tr>
               `).join('')}
@@ -949,6 +963,14 @@ function openAsignarPersonalEquipoModal(equipoId) {
     const equipoTarget = currentEquipos.find(item => item.id === equipoId);
     if (!equipoTarget) return;
 
+    if (rol_en_equipo.toLowerCase().includes('líder') || rol_en_equipo.toLowerCase().includes('lider')) {
+      const hasLeader = equipoTarget.integrantes?.some(i => i.rol_en_equipo && (i.rol_en_equipo.toLowerCase().includes('líder') || i.rol_en_equipo.toLowerCase().includes('lider')));
+      if (hasLeader) {
+        showToast('El equipo ya cuenta con un Líder de Reanimación.', 'error');
+        return;
+      }
+    }
+
     if (!Array.isArray(equipoTarget.integrantes)) {
       equipoTarget.integrantes = [];
     }
@@ -1014,7 +1036,17 @@ function openEditarIntegranteModal(equipoId, personalId) {
 
   document.getElementById('edit-integ-form').addEventListener('submit', (e) => {
     e.preventDefault();
-    member.rol_en_equipo = document.getElementById('edit-rol-val').value;
+    const newRole = document.getElementById('edit-rol-val').value;
+
+    if (newRole.toLowerCase().includes('líder') || newRole.toLowerCase().includes('lider')) {
+      const hasLeader = eq.integrantes?.some(i => i.id_personal !== personalId && i.rol_en_equipo && (i.rol_en_equipo.toLowerCase().includes('líder') || i.rol_en_equipo.toLowerCase().includes('lider')));
+      if (hasLeader) {
+        showToast('El equipo ya cuenta con un Líder de Reanimación.', 'error');
+        return;
+      }
+    }
+
+    member.rol_en_equipo = newRole;
     saveEquipos(currentEquipos);
     showToast('Rol de brigada actualizado', 'success');
 
