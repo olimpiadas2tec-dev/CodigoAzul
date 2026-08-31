@@ -26,11 +26,6 @@ function renderPersonal() {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             + Nuevo Personal
           </button>
-        ` : tab === 'roles' ? `
-          <button class="btn btn-primary btn-sm" onclick="openRolModal()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            + Nuevo Rol de Salud
-          </button>
         ` : tab === 'equipos' ? `
           <button class="btn btn-primary btn-sm" onclick="openEquipoModal()" ${equiposCount >= 3 ? 'title="Límite máximo de 3 equipos alcanzado" style="opacity:0.6;"' : ''}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
