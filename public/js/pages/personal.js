@@ -352,7 +352,7 @@ function renderTurnosTab() {
                 <th style="padding:10px 14px;">Turno</th>
                 <th style="padding:10px 14px;">Hora Inicio</th>
                 <th style="padding:10px 14px;">Hora Fin</th>
-                <th style="padding:10px 14px;">Acciones</th>
+                <th style="padding:10px 14px; text-align:center;">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -370,10 +370,10 @@ function renderTurnosTab() {
                   </td>
                   <td style="padding:10px 14px; color:var(--gray-600); vertical-align:middle;">${t.hora_inicio}</td>
                   <td style="padding:10px 14px; color:var(--gray-600); vertical-align:middle;">${t.hora_fin}</td>
-                  <td style="padding:10px 14px; vertical-align:middle;">
-                    <div style="display:flex; align-items:center; gap:16px;">
+                  <td style="padding:10px 14px; vertical-align:middle; text-align:center;">
+                    <div style="display:flex; align-items:center; justify-content:center; gap:16px;">
                       <button class="action-link" onclick="openTurnoModal(${t.id})">Editar</button>
-                      <button class="action-link danger" onclick="confirmDeleteTurno(${t.id})" title="Eliminar" style="display:flex; align-items:center; border:none; background:none;">
+                      <button class="action-link danger" onclick="confirmDeleteTurno(${t.id})" title="Eliminar" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
                         ${icon('trash', 16)}
                       </button>
                     </div>
@@ -403,7 +403,7 @@ function renderTurnosTab() {
                 <th style="padding:10px 14px;">Equipo</th>
                 <th style="padding:10px 14px;">Turno</th>
                 <th style="padding:10px 14px;">Vigencia (Desde - Hasta)</th>
-                <th style="padding:10px 14px;">Acción</th>
+                <th style="padding:10px 14px; text-align:center;">Acción</th>
               </tr>
             </thead>
             <tbody>
@@ -421,10 +421,12 @@ function renderTurnosTab() {
                   <td style="padding:10px 14px; font-size:12px; color:var(--gray-600); vertical-align:middle;">
                     ${asig.fecha_desde} &rarr; ${asig.fecha_hasta || 'Indefinido'}
                   </td>
-                  <td style="padding:10px 14px; vertical-align:middle;">
-                    <button class="action-link danger" onclick="deleteAsignacionTurno(${asig.id})" title="Quitar asignación" style="display:flex; align-items:center; border:none; background:none;">
-                      ${icon('trash', 16)}
-                    </button>
+                  <td style="padding:10px 14px; vertical-align:middle; text-align:center;">
+                    <div style="display:flex; align-items:center; justify-content:center;">
+                      <button class="action-link danger" onclick="deleteAsignacionTurno(${asig.id})" title="Quitar asignación" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none; margin:0 auto;">
+                        ${icon('trash', 16)}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               `).join('')}
