@@ -160,10 +160,11 @@ function renderPacientes() {
                       </span>
                     </td>
                     <td style="padding:10px 14px; vertical-align:middle; text-align:center; white-space:nowrap;">
-                      ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? `
-                        <span style="font-size:11px; color:var(--gray-400); font-style:italic;">Solo lectura</span>
-                      ` : `
-                        <div style="display:flex; gap:6px; align-items:center; justify-content:center;">
+                      <div style="display:flex; gap:6px; align-items:center; justify-content:center;">
+                        <button class="btn btn-sm" style="padding:3px 7px; font-size:11px; font-weight:600; background:#f1f5f9; color:#0f172a; border:1px solid #cbd5e1; border-radius:5px; display:inline-flex; align-items:center; gap:3px; cursor:pointer;" onclick="event.stopPropagation(); openHistorialClinicoModal(${p.id})" title="Ver Historial Clínico Completo">
+                          ${icon('clock', 12)} Historial
+                        </button>
+                        ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? '' : `
                           <button class="action-link" style="font-size:11.5px; font-weight:600;" onclick="event.stopPropagation(); openPacienteModal(${p.id})">Editar</button>
                           ${p.activo ? `
                             <button class="btn btn-sm" style="padding:3px 7px; font-size:11px; font-weight:600; background:#059669; color:#ffffff; border:none; border-radius:5px; display:inline-flex; align-items:center; gap:3px; box-shadow:0 1px 2px rgba(0,0,0,0.08); cursor:pointer;" onclick="event.stopPropagation(); confirmAltaPaciente(${p.id})" title="Registrar Alta Médica (Requiere confirmación)">
@@ -177,8 +178,8 @@ function renderPacientes() {
                           <button class="action-link danger" onclick="event.stopPropagation(); confirmDeletePaciente(${p.id})" title="Eliminar paciente definitivamente" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none; padding:4px; margin-left:2px; cursor:pointer; color:#dc2626;">
                             ${icon('trash', 14)}
                           </button>
-                        </div>
-                      `}
+                        `}
+                      </div>
                     </td>
                   </tr>
                 `;
@@ -520,11 +521,15 @@ function openPacienteModal(editId = null) {
         showToast('Datos del paciente actualizados con éxito', 'success');
       }
     } else {
-      currentList.push({
+      const newPac = {
         id: newId,
         apellido, nombre, dni, edad, telefono, email, causa, area: finalArea, cama: finalCama, activo: finalActivo, id_personal, personal_a_cargo, grupo, alergias
-      });
+      };
+      currentList.push(newPac);
       savePacientes(currentList);
+      if (typeof registrarIngresoHistorialClinico === 'function') {
+        registrarIngresoHistorialClinico(newPac);
+      }
       showToast('Paciente registrado exitosamente', 'success');
     }
 
@@ -556,9 +561,18 @@ function confirmAltaPaciente(id) {
         <p style="color:var(--gray-700); font-size:14px; line-height:1.5; margin:0 0 12px 0;">
           ¿Confirma el <strong>egreso y alta médica</strong> del paciente <strong>${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}</strong> (DNI: ${p.dni || 'S/D'})?
         </p>
-        <div style="background:var(--gray-50); padding:12px; border-radius:var(--radius); border:1px solid var(--gray-200); font-size:13px; color:var(--gray-600);">
+        <div style="background:var(--gray-50); padding:12px; border-radius:var(--radius); border:1px solid var(--gray-200); font-size:13px; color:var(--gray-600); margin-bottom:12px;">
           <div>${icon('mapPin')} <strong>Ubicación actual:</strong> ${escapeHtml(p.area)} — ${escapeHtml(p.cama || 'Cama')}</div>
           <div style="margin-top:4px; color:#059669; font-weight:600;">${icon('star')} Al dar de alta, la cama asignada quedará libre y disponible para otros pacientes.</div>
+        </div>
+
+        <div class="form-group">
+          <label style="font-weight:700; font-size:12.5px; color:var(--gray-700); margin-bottom:4px; display:block;">Resultado / Motivo del Egreso *</label>
+          <select id="alta-resultado" style="width:100%; padding:8px 12px; font-size:13px; font-weight:600; border:1px solid var(--gray-300); border-radius:8px;">
+            <option value="Alta médica" selected>Alta médica (Recuperación / Egreso)</option>
+            <option value="Derivado a otro centro">Derivado a otro centro de salud</option>
+            <option value="Fallecido">Fallecido (Obituario)</option>
+          </select>
         </div>
       </div>
       <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:10px; padding:14px 24px; border-top:1px solid var(--gray-200); background:var(--gray-50);">
@@ -578,6 +592,12 @@ function doAltaPaciente(id) {
   if (idx !== -1) {
     const p = currentList[idx];
 
+    // Cerrar la internación activa en el historial clínico
+    const resultado = document.getElementById('alta-resultado') ? document.getElementById('alta-resultado').value : 'Alta médica';
+    if (typeof cerrarIngresoHistorialClinico === 'function') {
+      cerrarIngresoHistorialClinico(id, resultado);
+    }
+
     // Liberar la cama de las áreas
     const camasList = getCamas();
     const camaObj = camasList.find(c => (c.area_nombre === p.area && c.numero === p.cama) || c.numero === p.cama);
@@ -593,7 +613,7 @@ function doAltaPaciente(id) {
     p.area = 'Sin Designar';
     savePacientes(currentList);
 
-    showToast('Alta médica registrada con éxito. Cama liberada y paciente sin área asignada.', 'success');
+    showToast('Alta médica registrada con éxito. Cama liberada e historial clínico actualizado.', 'success');
   }
   document.querySelector('.alta-modal-overlay')?.remove();
   renderApp();
@@ -734,6 +754,11 @@ function openReingresoCamaModal(id, pendingRedirectCodigoId = null) {
       pList[pIdx].area = selectedArea;
       pList[pIdx].cama = selectedCama;
       savePacientes(pList);
+
+      // Registrar nuevo ingreso en el historial clínico
+      if (typeof registrarIngresoHistorialClinico === 'function') {
+        registrarIngresoHistorialClinico(pList[pIdx]);
+      }
 
       // Ocupar la cama en la lista global de camas
       const camasList = getCamas();
@@ -1016,10 +1041,49 @@ function openPacienteDetailModal(pacienteId) {
 
         </div>
 
+        <!-- Seccion: Historial Clinico de Internaciones Timeline -->
+        <div style="border-top:1px solid var(--gray-200); padding-top:16px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h3 style="font-size:14px; font-weight:800; color:var(--gray-800); margin:0; display:flex; align-items:center; gap:6px;">
+              ${icon('clock', 16)} Historial Clínico de Internaciones
+            </h3>
+            <button class="btn btn-secondary btn-sm" onclick="document.querySelector('.paciente-detail-overlay')?.remove(); openHistorialClinicoModal(${paciente.id});" style="font-size:11.5px; font-weight:700;">
+              Ver Línea de Tiempo Completa
+            </button>
+          </div>
+          ${(() => {
+            const hEntries = typeof getHistorialClinicoPorPaciente === 'function' ? getHistorialClinicoPorPaciente(paciente.id, paciente.dni) : [];
+            if (hEntries.length === 0) {
+              return `
+                <div style="background:#f8fafc; border:1px dashed var(--gray-300); border-radius:10px; padding:16px; text-align:center; color:var(--gray-500); font-size:12.5px;">
+                  Sin internaciones previas registradas en el sistema.
+                </div>
+              `;
+            }
+            return `
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                ${hEntries.slice(0, 3).map(h => `
+                  <div style="background:#ffffff; border:1px solid var(--gray-200); border-radius:10px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center; font-size:12px;">
+                    <div>
+                      <span style="font-weight:700; color:var(--gray-800);">${escapeHtml(h.causa || 'Internación')}</span>
+                      <div style="color:var(--gray-500); font-size:11px; margin-top:2px;">
+                        Ingreso: ${h.fecha_ingreso ? formatDate(h.fecha_ingreso, true) : 'S/D'} · Ubicación: ${escapeHtml(h.area_cama || 'S/D')}
+                      </div>
+                    </div>
+                    <span class="badge" style="font-size:10.5px; font-weight:700; padding:2px 8px; ${!h.fecha_egreso ? 'background:#e0f2fe; color:#0369a1; border:1px solid #7dd3fc;' : 'background:#f1f5f9; color:#475569; border:1px solid #cbd5e1;'}">
+                      ${!h.fecha_egreso ? 'Internado Activo' : escapeHtml(h.resultado_egreso || 'Alta médica')}
+                    </span>
+                  </div>
+                `).join('')}
+              </div>
+            `;
+          })()}
+        </div>
+
         <!-- Seccion: Historial de Eventos Código Azul -->
         <div style="border-top:1px solid var(--gray-200); padding-top:16px;">
           <h3 style="font-size:14px; font-weight:800; color:var(--gray-800); margin:0 0 12px 0; display:flex; align-items:center; gap:6px;">
-            ${icon('clock', 16)} Historial de Eventos de Código Azul Registrados (${pacienteCodigos.length})
+            ${icon('activity', 16)} Historial de Eventos de Código Azul Registrados (${pacienteCodigos.length})
           </h3>
           ${pacienteCodigos.length === 0 ? `
             <div style="background:#f8fafc; border:1px dashed var(--gray-300); border-radius:10px; padding:16px; text-align:center; color:var(--gray-500); font-size:12.5px;">
@@ -1073,6 +1137,7 @@ function openPacienteDetailModal(pacienteId) {
 
 window.openPacienteModal = openPacienteModal;
 window.openPacienteDetailModal = openPacienteDetailModal;
+window.openHistorialClinicoModal = openHistorialClinicoModal;
 window.confirmAltaPaciente = confirmAltaPaciente;
 window.doAltaPaciente = doAltaPaciente;
 window.reingresarPaciente = reingresarPaciente;
@@ -1084,5 +1149,140 @@ window.handleReingresoEliminarCodigo = handleReingresoEliminarCodigo;
 window.toggleSinCamaFilter = toggleSinCamaFilter;
 window.confirmDeletePaciente = confirmDeletePaciente;
 window.deletePaciente = deletePaciente;
+
+// Modal de Historial Clínico Completo con Línea de Tiempo
+function openHistorialClinicoModal(pacienteId) {
+  const currentList = getPacientes();
+  const paciente = currentList.find(p => p.id === pacienteId);
+  const dni = paciente ? paciente.dni : null;
+  const nombreCompleto = paciente ? `${paciente.apellido}, ${paciente.nombre}` : 'Paciente';
+
+  const historyEntries = typeof getHistorialClinicoPorPaciente === 'function' ? getHistorialClinicoPorPaciente(pacienteId, dni) : [];
+
+  document.querySelector('.historial-clinico-modal-overlay')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay active historial-clinico-modal-overlay';
+  overlay.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(17,24,39,0.7); z-index:9999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px); padding:20px;';
+
+  const codigos = typeof getData === 'function' ? getData() : [];
+
+  overlay.innerHTML = `
+    <div class="modal scale-in" style="background:var(--white); border-radius:var(--radius-xl); width:95%; max-width:720px; max-height:85vh; display:flex; flex-direction:column; box-shadow:var(--shadow-lg); overflow:hidden;">
+      <!-- Modal Header -->
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; padding:18px 24px; border-bottom:1px solid var(--gray-200); background:linear-gradient(135deg, #f8fafc, #edf2f7); flex-shrink:0;">
+        <div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="color:var(--celeste-dark, #0369a1); font-size:20px;">${icon('clock')}</span>
+            <h2 style="font-size:18px; font-weight:800; color:var(--gray-900); margin:0;">
+              Historial Clínico de Internaciones
+            </h2>
+          </div>
+          <p style="font-size:12.5px; color:var(--gray-600); margin:4px 0 0 28px; font-weight:600;">
+            Paciente: <strong style="color:var(--gray-900);">${escapeHtml(nombreCompleto)}</strong> ${dni ? `(DNI: ${formatDNI(dni)})` : ''}
+          </p>
+        </div>
+        <button class="modal-close" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--gray-400);" onclick="this.closest('.historial-clinico-modal-overlay').remove()">&times;</button>
+      </div>
+
+      <!-- Modal Body (Timeline) -->
+      <div class="modal-body" style="padding:20px 24px; overflow-y:auto; flex:1; min-height:0; background:#f8fafc;">
+        ${historyEntries.length === 0 ? `
+          <div style="padding:40px 20px; text-align:center; background:#ffffff; border-radius:12px; border:1px dashed var(--gray-300);">
+            <div style="font-size:36px; color:var(--gray-400); margin-bottom:8px;">${icon('fileText')}</div>
+            <h4 style="font-size:15px; font-weight:700; color:var(--gray-700); margin:0 0 6px 0;">Sin internaciones previas registradas</h4>
+            <p style="font-size:12.5px; color:var(--gray-500); margin:0;">Este paciente no registra antecedentes de internación previa en el sistema.</p>
+          </div>
+        ` : `
+          <div class="timeline" style="position:relative; padding-left:24px; border-left:3px solid var(--celeste-200, #bae6fd); display:flex; flex-direction:column; gap:20px;">
+            ${historyEntries.map((h, i) => {
+              const isActiva = !h.fecha_egreso;
+              const fIngreso = h.fecha_ingreso ? formatDate(h.fecha_ingreso, true) : 'Fecha no registrada';
+              const fEgreso = h.fecha_egreso ? formatDate(h.fecha_egreso, true) : 'Internación Activa en Curso';
+
+              let outcomeBadgeStyle = 'background:#e0f2fe; color:#0369a1; border:1px solid #7dd3fc;';
+              if (h.resultado_egreso === 'Alta médica') outcomeBadgeStyle = 'background:#dcfce7; color:#15803d; border:1px solid #86efac;';
+              else if (h.resultado_egreso === 'Derivado a otro centro') outcomeBadgeStyle = 'background:#fef3c7; color:#b45309; border:1px solid #fde047;';
+              else if (h.resultado_egreso === 'Fallecido') outcomeBadgeStyle = 'background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5;';
+
+              const codigoAzulObj = h.id_codigo_azul ? codigos.find(c => c.id === h.id_codigo_azul) : null;
+
+              return `
+                <div class="timeline-item" style="position:relative;">
+                  <!-- Timeline Node Dot -->
+                  <div style="position:absolute; left:-33px; top:4px; width:16px; height:16px; border-radius:50%; background:${isActiva ? '#0284c7' : '#059669'}; border:3px solid #ffffff; box-shadow:0 0 0 2px ${isActiva ? '#7dd3fc' : '#a7f3d0'};"></div>
+
+                  <div style="background:#ffffff; border-radius:12px; border:1px solid var(--gray-200); padding:16px 18px; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+                    <!-- Header Event -->
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px; margin-bottom:10px; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">
+                      <div>
+                        <span style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; color:${isActiva ? '#0284c7' : '#475569'}; background:${isActiva ? '#e0f2fe' : '#f1f5f9'}; padding:2px 8px; border-radius:4px;">
+                          ${isActiva ? 'Internación Activa' : `Internación #${historyEntries.length - i}`}
+                        </span>
+                        <h4 style="font-size:14px; font-weight:700; color:var(--gray-900); margin:6px 0 0 0;">
+                          ${escapeHtml(h.causa || 'Diagnóstico no especificado')}
+                        </h4>
+                      </div>
+
+                      <span class="badge" style="${outcomeBadgeStyle} font-size:11px; font-weight:700; padding:4px 10px;">
+                        ${isActiva ? 'En Internación' : escapeHtml(h.resultado_egreso || 'Alta médica')}
+                      </span>
+                    </div>
+
+                    <!-- Details Grid -->
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:10px; font-size:12.5px; color:var(--gray-700);">
+                      <div>
+                        <span style="color:var(--gray-500); font-size:11px; display:block; font-weight:600;">Ingreso</span>
+                        <strong>${fIngreso}</strong>
+                      </div>
+                      <div>
+                        <span style="color:var(--gray-500); font-size:11px; display:block; font-weight:600;">Egreso</span>
+                        <strong style="color:${isActiva ? '#0284c7' : 'inherit'};">${fEgreso}</strong>
+                      </div>
+                      <div>
+                        <span style="color:var(--gray-500); font-size:11px; display:block; font-weight:600;">Ubicación (Área y Cama)</span>
+                        <strong>${escapeHtml(h.area_cama || 'S/D')}</strong>
+                      </div>
+                      <div>
+                        <span style="color:var(--gray-500); font-size:11px; display:block; font-weight:600;">Médico Responsable</span>
+                        <strong>${escapeHtml(h.medico_responsable || 'Médico de Guardia')}</strong>
+                      </div>
+                    </div>
+
+                    <!-- Código Azul Association (if any) -->
+                    ${codigoAzulObj ? `
+                      <div style="margin-top:12px; padding:10px 12px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                          <span style="color:#1d4ed8; font-size:16px;">${icon('activity')}</span>
+                          <div>
+                            <div style="font-size:12px; font-weight:700; color:#1e40af;">Evento Código Azul Asociado (ID #${codigoAzulObj.id})</div>
+                            <div style="font-size:11px; color:#3b82f6;">Fecha: ${formatDate(codigoAzulObj.fecha, true)} · Estado: ${escapeHtml(codigoAzulObj.estado ? codigoAzulObj.estado.label : 'Registrado')}</div>
+                          </div>
+                        </div>
+                        <button class="btn btn-sm" style="font-size:11px; font-weight:700; background:#1d4ed8; color:#ffffff; border:none; padding:4px 10px; border-radius:6px; cursor:pointer;" onclick="this.closest('.historial-clinico-modal-overlay').remove(); window.location.hash='#/detalle/${codigoAzulObj.id}'">
+                          Ver Detalle Código Azul
+                        </button>
+                      </div>
+                    ` : ''}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `}
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center; padding:14px 24px; border-top:1px solid var(--gray-200); background:var(--gray-50); flex-shrink:0;">
+        <span style="font-size:12px; color:var(--gray-500); font-weight:600;">
+          Total registros de internación: <strong>${historyEntries.length}</strong>
+        </span>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="this.closest('.historial-clinico-modal-overlay').remove()">Cerrar</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+}
 
 

@@ -136,6 +136,87 @@ let PACIENTES = [
   { id: 20, apellido: 'Gómez', nombre: 'Carlos', dni: '20123456', edad: 52, fecha_nacimiento: '1973-11-15', causa: 'Paro Presenciado en Guardia / Taquicardia Ventricular', area: 'Unidad de Terapia Intensiva (UTI)', cama: 'UTI-05', grupo: 'O+', alergias: 'Dipirona', id_personal: 1, activo: true }
 ];
 
+let HISTORIAL_CLINICO = [
+  {
+    id: 1,
+    id_paciente: 11,
+    dni_paciente: '14253647',
+    paciente_nombre: 'Pérez, Juan',
+    fecha_ingreso: '2025-11-10T08:30:00.000Z',
+    fecha_egreso: '2025-11-24T14:00:00.000Z',
+    causa: 'Síndrome Coronario Agudo sin Elevación del ST',
+    area_cama: 'Cardiología - Cama CARD-02',
+    medico_responsable: 'Dr. Carlos Méndez',
+    resultado_egreso: 'Alta médica',
+    id_codigo_azul: null
+  },
+  {
+    id: 2,
+    id_paciente: 11,
+    dni_paciente: '14253647',
+    paciente_nombre: 'Pérez, Juan',
+    fecha_ingreso: '2026-08-15T11:20:00.000Z',
+    fecha_egreso: null,
+    causa: 'Infarto Agudo de Miocardio (IAM)',
+    area_cama: 'Cardiología - Cama CARD-04',
+    medico_responsable: 'Dr. Carlos Méndez',
+    resultado_egreso: null,
+    id_codigo_azul: 1
+  },
+  {
+    id: 3,
+    id_paciente: 12,
+    dni_paciente: '12456789',
+    paciente_nombre: 'García, María',
+    fecha_ingreso: '2026-08-20T09:15:00.000Z',
+    fecha_egreso: null,
+    causa: 'Insuficiencia Cardíaca Descompensada',
+    area_cama: 'Piso 4A - Cama 4A-02',
+    medico_responsable: 'Dra. Laura Gutiérrez',
+    resultado_egreso: null,
+    id_codigo_azul: null
+  },
+  {
+    id: 4,
+    id_paciente: 13,
+    dni_paciente: '18976453',
+    paciente_nombre: 'Rodríguez, Pedro',
+    fecha_ingreso: '2026-08-28T16:45:00.000Z',
+    fecha_egreso: null,
+    causa: 'Shock Cardiogénico / Fibrilación Ventricular',
+    area_cama: 'Urgencias / Shock Room - Cama URG-03',
+    medico_responsable: 'Dr. Roberto Sánchez',
+    resultado_egreso: null,
+    id_codigo_azul: 2
+  },
+  {
+    id: 5,
+    id_paciente: 14,
+    dni_paciente: '10987654',
+    paciente_nombre: 'Martínez, Ana',
+    fecha_ingreso: '2024-05-02T10:00:00.000Z',
+    fecha_egreso: '2024-05-18T12:30:00.000Z',
+    causa: 'Neumonía Grave Adquirida en la Comunidad',
+    area_cama: 'Piso 3A - Cama 3A-01',
+    medico_responsable: 'Dr. Carlos Méndez',
+    resultado_egreso: 'Alta médica',
+    id_codigo_azul: null
+  },
+  {
+    id: 6,
+    id_paciente: 14,
+    dni_paciente: '10987654',
+    paciente_nombre: 'Martínez, Ana',
+    fecha_ingreso: '2026-08-25T14:10:00.000Z',
+    fecha_egreso: null,
+    causa: 'Edema Agudo de Pulmón Severo',
+    area_cama: 'Piso 3A - Cama 3A-05',
+    medico_responsable: 'Dr. Carlos Méndez',
+    resultado_egreso: null,
+    id_codigo_azul: null
+  }
+];
+
 let CAMAS_DATA = generateInitialCamas();
 
 let TURNOS = [
@@ -400,6 +481,66 @@ function getPacientes() {
 function savePacientes(list) {
   PACIENTES = list;
   localStorage.setItem('codigoAzulPacientes', JSON.stringify(list));
+}
+
+// Helpers de Historial Clínico de Pacientes
+function getHistorialClinico() {
+  const stored = localStorage.getItem('codigoAzulHistorialClinico');
+  if (stored) HISTORIAL_CLINICO = JSON.parse(stored);
+  else localStorage.setItem('codigoAzulHistorialClinico', JSON.stringify(HISTORIAL_CLINICO));
+  return HISTORIAL_CLINICO;
+}
+
+function saveHistorialClinico(list) {
+  HISTORIAL_CLINICO = list;
+  localStorage.setItem('codigoAzulHistorialClinico', JSON.stringify(list));
+}
+
+function getHistorialClinicoPorPaciente(pacienteId, dni = null) {
+  const list = getHistorialClinico();
+  return list.filter(h => 
+    (pacienteId && String(h.id_paciente) === String(pacienteId)) || 
+    (dni && h.dni_paciente && String(h.dni_paciente).trim() === String(dni).trim())
+  ).sort((a, b) => new Date(b.fecha_ingreso || b.createdAt || 0) - new Date(a.fecha_ingreso || a.createdAt || 0));
+}
+
+function registrarIngresoHistorialClinico(pacienteObj) {
+  if (!pacienteObj) return null;
+  const list = getHistorialClinico();
+  
+  const personalList = (typeof getPersonalSalud === 'function' ? getPersonalSalud() : []) || [];
+  const doc = personalList.find(d => d.id === pacienteObj.id_personal || (pacienteObj.personal_a_cargo && pacienteObj.personal_a_cargo.includes(d.apellido)));
+  const docName = doc ? `${doc.apellido}, ${doc.nombre}` : (pacienteObj.personal_a_cargo || 'Médico de Guardia');
+
+  const areaCamaText = `${pacienteObj.area || 'Sin Designar'}${pacienteObj.cama ? ' - Cama ' + pacienteObj.cama : ''}`;
+
+  const newEntry = {
+    id: list.length > 0 ? Math.max(...list.map(h => h.id || 0)) + 1 : 1,
+    id_paciente: pacienteObj.id,
+    dni_paciente: pacienteObj.dni || '',
+    paciente_nombre: `${pacienteObj.apellido}, ${pacienteObj.nombre}`,
+    fecha_ingreso: new Date().toISOString(),
+    fecha_egreso: null,
+    causa: pacienteObj.causa || 'Paro Cardiorrespiratorio',
+    area_cama: areaCamaText,
+    medico_responsable: docName,
+    resultado_egreso: null,
+    id_codigo_azul: null
+  };
+
+  list.push(newEntry);
+  saveHistorialClinico(list);
+  return newEntry;
+}
+
+function cerrarIngresoHistorialClinico(pacienteId, resultado = 'Alta médica', fechaEgreso = null) {
+  const list = getHistorialClinico();
+  const activeEntry = list.find(h => String(h.id_paciente) === String(pacienteId) && !h.fecha_egreso);
+  if (activeEntry) {
+    activeEntry.fecha_egreso = fechaEgreso || new Date().toISOString();
+    activeEntry.resultado_egreso = resultado || 'Alta médica';
+    saveHistorialClinico(list);
+  }
 }
 
 // Helpers de Personal de Salud
