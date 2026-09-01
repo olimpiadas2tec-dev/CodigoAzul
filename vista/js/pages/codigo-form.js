@@ -449,9 +449,9 @@ function renderCodigoForm(editId = null) {
                     </div>
                     <div style="display:flex; flex-wrap:wrap; gap:8px;">
                       ${['Intubación Endotraqueal', 'Manejo Avanzado de Vía Aérea', 'Aspiración de Secreciones / Ventilación Ambu'].map(int => `
-                        <label style="display:flex;align-items:center;gap:6px;padding:7px 12px;border:1.5px solid var(--gray-200);border-radius:6px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--gray-700);background:#fff;transition:var(--transition);" class="intervencion-check">
-                          <input type="checkbox" value="${int}" ${codigo && codigo.intervenciones && codigo.intervenciones.includes(int) ? 'checked' : ''} style="accent-color:var(--celeste);" />
-                          ${int}
+                        <label class="intervencion-check" style="display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border:1.5px solid var(--gray-200); border-radius:8px; cursor:pointer; font-size:12.5px; font-weight:600; color:var(--gray-700); background:#fff; box-sizing:border-box;">
+                          <input type="checkbox" value="${int}" ${codigo && codigo.intervenciones && codigo.intervenciones.includes(int) ? 'checked' : ''} style="width:18px !important; height:18px !important; min-width:18px !important; min-height:18px !important; max-width:18px !important; max-height:18px !important; margin:0 !important; padding:0 !important; flex-shrink:0 !important; accent-color:var(--celeste);" />
+                          <span style="min-width:0; flex:1 1 auto; line-height:1.3;">${escapeHtml(int)}</span>
                         </label>
                       `).join('')}
                     </div>
@@ -464,9 +464,9 @@ function renderCodigoForm(editId = null) {
                     </div>
                     <div style="display:flex; flex-wrap:wrap; gap:8px;">
                       ${['RCP de Alta Calidad', 'Compresiones Torácicas Continuas', 'Desfibrilación Precoz', 'Cardioversión Eléctrica', 'Monitoreo Multiparamétrico'].map(int => `
-                        <label style="display:flex;align-items:center;gap:6px;padding:7px 12px;border:1.5px solid var(--gray-200);border-radius:6px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--gray-700);background:#fff;transition:var(--transition);" class="intervencion-check">
-                          <input type="checkbox" value="${int}" ${codigo && codigo.intervenciones && codigo.intervenciones.includes(int) ? 'checked' : ''} style="accent-color:var(--celeste);" />
-                          ${int}
+                        <label class="intervencion-check" style="display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border:1.5px solid var(--gray-200); border-radius:8px; cursor:pointer; font-size:12.5px; font-weight:600; color:var(--gray-700); background:#fff; box-sizing:border-box;">
+                          <input type="checkbox" value="${int}" ${codigo && codigo.intervenciones && codigo.intervenciones.includes(int) ? 'checked' : ''} style="width:18px !important; height:18px !important; min-width:18px !important; min-height:18px !important; max-width:18px !important; max-height:18px !important; margin:0 !important; padding:0 !important; flex-shrink:0 !important; accent-color:var(--celeste);" />
+                          <span style="min-width:0; flex:1 1 auto; line-height:1.3;">${escapeHtml(int)}</span>
                         </label>
                       `).join('')}
                     </div>
@@ -479,9 +479,9 @@ function renderCodigoForm(editId = null) {
                     </div>
                     <div style="display:flex; flex-wrap:wrap; gap:8px;">
                       ${['Administración de Adrenalina', 'Administración de Amiodarona', 'Acceso Vascular / Vía Intraósea'].map(int => `
-                        <label style="display:flex;align-items:center;gap:6px;padding:7px 12px;border:1.5px solid var(--gray-200);border-radius:6px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--gray-700);background:#fff;transition:var(--transition);" class="intervencion-check">
-                          <input type="checkbox" value="${int}" ${codigo && codigo.intervenciones && codigo.intervenciones.includes(int) ? 'checked' : ''} style="accent-color:var(--celeste);" />
-                          ${int}
+                        <label class="intervencion-check" style="display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border:1.5px solid var(--gray-200); border-radius:8px; cursor:pointer; font-size:12.5px; font-weight:600; color:var(--gray-700); background:#fff; box-sizing:border-box;">
+                          <input type="checkbox" value="${int}" ${codigo && codigo.intervenciones && codigo.intervenciones.includes(int) ? 'checked' : ''} style="width:18px !important; height:18px !important; min-width:18px !important; min-height:18px !important; max-width:18px !important; max-height:18px !important; margin:0 !important; padding:0 !important; flex-shrink:0 !important; accent-color:var(--celeste);" />
+                          <span style="min-width:0; flex:1 1 auto; line-height:1.3;">${escapeHtml(int)}</span>
                         </label>
                       `).join('')}
                     </div>
