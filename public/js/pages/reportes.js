@@ -74,6 +74,18 @@ function renderReportes() {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5);
 
+  const avgTimeVal = data.length > 0 ? (data.reduce((s, d) => s + (parseFloat(d.tiempoRespuesta) || 0), 0) / data.length) : 0;
+  const avgTimeFormatted = avgTimeVal.toFixed(1);
+
+  let timeIconColor = 'green';
+  if (avgTimeVal >= 4.6) {
+    timeIconColor = 'red';
+  } else if (avgTimeVal >= 2.1) {
+    timeIconColor = 'yellow';
+  } else {
+    timeIconColor = 'green';
+  }
+
   return `
     <div class="page-header page-header-row page-transition">
       <div>
@@ -128,8 +140,8 @@ function renderReportes() {
           <div class="kpi-label">Tasa éxito global (ROSC)</div>
         </div>
         <div class="kpi-card fade-in">
-          <div class="kpi-icon red">${icon('clock')}</div>
-          <div class="kpi-value">${data.length > 0 ? (data.reduce((s, d) => s + (parseFloat(d.tiempoRespuesta) || 0), 0) / data.length).toFixed(1) : 0}m</div>
+          <div class="kpi-icon ${timeIconColor}">${icon('clock')}</div>
+          <div class="kpi-value">${avgTimeFormatted}m</div>
           <div class="kpi-label">Tiempo prom. global</div>
         </div>
       </div>

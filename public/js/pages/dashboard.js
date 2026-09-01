@@ -5,6 +5,16 @@ function renderDashboard() {
   const monthly = getMonthlyStats();
   const maxTotal = Math.max(...monthly.map(m => m.total), 1);
 
+  const dashAvgTime = parseFloat(kpis.tiempoPromedio) || 0;
+  let dashTimeIconColor = 'green';
+  if (dashAvgTime >= 4.6) {
+    dashTimeIconColor = 'red';
+  } else if (dashAvgTime >= 2.1) {
+    dashTimeIconColor = 'yellow';
+  } else {
+    dashTimeIconColor = 'green';
+  }
+
   return `
     <div class="page-header page-header-row page-transition">
       <div>
@@ -21,7 +31,7 @@ function renderDashboard() {
     <div class="page-body">
       <div class="kpi-grid stagger">
         <div class="kpi-card fade-in">
-          <div class="kpi-icon blue">${icon('zap')}</div>
+          <div class="kpi-icon blue">${icon('activity')}</div>
           <div class="kpi-value">${kpis.totalMes}</div>
           <div class="kpi-label">Códigos este mes</div>
         </div>
@@ -32,7 +42,7 @@ function renderDashboard() {
           <div class="kpi-change up">${icon('triangleUp')} Reanimación efectiva</div>
         </div>
         <div class="kpi-card fade-in">
-          <div class="kpi-icon yellow">${icon('clock')}</div>
+          <div class="kpi-icon ${dashTimeIconColor}">${icon('clock')}</div>
           <div class="kpi-value">${kpis.tiempoPromedio}m</div>
           <div class="kpi-label">Tiempo prom. respuesta</div>
           <div class="kpi-change up" style="color:#059669; background:#ecfdf5; padding:2px 8px; border-radius:12px; font-weight:600; font-size:11px; display:inline-flex; align-items:center; gap:4px; margin-top:4px;">
