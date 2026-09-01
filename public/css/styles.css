@@ -597,6 +597,15 @@ tbody tr:hover {
   background: var(--celeste-50);
 }
 
+.paciente-table-row td {
+  background-color: var(--white);
+  transition: background-color 0.15s ease;
+}
+
+.paciente-table-row:hover td {
+  background-color: #f0f9ff !important;
+}
+
 tbody tr:last-child td {
   border-bottom: none;
 }

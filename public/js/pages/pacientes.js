@@ -122,9 +122,9 @@ function renderPacientes() {
                 const formattedDNI = p.dni ? formatDNI(p.dni) : 'S/D';
 
                 return `
-                  <tr style="border-bottom:1px solid var(--gray-100);">
+                  <tr class="paciente-table-row" style="border-bottom:1px solid var(--gray-100);">
                     <td style="padding:12px 10px; vertical-align:middle; font-weight:600; color:var(--gray-400);">${p.id}</td>
-                    <td style="padding:12px 10px; vertical-align:middle; font-weight:700; color:var(--gray-800); whitespace:nowrap;">${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}</td>
+                    <td style="padding:12px 10px; vertical-align:middle; font-weight:700; color:var(--gray-800); white-space:nowrap;">${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}</td>
                     <td style="padding:12px 10px; vertical-align:middle; white-space:nowrap;">
                       <span style="font-size:12px; font-weight:600; color:var(--gray-800);">${escapeHtml(formattedDNI)}</span>
                       ${p.edad ? `<span style="font-size:12px; color:var(--gray-500);"> · ${p.edad} años</span>` : ''}
@@ -138,7 +138,7 @@ function renderPacientes() {
                         ${escapeHtml(p.causa || 'Paro Cardiorrespiratorio')}
                       </span>
                     </td>
-                    <td style="padding:12px 10px; vertical-align:middle; font-size:12px; color:var(--gray-700); whitespace:nowrap;">${escapeHtml(docName)}</td>
+                    <td style="padding:12px 10px; vertical-align:middle; font-size:12px; color:var(--gray-700); white-space:nowrap;">${escapeHtml(docName)}</td>
                     <td style="padding:12px 10px; vertical-align:middle;">
                       <div style="display:flex; flex-direction:column; gap:3px; align-items:flex-start;">
                         <span class="badge" style="background:var(--gray-100); color:var(--gray-700); border:1px solid var(--gray-300); font-weight:700; font-size:10px;">${escapeHtml(p.grupo || 'S/D')}</span>
@@ -156,7 +156,7 @@ function renderPacientes() {
                         ${p.activo ? 'Internado' : 'Alta'}
                       </span>
                     </td>
-                    <td style="padding:8px 10px; vertical-align:middle; text-align:center; position:sticky; right:0; background:var(--white); z-index:2; box-shadow:-6px 0 10px -4px rgba(0,0,0,0.08); white-space:nowrap;">
+                    <td class="sticky-actions-cell" style="padding:8px 10px; vertical-align:middle; text-align:center; position:sticky; right:0; z-index:2; box-shadow:-6px 0 10px -4px rgba(0,0,0,0.08); white-space:nowrap;">
                       <div style="display:flex; gap:6px; align-items:center; justify-content:center;">
                         <button class="action-link" style="font-size:11.5px; font-weight:600;" onclick="openPacienteModal(${p.id})">Editar</button>
                         ${p.activo ? `
