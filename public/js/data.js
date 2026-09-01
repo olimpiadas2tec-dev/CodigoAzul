@@ -859,15 +859,18 @@ async function addCodigo(codigo) {
     const pacientes = getPacientes();
     const pIdx = pacientes.findIndex(p => p.id === codigo.id_paciente || codigo.paciente.includes(p.apellido));
     if (pIdx !== -1) {
-      pacientes[pIdx].activo = false;
-      savePacientes(pacientes);
-      
       const camasList = getCamas();
-      const cObj = camasList.find(c => c.area_nombre === pacientes[pIdx].area && c.numero === pacientes[pIdx].cama);
+      const cObj = camasList.find(c => (c.area_nombre === pacientes[pIdx].area && c.numero === pacientes[pIdx].cama) || c.numero === pacientes[pIdx].cama);
       if (cObj) {
         cObj.estado = 'Libre';
+        cObj.id_paciente = null;
+        cObj.paciente_nombre = null;
         saveCamas(camasList);
       }
+      pacientes[pIdx].activo = false;
+      pacientes[pIdx].cama = '';
+      pacientes[pIdx].area = 'Sin Designar';
+      savePacientes(pacientes);
     }
   } else if (codigo.estado?.value === 'resuelto') {
     logAuditoria(codigo.id, 'Cierre Clínico - Recuperación (ROSC)', `Retorno de circulación espontánea certificado por ${codigo.responsable}. Destino de traslado: ${codigo.datosCierre?.destinoTraslado || 'UTI'}.`);

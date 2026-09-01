@@ -387,25 +387,31 @@ function openPacienteModal(editId = null) {
     const dni = document.getElementById('m-dni').value.trim();
     const edad = parseInt(document.getElementById('m-edad').value) || 60;
     const causa = document.getElementById('m-causa').value.trim();
-    const area = document.getElementById('m-area').value;
-    const cama = document.getElementById('m-cama').value.trim();
-    const id_personal = parseInt(document.getElementById('m-personal').value);
-    const grupo = document.getElementById('m-grupo').value;
-    const alergias = document.getElementById('m-alergias').value.trim();
+    let finalCama = cama;
+    let finalArea = area;
+    let finalActivo = true;
 
-    if (!apellido || !nombre || !dni || !causa || !area || !cama || !id_personal) {
+    if (!cama || cama === 'Sin Cama' || area === 'Sin Designar') {
+      finalCama = '';
+      finalArea = 'Sin Designar';
+      finalActivo = false;
+    }
+
+    if (!apellido || !nombre || !dni || !causa || !id_personal) {
       showToast('Complete todos los campos obligatorios (*)', 'error');
       return;
     }
 
     const currentList = getPacientes();
 
-    // Actualizar estado de la cama a Ocupada
-    const camasList = getCamas();
-    const camaObj = camasList.find(c => c.area_nombre === area && c.numero === cama);
-    if (camaObj) {
-      camaObj.estado = 'Ocupada';
-      saveCamas(camasList);
+    // Actualizar estado de la cama a Ocupada si se asignó cama
+    if (finalCama) {
+      const camasList = getCamas();
+      const camaObj = camasList.find(c => c.area_nombre === finalArea && c.numero === finalCama);
+      if (camaObj) {
+        camaObj.estado = 'Ocupada';
+        saveCamas(camasList);
+      }
     }
 
     const persObj = personalList.find(p => p.id === id_personal);
@@ -416,7 +422,7 @@ function openPacienteModal(editId = null) {
       if (idx !== -1) {
         currentList[idx] = {
           ...currentList[idx],
-          apellido, nombre, dni, edad, causa, area, cama, id_personal, personal_a_cargo, grupo, alergias
+          apellido, nombre, dni, edad, causa, area: finalArea, cama: finalCama, activo: finalActivo, id_personal, personal_a_cargo, grupo, alergias
         };
         savePacientes(currentList);
         showToast('Datos del paciente actualizados con éxito', 'success');
@@ -425,7 +431,7 @@ function openPacienteModal(editId = null) {
       const newId = currentList.length > 0 ? Math.max(...currentList.map(p => p.id)) + 1 : 11;
       currentList.push({
         id: newId,
-        apellido, nombre, dni, edad, causa, area, cama, id_personal, personal_a_cargo, grupo, alergias, activo: true
+        apellido, nombre, dni, edad, causa, area: finalArea, cama: finalCama, activo: finalActivo, id_personal, personal_a_cargo, grupo, alergias
       });
       savePacientes(currentList);
       showToast('Paciente registrado exitosamente', 'success');
@@ -480,18 +486,23 @@ function doAltaPaciente(id) {
   const idx = currentList.findIndex(p => p.id === id);
   if (idx !== -1) {
     const p = currentList[idx];
-    p.activo = false;
-    savePacientes(currentList);
 
-    // Liberar la cama
+    // Liberar la cama de las áreas
     const camasList = getCamas();
-    const camaObj = camasList.find(c => c.area_nombre === p.area && c.numero === p.cama);
+    const camaObj = camasList.find(c => (c.area_nombre === p.area && c.numero === p.cama) || c.numero === p.cama);
     if (camaObj) {
       camaObj.estado = 'Libre';
+      camaObj.id_paciente = null;
+      camaObj.paciente_nombre = null;
       saveCamas(camasList);
     }
 
-    showToast('Alta médica registrada con éxito. Cama liberada.', 'success');
+    p.activo = false;
+    p.cama = '';
+    p.area = 'Sin Designar';
+    savePacientes(currentList);
+
+    showToast('Alta médica registrada con éxito. Cama liberada y paciente sin área asignada.', 'success');
   }
   document.querySelector('.alta-modal-overlay')?.remove();
   renderApp();

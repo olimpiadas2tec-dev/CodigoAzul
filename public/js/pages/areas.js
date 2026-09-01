@@ -850,10 +850,12 @@ function toggleCamaEstado(id) {
     // Si estaba Ocupada -> Liberar la cama
     let pacNombre = '';
     const pacientes = getPacientes();
-    const pIdx = pacientes.findIndex(p => p.activo && (p.cama === cama.numero || (p.area === cama.area_nombre && p.cama === cama.numero)));
+    const pIdx = pacientes.findIndex(p => p.cama === cama.numero || (p.area === cama.area_nombre && p.cama === cama.numero));
     if (pIdx !== -1) {
       pacNombre = `${pacientes[pIdx].apellido}, ${pacientes[pIdx].nombre}`;
       pacientes[pIdx].cama = ''; // Queda sin cama asignada
+      pacientes[pIdx].area = 'Sin Designar'; // Sin área designada
+      pacientes[pIdx].activo = false; // Dado de alta automáticamente
       savePacientes(pacientes);
     }
     cama.estado = 'Libre';
@@ -861,7 +863,7 @@ function toggleCamaEstado(id) {
     cama.paciente_nombre = null;
 
     saveCamas(currentCamas);
-    showToast(`Cama ${cama.numero} liberada.${pacNombre ? ' El paciente (' + pacNombre + ') quedó sin cama asignada.' : ''}`, 'success');
+    showToast(`Cama ${cama.numero} liberada.${pacNombre ? ' El paciente (' + pacNombre + ') fue dado de alta automáticamente y quedó sin área.' : ''}`, 'success');
     renderApp();
   }
 }
