@@ -186,21 +186,20 @@ body {
 .mobile-navbar {
   position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
-  width: 100%;
+  left: 260px;
+  margin-left: 260px;
+  width: calc(100% - 260px);
   height: 58px;
   background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
+  padding: 0 24px;
   z-index: 500;
   box-shadow: 0 2px 14px rgba(30, 64, 175, 0.28);
   flex-shrink: 0;
-  padding-top: env(safe-area-inset-top, 0px);
-  height: calc(58px + env(safe-area-inset-top, 0px));
+  box-sizing: border-box;
 }
 
 .top-header-left {
@@ -212,13 +211,13 @@ body {
 .menu-toggle-btn,
 .mobile-toggle-btn,
 .mobile-toggle {
+  display: none !important;
   background: rgba(255, 255, 255, 0.18) !important;
   border: none !important;
   color: #ffffff !important;
   width: 40px !important;
   height: 40px !important;
   border-radius: 12px !important;
-  display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   cursor: pointer !important;
@@ -311,22 +310,20 @@ body {
   color: #ffffff;
 }
 
-/* ===== SIDEBAR DRAWER (ON TOP OF EVERYTHING) ===== */
+/* ===== SIDEBAR (FIXED ON DESKTOP) ===== */
 .sidebar {
   position: fixed !important;
   top: 0 !important;
   left: 0 !important;
   bottom: 0 !important;
-  width: 290px !important;
-  max-width: 86vw !important;
+  width: 260px !important;
   height: 100vh !important;
-  z-index: 10000 !important;
+  z-index: 900 !important;
   background: linear-gradient(180deg, #1e40af 0%, #1e3a8a 100%) !important;
-  transform: translateX(-115%) !important;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  border-radius: 0 24px 24px 0 !important;
-  padding: calc(16px + env(safe-area-inset-top, 0px)) 16px calc(16px + env(safe-area-inset-bottom, 0px)) !important;
-  box-shadow: 10px 0 45px rgba(0, 0, 0, 0.5) !important;
+  transform: none !important;
+  border-radius: 0 !important;
+  padding: 20px 16px !important;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.08) !important;
   display: flex !important;
   flex-direction: column !important;
   align-items: stretch !important;
@@ -334,21 +331,12 @@ body {
   -webkit-overflow-scrolling: touch !important;
 }
 
-.sidebar.open {
-  transform: translateX(0) !important;
+.sidebar-close-btn {
+  display: none !important;
 }
 
 .sidebar-backdrop {
-  display: none;
-  position: fixed !important;
-  inset: 0 !important;
-  background: rgba(15, 23, 42, 0.65) !important;
-  backdrop-filter: blur(4px) !important;
-  z-index: 9999 !important;
-}
-
-.sidebar.open ~ .sidebar-backdrop {
-  display: block !important;
+  display: none !important;
 }
 
 .sidebar-header {
@@ -542,19 +530,101 @@ body {
 
 /* ===== MAIN CONTENT AREA ===== */
 .app-main-wrapper {
-  margin-left: 0 !important;
-  width: 100% !important;
+  margin-left: 260px !important;
+  width: calc(100% - 260px) !important;
   flex: 1 !important;
   display: flex !important;
   flex-direction: column !important;
   min-width: 0 !important;
-  overflow: hidden !important;
+  box-sizing: border-box !important;
 }
 
 .main-content {
   flex: 1 !important;
   min-height: calc(100vh - 58px) !important;
   overflow-y: auto !important;
+}
+
+/* ===== STEPPER & PACIENTE SEARCH (DESKTOP BASE) ===== */
+.form-stepper-grid {
+  display: grid !important;
+  grid-template-columns: repeat(5, 1fr) !important;
+  gap: 8px !important;
+  width: 100% !important;
+}
+
+.stepper-step {
+  background: #ffffff !important;
+  border: 1px solid var(--gray-300) !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  color: var(--gray-600) !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  transition: all 0.2s ease !important;
+}
+
+.stepper-step.active {
+  background: var(--celeste-50) !important;
+  border: 1.5px solid var(--celeste-dark) !important;
+  color: var(--celeste-dark) !important;
+  font-weight: 800 !important;
+}
+
+.paciente-search-row {
+  display: flex !important;
+  gap: 10px !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+.paciente-search-row .search-field-wrap {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  position: relative !important;
+}
+
+.paciente-search-row .search-field-wrap input {
+  width: 100% !important;
+  padding: 9px 36px 9px 14px !important;
+  border: 1.5px solid var(--gray-300) !important;
+  border-radius: 8px !important;
+  font-size: 13.5px !important;
+  background: #fff !important;
+  box-sizing: border-box !important;
+}
+
+.paciente-search-row .search-field-wrap span {
+  position: absolute !important;
+  right: 12px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  color: var(--gray-400) !important;
+  pointer-events: none !important;
+}
+
+.paciente-search-row .btn-nn-paciente,
+.btn-nn-paciente {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  white-space: nowrap !important;
+  min-height: 38px !important;
+  padding: 8px 16px !important;
+  background: #fef3c7 !important;
+  color: #92400e !important;
+  border: 1.5px solid #fde68a !important;
+  font-weight: 700 !important;
+  font-size: 12.5px !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: background 0.15s ease !important;
 }
 
 .page-header {
@@ -1751,6 +1821,87 @@ tbody tr:last-child td {
 }
 
 @media (max-width: 899px) {
+  /* Sidebar Drawer on Mobile / Tablets */
+  .sidebar {
+    width: 290px !important;
+    max-width: 86vw !important;
+    height: 100vh !important;
+    z-index: 10000 !important;
+    transform: translateX(-115%) !important;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    border-radius: 0 24px 24px 0 !important;
+    padding: calc(16px + env(safe-area-inset-top, 0px)) 16px calc(16px + env(safe-area-inset-bottom, 0px)) !important;
+    box-shadow: 10px 0 45px rgba(0, 0, 0, 0.5) !important;
+  }
+
+  .sidebar.open {
+    transform: translateX(0) !important;
+  }
+
+  .sidebar-backdrop {
+    display: none;
+    position: fixed !important;
+    inset: 0 !important;
+    background: rgba(15, 23, 42, 0.65) !important;
+    backdrop-filter: blur(4px) !important;
+    z-index: 9999 !important;
+  }
+
+  .sidebar.open ~ .sidebar-backdrop {
+    display: block !important;
+  }
+
+  .sidebar-close-btn {
+    display: flex !important;
+  }
+
+  .menu-toggle-btn,
+  .mobile-toggle-btn,
+  .mobile-toggle {
+    display: flex !important;
+  }
+
+  .app-top-header {
+    position: sticky !important;
+    top: 0 !important;
+    left: 0 !important;
+    margin-left: 0 !important;
+    width: 100% !important;
+    padding: 0 12px !important;
+    padding-top: env(safe-area-inset-top, 0px) !important;
+    height: calc(58px + env(safe-area-inset-top, 0px)) !important;
+  }
+
+  .app-main-wrapper {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+
+  .form-stepper-grid {
+    display: flex !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    gap: 6px !important;
+    padding-bottom: 4px !important;
+    width: 100% !important;
+  }
+
+  .stepper-step {
+    flex: 0 0 auto !important;
+    padding: 6px 12px !important;
+    font-size: 11px !important;
+  }
+
+  .paciente-search-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+  }
+
+  .paciente-search-row .btn-nn-paciente {
+    width: 100% !important;
+  }
+
   .page-header {
     padding: 16px 16px 0 !important;
   }
