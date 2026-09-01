@@ -6,7 +6,7 @@ function renderDetalle(id) {
     return `
       <div class="page-body">
         <div class="empty-state">
-          <h3>Registro no encontrado</h3>
+          <h3> no encontrado</h3>
           <p>El código azul solicitado no existe</p>
           <a href="#/historial" class="btn btn-primary" style="margin-top:16px;">Volver al historial</a>
         </div>
@@ -53,8 +53,7 @@ function renderDetalle(id) {
             ${icon('fileText')} PDF Certificado
           </button>
           <a href="#/editar/${codigo.id}" class="btn btn-secondary btn-sm">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            Editar Registro
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Registro
           </a>
         </div>
       </div>
@@ -426,10 +425,10 @@ function showIntegrantesEquipoModal(equipoNombre, turnoNombre = 'Guardia', respo
                   <div>
                     <div style="font-weight:700; font-size:14px; color:var(--gray-900); display:flex; align-items:center; gap:6px;">
                       <span>${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}</span>
-                      ${isLeader ? `<span class="badge" style="background:var(--celeste-dark); color:#fff; font-size:10px; font-weight:700; padding:2px 7px;">👑 Líder de Brigada</span>` : ''}
+                      ${isLeader ? `<span class="badge" style="background:var(--celeste-dark); color:#fff; font-size:10px; font-weight:700; padding:2px 7px;"> Líder de Brigada</span>` : ''}
                     </div>
                     <div style="font-size:12px; font-weight:600; color:var(--celeste-dark); margin-top:2px;">
-                      📌 ${escapeHtml(item.rol_en_equipo || 'Integrante de Equipo')}
+                       ${escapeHtml(item.rol_en_equipo || 'Integrante de Equipo')}
                     </div>
                     <div style="font-size:11.5px; color:var(--gray-500); margin-top:2px;">
                       ${escapeHtml(p.nombre_rol || 'Personal de Salud')} &middot; Área: ${escapeHtml(p.area || 'Guardia')}

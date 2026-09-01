@@ -42,13 +42,13 @@ function renderMateriales() {
       ${lowStockItems.length > 0 ? `
         <div style="background:#fffbebf7; border:1px solid #fde68a; border-left:4px solid #f59e0b; padding:12px 16px; border-radius:10px; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; gap:12px; animation:fadeIn 0.2s ease;">
           <div style="display:flex; align-items:center; gap:10px;">
-            <span style="font-size:22px;">⚠️</span>
+            
             <div>
               <strong style="color:#92400e; font-size:13.5px;">Alerta de Reposición en Carro de Paro:</strong>
               <span style="color:#b45309; font-size:12.5px;"> Se detectaron <strong>${lowStockItems.length} fármacos e insumos</strong> en punto de reposición (≤ 15 unidades).</span>
             </div>
           </div>
-          <span class="badge" style="background:#fef3c7; color:#92400e; font-size:11px; font-weight:700; border:1px solid #fde68a;">Atención Requerida</span>
+          <span class="badge" style="background:#fef3c7; color:#92400e; font-size:11px; font-weight:700; border:1px solid #fde68a;"> Requerida</span>
         </div>
       ` : ''}
 
@@ -65,8 +65,7 @@ function renderMateriales() {
               <button onclick="setMaterialTypeFilter('')" class="btn btn-sm" style="padding:6px 14px; font-size:12px; font-weight:700; border-radius:8px; border:none; cursor:pointer; transition:all 0.15s ease; ${materialesState.tipo === '' ? 'background:#ffffff; color:var(--gray-900); box-shadow:0 1px 3px rgba(0,0,0,0.1);' : 'background:transparent; color:var(--gray-600);'}">
                 Todos (${materialesList.length})
               </button>
-              <button onclick="setMaterialTypeFilter('Medicamento')" class="btn btn-sm" style="padding:6px 14px; font-size:12px; font-weight:700; border-radius:8px; border:none; cursor:pointer; transition:all 0.15s ease; ${materialesState.tipo === 'Medicamento' ? 'background:var(--celeste-dark); color:#ffffff; box-shadow:0 1px 3px rgba(0,0,0,0.1);' : 'background:transparent; color:var(--gray-600);'}">
-                💊 Medicamentos (${medCount})
+              <button onclick="setMaterialTypeFilter('Medicamento')" class="btn btn-sm" style="padding:6px 14px; font-size:12px; font-weight:700; border-radius:8px; border:none; cursor:pointer; transition:all 0.15s ease; ${materialesState.tipo === 'Medicamento' ? 'background:var(--celeste-dark); color:#ffffff; box-shadow:0 1px 3px rgba(0,0,0,0.1);' : 'background:transparent; color:var(--gray-600);'}">s (${medCount})
               </button>
               <button onclick="setMaterialTypeFilter('Insumo')" class="btn btn-sm" style="padding:6px 14px; font-size:12px; font-weight:700; border-radius:8px; border:none; cursor:pointer; transition:all 0.15s ease; ${materialesState.tipo === 'Insumo' ? 'background:#059669; color:#ffffff; box-shadow:0 1px 3px rgba(0,0,0,0.1);' : 'background:transparent; color:var(--gray-600);'}">
                 🩺 Insumos (${insCount})
@@ -97,7 +96,7 @@ function renderMateriales() {
                     <div class="empty-state" style="padding:30px 20px; text-align:center;">
                       <span style="font-size:32px;">${icon('search')}</span>
                       <h3 style="margin:8px 0 4px 0;">No se encontraron insumos</h3>
-                      <p style="color:var(--gray-500); font-size:13px;">No hay materiales o fármacos que coincidan con los criterios.</p>
+                      <p style="color:var(--gray-500); font-size:13px;"> materiales o fármacos que coincidan con los criterios.</p>
                       <button class="btn btn-secondary btn-sm" style="margin-top:12px;" onclick="materialesState.search=''; materialesState.tipo=''; renderApp();">Limpiar Filtros</button>
                     </div>
                   </td>
@@ -112,7 +111,7 @@ function renderMateriales() {
                 let textColor = '#166534';
 
                 if (stock <= 10) {
-                  stockStatusBadge = `<span class="badge" style="background:#fef2f2; color:#991b1b; border:1px solid #fca5a5; font-size:10px; font-weight:700;">⚠️ Crítico</span>`;
+                  stockStatusBadge = `<span class="badge" style="background:#fef2f2; color:#991b1b; border:1px solid #fca5a5; font-size:10px; font-weight:700;"></span>`;
                   barColor = '#dc2626';
                   textColor = '#991b1b';
                 } else if (stock <= 25) {
@@ -133,7 +132,7 @@ function renderMateriales() {
                     </td>
                     <td style="vertical-align:middle; padding:10px 12px;">
                       <span class="badge ${m.tipo === 'Medicamento' ? 'badge-info' : 'badge-success'}" style="font-weight:700;">
-                        ${m.tipo === 'Medicamento' ? '💊 Medicamento' : '🩺 Insumo'}
+                        ${m.tipo === 'Medicamento' ? ' Medicamento' : '🩺 Insumo'}
                       </span>
                     </td>
                     <td style="vertical-align:middle; padding:10px 12px;">
@@ -151,7 +150,7 @@ function renderMateriales() {
                     <td style="color:var(--gray-600); font-weight:500; vertical-align:middle; padding:10px 12px;">${escapeHtml(m.unidad)}</td>
                     <td style="font-size:12px; color:var(--gray-600); max-width:210px; vertical-align:middle; padding:10px 12px;">
                       <span title="${escapeHtml(m.descripcion || '')}" style="display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; line-height:1.3; cursor:help;">
-                        ℹ️ ${escapeHtml(m.descripcion || 'Sin indicación especificada')}
+                        ℹ ${escapeHtml(m.descripcion || 'Sin indicación especificada')}
                       </span>
                     </td>
                     <td style="vertical-align:middle; padding:10px 12px; text-align:center;">
@@ -159,7 +158,7 @@ function renderMateriales() {
                         <span style="font-size:11px; color:var(--gray-400); font-style:italic;">Solo lectura</span>
                       ` : `
                         <div style="display:flex; gap:14px; justify-content:center; align-items:center;">
-                          <button class="action-link" onclick="openMaterialModal(${m.id})" style="font-weight:700; font-size:13.5px; color:var(--celeste-dark);">Editar</button>
+                          <button class="action-link" onclick="openMaterialModal(${m.id})" style="font-weight:700; font-size:13.5px; color:var(--celeste-dark);"></button>
                           <button class="action-link danger" onclick="confirmDeleteMaterial(${m.id})" title="Eliminar Material" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none; color:var(--danger); cursor:pointer;">
                             ${icon('trash', 16)}
                           </button>
@@ -232,8 +231,8 @@ function openMaterialModal(editId = null) {
             <div class="form-group">
               <label>Tipo *</label>
               <select id="m-tip" required>
-                <option value="Medicamento" ${mat && mat.tipo === 'Medicamento' ? 'selected' : ''}>Medicamento</option>
-                <option value="Insumo" ${mat && mat.tipo === 'Insumo' ? 'selected' : ''}>Insumo</option>
+                <option value="Medicamento" ${mat && mat.tipo === 'Medicamento' ? 'selected' : ''}></option>
+                <option value="Insumo" ${mat && mat.tipo === 'Insumo' ? 'selected' : ''}></option>
               </select>
             </div>
             <div class="form-group">

@@ -25,10 +25,10 @@ function renderLogin() {
             <span style="font-size:12px; color:var(--gray-500); font-weight:600; display:block; margin-bottom:10px;">ACCESO RÁPIDO SEGÚN ROL DE USUARIO:</span>
             <div style="display:flex; flex-direction:column; gap:8px;">
               <button type="button" class="btn btn-outline" style="width:100%; justify-content:center; font-size:12.5px; font-weight:700; border-color:var(--celeste-dark); color:var(--celeste-dark); background:#f0f9ff;" onclick="quickLogin('Administrador', 'Administrador')">
-                ⚡ Iniciar como Administrador (Acceso Completo)
+                 Iniciar como Administrador (Acceso Completo)
               </button>
               <button type="button" class="btn btn-outline" style="width:100%; justify-content:center; font-size:12.5px; font-weight:700; border-color:#0284c7; color:#0369a1; background:#e0f2fe;" onclick="quickLogin('Usuario Consulta', 'Consulta')">
-                👁️ Iniciar como Consulta (Solo Lectura)
+                 Iniciar como Consulta (Solo Lectura)
               </button>
             </div>
           </div>

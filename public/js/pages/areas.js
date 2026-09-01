@@ -93,7 +93,7 @@ function renderAreasTab() {
         <div class="kpi-value">${pctOcupacionGlobal}%</div>
         <div class="kpi-label">Ocupación Hospitalaria</div>
         <div style="font-size:11px; margin-top:4px; font-weight:600; color:${pctOcupacionGlobal >= 85 ? '#dc2626' : (pctOcupacionGlobal >= 60 ? '#d97706' : '#059669')}">
-          ${pctOcupacionGlobal >= 85 ? '🚨 Ocupación Crítica (>85%)' : (pctOcupacionGlobal >= 60 ? '⚠️ Ocupación Moderada (60-85%)' : '✓ Rango Normal (<60%)')}
+          ${pctOcupacionGlobal >= 85 ? ' Ocupación Crítica (>85%)' : (pctOcupacionGlobal >= 60 ? ' Ocupación Moderada (60-85%)' : ' Rango Normal (<60%)')}
         </div>
       </div>
     </div>
@@ -181,7 +181,7 @@ function renderAreasTab() {
                       <span style="font-size:11px; color:var(--gray-400); font-style:italic;">Solo lectura</span>
                     ` : `
                       <div style="display:flex; align-items:center; justify-content:center; gap:16px;">
-                        <button class="action-link" onclick="openAreaModal(${area.id})">Editar</button>
+                        <button class="action-link" onclick="openAreaModal(${area.id})"></button>
                         <button class="action-link danger" onclick="confirmDeleteArea(${area.id})" title="Eliminar Área" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
                           ${icon('trash', 16)}
                         </button>
@@ -307,7 +307,7 @@ function renderCamasTab() {
 
                             ${isOcupada ? `
                               <div style="font-size:11px; color:#7f1d1d; background:rgba(255,255,255,0.85); padding:5px 8px; border-radius:6px; margin-top:4px; border:1px solid #fca5a5; display:flex; align-items:center; gap:6px;">
-                                <span style="font-size:13px; color:#dc2626;">🛏️</span>
+                                
                                 <div>
                                   <strong style="color:#991b1b; font-size:11px;">${pacInternado ? escapeHtml(pacInternado.apellido + ', ' + pacInternado.nombre) : 'Paciente Internado'}</strong>
                                   ${pacInternado?.dni ? `<div style="font-size:10px; color:#b91c1c;">DNI: ${formatDNI(pacInternado.dni)}</div>` : ''}
@@ -328,7 +328,7 @@ function renderCamasTab() {
                                 ${isOcupada ? icon('check', 11) + ' Liberar' : icon('plus', 11) + ' Ocupar'}
                               </button>
                               <div style="display:flex; align-items:center; gap:10px;">
-                                <button class="action-link" style="font-size:11px;" onclick="openCamaModal(${cama.id})">Editar</button>
+                                <button class="action-link" style="font-size:11px;" onclick="openCamaModal(${cama.id})"></button>
                                 <button class="action-link danger" style="font-size:11px; display:inline-flex; align-items:center; justify-content:center; border:none; background:none;" onclick="confirmDeleteCama(${cama.id})" title="Eliminar Cama">
                                   ${icon('trash', 14)}
                                 </button>
@@ -764,17 +764,17 @@ function openOcuparCamaModal(camaId) {
               DNI: ${escapeHtml(p.dni ? formatDNI(p.dni) : 'S/D')} &middot; <span style="color:var(--gray-700);">${escapeHtml(p.causa || 'Sin causa')}</span>
             </div>
             <div style="font-size:11px; color:var(--gray-600); margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-              📍 Área actual: <strong>${escapeHtml(p.area)}</strong>
+               Área actual: <strong>${escapeHtml(p.area)}</strong>
             </div>
           </div>
           <div style="flex-shrink:0; text-align:right;">
             ${hasCama ? `
               <span class="badge" style="background:#fff7ed; color:#c2410c; border:1px solid #ffedd5; font-weight:700; font-size:11.5px; padding:5px 10px; border-radius:6px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;" title="Al asignar esta nueva cama, la cama ${escapeHtml(p.cama)} quedará libre automáticamente">
-                🛏️ Cama actual: ${escapeHtml(p.cama)}
+                 Cama actual: ${escapeHtml(p.cama)}
               </span>
             ` : `
               <span class="badge" style="background:#ecfdf5; color:#047857; border:1px solid #a7f3d0; font-weight:700; font-size:11.5px; padding:5px 10px; border-radius:6px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;">
-                🛏️ Sin cama asignada
+                 Sin cama asignada
               </span>
             `}
           </div>

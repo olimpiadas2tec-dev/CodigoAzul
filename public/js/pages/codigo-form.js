@@ -73,7 +73,7 @@ function renderCodigoForm(editId = null) {
           <div style="display:flex; align-items:center; gap:10px;">
             <span style="font-size:24px;">${icon('lock')}</span>
             <div>
-              <strong style="color:#991b1b; font-size:14px;">Registro de Evento Clínico (${codigo.estado?.label})</strong>
+              <strong style="color:#991b1b; font-size:14px;"> de Evento Clínico (${codigo.estado?.label})</strong>
               <p style="color:#7f1d1d; font-size:12px; margin:2px 0 0 0;">
                 Toda modificación quedará asentada en el Libro de Auditoría Legal con su usuario institucional.
               </p>
@@ -151,7 +151,7 @@ function renderCodigoForm(editId = null) {
                       <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--gray-400);">${icon('search', 16)}</span>
                     </div>
                     <button type="button" class="btn btn-secondary btn-sm" style="background:#fef3c7; color:#92400e; border:1.5px solid #fde68a; font-weight:700; font-size:12px; padding:9px 14px; white-space:nowrap; cursor:pointer;" onclick="selectNNPaciente()">
-                      👤 Paciente N.N. (No Identificado)
+                       Paciente N.N. (No Identificado)
                     </button>
                   </div>
                   
@@ -161,7 +161,7 @@ function renderCodigoForm(editId = null) {
                       style="padding:10px 14px; border-radius:6px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; background:#fffbe6; border:1.5px solid #ffe58f; transition:all 0.15s;"
                       onclick="selectNNPaciente()">
                       <div>
-                        <strong style="font-size:14px; color:#d48806;">👤 N.N. &mdash; Paciente No Identificado</strong>
+                        <strong style="font-size:14px; color:#d48806;"> N.N. &mdash; Paciente No Identificado</strong>
                         <span style="font-size:12px; color:#8c8c8c; margin-left:8px;">DNI: Sin Registrar (Emergencia)</span>
                       </div>
                       <span class="badge" style="background:#fff1b8; color:#d48806; border:1px solid #ffe58f; font-size:11px; font-weight:700;">
@@ -337,11 +337,11 @@ function renderCodigoForm(editId = null) {
 
               <div id="cierre-banner-info" style="margin-bottom:14px; padding:12px 16px; border-radius:var(--radius); font-size:13px; font-weight:600; display:flex; align-items:center; gap:8px; transition:all 0.2s ease; ${currentEstado === 'resuelto' ? 'background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0;' : (currentEstado === 'fatal' ? 'background:#fef2f2; color:#991b1b; border:1px solid #fca5a5;' : 'background:var(--gray-100); color:var(--gray-700); border:1px solid var(--gray-300);')}">
                 ${currentEstado === 'resuelto' ? `
-                  <span>✨</span> <strong>Resultado Exitoso (ROSC):</strong> Complete la certificación de retorno de circulación espontánea y destino de traslado.
+                  <strong>Resultado Exitoso (ROSC):</strong> Complete la certificación de retorno de circulación espontánea y destino de traslado.
                 ` : (currentEstado === 'fatal' ? `
-                  <span>⚠️</span> <strong>Resultado Fatal (Defunción):</strong> Complete la certificación médica de defunción y cese de maniobras.
+                  <strong>Resultado Fatal (Defunción):</strong> Complete la certificación médica de defunción y cese de maniobras.
                 ` : `
-                  <span>ℹ️</span> <strong>Certificación Médica:</strong> Seleccione el Resultado Clínico en la Sección 2 para habilitar el protocolo de certificación correspondiente.
+                  <span>ℹ</span> <strong>Certificación Médica:</strong> Seleccione el Resultado Clínico en la Sección 2 para habilitar el protocolo de certificación correspondiente.
                 `)}
               </div>
 
@@ -470,7 +470,7 @@ function renderCodigoForm(editId = null) {
                   <!-- Bloque Circulación y Desfibrilación -->
                   <div style="background:var(--gray-50); border:1px solid var(--gray-200); border-radius:8px; padding:12px 16px;">
                     <div style="font-size:12px; font-weight:800; color:#b91c1c; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
-                      ⚡ Circulación y Desfibrilación
+                       Circulación y Desfibrilación
                     </div>
                     <div style="display:flex; flex-wrap:wrap; gap:8px;">
                       ${['RCP de Alta Calidad', 'Compresiones Torácicas Continuas', 'Desfibrilación Precoz', 'Cardioversión Eléctrica', 'Monitoreo Multiparamétrico'].map(int => `
@@ -485,7 +485,7 @@ function renderCodigoForm(editId = null) {
                   <!-- Bloque Fármacos y Accesos -->
                   <div style="background:var(--gray-50); border:1px solid var(--gray-200); border-radius:8px; padding:12px 16px;">
                     <div style="font-size:12px; font-weight:800; color:#047857; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
-                      💊 Fármacos y Soporte Vascular
+                       Fármacos y Soporte Vascular
                     </div>
                     <div style="display:flex; flex-wrap:wrap; gap:8px;">
                       ${['Administración de Adrenalina', 'Administración de Amiodarona', 'Acceso Vascular / Vía Intraósea'].map(int => `
@@ -725,7 +725,7 @@ function setupCodigoForm(editId = null) {
           closureBanner.style.background = '#ecfdf5';
           closureBanner.style.color = '#065f46';
           closureBanner.style.borderColor = '#a7f3d0';
-          closureBanner.innerHTML = `<span>✨</span> <strong>Resultado Exitoso (ROSC):</strong> Complete la certificación de retorno de circulación espontánea y destino de traslado.`;
+          closureBanner.innerHTML = `<strong>Resultado Exitoso (ROSC):</strong> Complete la certificación de retorno de circulación espontánea y destino de traslado.`;
         }
       } else if (val === 'fatal') {
         if (roscPanel) roscPanel.style.display = 'none';
@@ -734,7 +734,7 @@ function setupCodigoForm(editId = null) {
           closureBanner.style.background = '#fef2f2';
           closureBanner.style.color = '#991b1b';
           closureBanner.style.borderColor = '#fca5a5';
-          closureBanner.innerHTML = `<span>⚠️</span> <strong>Resultado Fatal (Defunción):</strong> Complete la certificación médica de defunción y cese de maniobras.`;
+          closureBanner.innerHTML = `<strong>Resultado Fatal (Defunción):</strong> Complete la certificación médica de defunción y cese de maniobras.`;
         }
       } else {
         if (roscPanel) roscPanel.style.display = 'none';
@@ -743,7 +743,7 @@ function setupCodigoForm(editId = null) {
           closureBanner.style.background = 'var(--gray-100)';
           closureBanner.style.color = 'var(--gray-700)';
           closureBanner.style.borderColor = 'var(--gray-300)';
-          closureBanner.innerHTML = `<span>ℹ️</span> <strong>Certificación Médica:</strong> Seleccione el Resultado Clínico en la Sección 2 para habilitar el protocolo de certificación correspondiente.`;
+          closureBanner.innerHTML = `<span>ℹ</span> <strong>Certificación Médica:</strong> Seleccione el Resultado Clínico en la Sección 2 para habilitar el protocolo de certificación correspondiente.`;
         }
       }
     });
@@ -958,7 +958,7 @@ function submitCodigoForm(editId = null) {
             <div><strong>Causa del Paro:</strong> ${escapeHtml(causa)}</div>
             <div><strong>Resultado Clínico:</strong> <strong style="color:${estadoVal === 'resuelto' ? '#059669' : '#dc2626'}">${escapeHtml(estadoLabel)}</strong></div>
             <div><strong>Médico Líder:</strong> ${escapeHtml(responsable)}</div>
-            <div><strong>Insumos / Intervenciones:</strong> ${materiales.length} materiales · ${intervenciones.length} intervenciones</div>
+            <div><strong>s / Intervenciones:</strong> ${materiales.length} materiales · ${intervenciones.length} intervenciones</div>
           </div>
         </div>
       `,

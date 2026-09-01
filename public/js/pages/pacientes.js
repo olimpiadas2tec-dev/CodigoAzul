@@ -71,7 +71,7 @@ function renderPacientes() {
               </select>
             </div>
             <button class="btn btn-sm" onclick="toggleSinCamaFilter()" style="flex:0 0 auto; padding:6px 12px; border-radius:10px; font-size:12px; font-weight:700; white-space:nowrap; cursor:pointer; ${pacientesState.sinCama ? 'background:#e0f2fe; color:#0369a1; border:1.5px solid #7dd3fc;' : 'background:var(--gray-100); color:var(--gray-700); border:1.5px solid var(--gray-200);'}">
-              ${icon('check', 13)} Sin Cama ${pacientesState.sinCama ? '✓' : ''}
+              ${icon('check', 13)} Sin Cama ${pacientesState.sinCama ? '' : ''}
             </button>
             <button class="btn btn-secondary btn-sm" onclick="clearPacienteFilters()" style="flex:0 0 auto; padding:6px 14px; border-radius:10px; font-size:12px; font-weight:600; white-space:nowrap;">Limpiar</button>
           </div>
@@ -161,7 +161,7 @@ function renderPacientes() {
                         <span style="font-size:11px; color:var(--gray-400); font-style:italic;">Solo lectura</span>
                       ` : `
                         <div style="display:flex; gap:6px; align-items:center; justify-content:center;">
-                          <button class="action-link" style="font-size:11.5px; font-weight:600;" onclick="openPacienteModal(${p.id})">Editar</button>
+                          <button class="action-link" style="font-size:11.5px; font-weight:600;" onclick="openPacienteModal(${p.id})"></button>
                           ${p.activo ? `
                             <button class="btn btn-sm" style="padding:3px 7px; font-size:11px; font-weight:600; background:#059669; color:#ffffff; border:none; border-radius:5px; display:inline-flex; align-items:center; gap:3px; box-shadow:0 1px 2px rgba(0,0,0,0.08); cursor:pointer;" onclick="confirmAltaPaciente(${p.id})" title="Registrar Alta Médica (Requiere confirmación)">
                               ${icon('checkCircle', 11)} Dar de Alta
@@ -678,7 +678,7 @@ function openReingresoCamaModal(id, pendingRedirectCodigoId = null) {
     const freeCamas = getCamas().filter(c => c.area_nombre === selectedArea && c.estado === 'Libre');
 
     if (freeCamas.length === 0) {
-      camaSelect.innerHTML = `<option value="">⚠️ No hay camas libres en esta área</option>`;
+      camaSelect.innerHTML = `<option value=""> camas libres en esta área</option>`;
       camaSelect.required = false;
     } else {
       camaSelect.required = true;
@@ -772,8 +772,7 @@ function showReingresoFallecidoModal(p, fatalCodigo) {
         </p>
 
         <div style="background:#fff5f5; border:1.5px solid #feb2b2; border-radius:8px; padding:12px 16px; margin-bottom:16px;">
-          <div style="font-weight:700; color:#991b1b; font-size:13px; margin-bottom:4px;">
-            ⚠️ Registro de Código Azul #${fatalCodigo.id} asentado como FALLECIDO:
+          <div style="font-weight:700; color:#991b1b; font-size:13px; margin-bottom:4px;"> de Código Azul #${fatalCodigo.id} asentado como FALLECIDO:
           </div>
           <div style="font-size:12px; color:#7f1d1d; line-height:1.4;">
             <div>&middot; <strong>Fecha del evento:</strong> ${formatDateTime(fatalCodigo.fecha)}</div>
@@ -790,7 +789,7 @@ function showReingresoFallecidoModal(p, fatalCodigo) {
           <!-- Opción 1: Editar Código Azul -->
           <button type="button" class="btn btn-outline" style="text-align:left; padding:12px 14px; border:1.5px solid var(--celeste-dark); background:#f0f9ff; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:space-between;" onclick="handleReingresoEditarCodigo(${p.id}, ${fatalCodigo.id})">
             <div>
-              <strong style="color:var(--celeste-dark); font-size:13px; display:block;">✏️ Editar / Corregir el Código Azul #${fatalCodigo.id}</strong>
+              <strong style="color:var(--celeste-dark); font-size:13px; display:block;"> / Corregir el Código Azul #${fatalCodigo.id}</strong>
               <span style="font-size:11.5px; color:var(--gray-600);">Reingresa al paciente y abre la edición para corregir el resultado clínico (ROSC / En Curso).</span>
             </div>
             <span style="font-size:18px; color:var(--celeste-dark); font-weight:800;">&rarr;</span>
@@ -799,7 +798,7 @@ function showReingresoFallecidoModal(p, fatalCodigo) {
           <!-- Opción 2: Eliminar Código Azul Fatal -->
           <button type="button" class="btn btn-outline" style="text-align:left; padding:12px 14px; border:1.5px solid #fca5a5; background:#fff5f5; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:space-between;" onclick="handleReingresoEliminarCodigo(${p.id}, ${fatalCodigo.id})">
             <div>
-              <strong style="color:#dc2626; font-size:13px; display:block;">🗑️ Eliminar el Código Azul Fatal #${fatalCodigo.id}</strong>
+              <strong style="color:#dc2626; font-size:13px; display:block;"> el Código Azul Fatal #${fatalCodigo.id}</strong>
               <span style="font-size:11.5px; color:var(--gray-600);">Elimina el registro de defunción por error de carga y activa al paciente en el sistema.</span>
             </div>
             <span style="font-size:18px; color:#dc2626; font-weight:800;">&rarr;</span>
@@ -839,7 +838,7 @@ function confirmDeletePaciente(id) {
   if (typeof showConfirmModal === 'function') {
     showConfirmModal({
       title: 'Eliminar Registro de Paciente',
-      message: `¿Confirma eliminar definitivamente al paciente <strong>${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}</strong> (DNI: ${p.dni || 'S/D'}) del sistema?<br/><br/><span style="color:#dc2626; font-size:12px;">⚠️ Si tiene una cama asignada, la cama quedará libre automáticamente. Esta acción no se puede deshacer.</span>`,
+      message: `¿Confirma eliminar definitivamente al paciente <strong>${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}</strong> (DNI: ${p.dni || 'S/D'}) del sistema?<br/><br/><span style="color:#dc2626; font-size:12px;"> una cama asignada, la cama quedará libre automáticamente. Esta acción no se puede deshacer.</span>`,
       confirmText: 'Eliminar Definitivamente',
       confirmBtnStyle: 'background:#dc2626; color:#fff; font-weight:700; border-radius:8px; padding:8px 16px; border:none; cursor:pointer;',
       iconName: 'trash',

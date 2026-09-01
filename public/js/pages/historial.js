@@ -88,7 +88,7 @@ function renderHistorial() {
     <div class="page-header page-header-row page-transition">
       <div>
         <h1>Historial de Códigos Azules</h1>
-        <p>Registro oficial de eventos clínicos, causas, equipos intervinientes y resultados</p>
+        <p> oficial de eventos clínicos, causas, equipos intervinientes y resultados</p>
       </div>
       <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
              <!-- Botón Único Unificado de Exportación con Dropdown -->
@@ -218,7 +218,7 @@ function renderHistorial() {
                     <div class="empty-state" style="padding:30px; text-align:center;">
                       <span style="font-size:32px;">${icon('search')}</span>
                       <h3 style="margin:8px 0 4px 0;">No se encontraron registros</h3>
-                      <p style="color:var(--gray-500); font-size:13px;">No hay eventos clínicos que coincidan con los criterios de búsqueda.</p>
+                      <p style="color:var(--gray-500); font-size:13px;"> eventos clínicos que coincidan con los criterios de búsqueda.</p>
                       <button class="btn btn-secondary btn-sm" style="margin-top:12px;" onclick="clearFilters()">Limpiar Filtros</button>
                     </div>
                   </td>

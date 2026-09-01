@@ -215,11 +215,11 @@ function renderReportes() {
                     if (isSmallSample) {
                       roscBadge = `<span class="badge" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; font-weight:600; font-size:11px;" title="Muestra reducida (n<3): evaluar con cautela en desempeño">${roscPct}% ROSC <small style="color:var(--gray-500); font-weight:400;">(Muestra reducida: n=${stats.total})</small></span>`;
                     } else if (roscPct >= 80) {
-                      roscBadge = `<span class="badge badge-success" style="font-weight:700; background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0;">✓ Excelente (${roscPct}% ROSC)</span>`;
+                      roscBadge = `<span class="badge badge-success" style="font-weight:700; background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0;"> (${roscPct}% ROSC)</span>`;
                     } else if (roscPct >= 60) {
-                      roscBadge = `<span class="badge badge-warning" style="font-weight:700; background:#fef3c7; color:#92400e; border:1px solid #fde68a;">⚠️ Aceptable (${roscPct}% ROSC)</span>`;
+                      roscBadge = `<span class="badge badge-warning" style="font-weight:700; background:#fef3c7; color:#92400e; border:1px solid #fde68a;"> (${roscPct}% ROSC)</span>`;
                     } else {
-                      roscBadge = `<span class="badge badge-danger" style="font-weight:700; background:#fee2e2; color:#991b1b; border:1px solid #fca5a5;">🚨 Refuerzo (${roscPct}% ROSC)</span>`;
+                      roscBadge = `<span class="badge badge-danger" style="font-weight:700; background:#fee2e2; color:#991b1b; border:1px solid #fca5a5;"> (${roscPct}% ROSC)</span>`;
                     }
 
                     return `
@@ -246,7 +246,7 @@ function renderReportes() {
           <div class="card-header">
             <div style="display:flex; align-items:center; gap:8px;">
               <span style="font-size:20px; color:var(--celeste-dark);">${icon('pill')}</span>
-              <h2>Medicamentos e Insumos Más Utilizados</h2>
+              <h2>s e Insumos Más Utilizados</h2>
             </div>
           </div>
           <div class="card-body">

@@ -174,7 +174,7 @@ function renderPersonalTab() {
                     <span style="font-size:11px; color:var(--gray-400); font-style:italic;">Solo lectura</span>
                   ` : `
                     <div style="display:flex; align-items:center; justify-content:center; gap:16px;">
-                      <button class="action-link" onclick="openPersonalModal(${p.id})">Editar</button>
+                      <button class="action-link" onclick="openPersonalModal(${p.id})"></button>
                       <button class="action-link danger" onclick="confirmDeletePersonal(${p.id})" title="Eliminar Personal" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
                         ${icon('trash', 16)}
                       </button>
@@ -260,7 +260,7 @@ function renderRolesTab() {
                       <span style="font-size:11px; color:var(--gray-400); font-style:italic;">Solo lectura</span>
                     ` : `
                       <div style="display:flex; align-items:center; justify-content:center; gap:16px;">
-                        <button class="action-link" onclick="openRolModal(${rol.id})">Editar</button>
+                        <button class="action-link" onclick="openRolModal(${rol.id})"></button>
                         <button class="action-link danger" onclick="confirmDeleteRol(${rol.id})" title="Eliminar Rol" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
                           ${icon('trash', 16)}
                         </button>
@@ -320,7 +320,7 @@ function renderEquiposTab() {
                   <button class="btn btn-outline btn-sm" onclick="openAsignarPersonalEquipoModal(${eq.id})" title="Asignar Integrante" style="padding:6px 12px; font-size:12.5px;">
                     ${icon('plus')} Asignar
                   </button>
-                  <button class="action-link" onclick="openEquipoModal(${eq.id})" title="Editar Equipo" style="font-size:13px;">Editar</button>
+                  <button class="action-link" onclick="openEquipoModal(${eq.id})" title="Editar Equipo" style="font-size:13px;"></button>
                   <button class="action-link danger" onclick="confirmDeleteEquipo(${eq.id})" title="Eliminar Equipo" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
                     ${icon('trash', 16)}
                   </button>
@@ -375,7 +375,7 @@ function renderEquiposTab() {
                         </div>
                         ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? '' : `
                           <div style="display:flex; gap:16px; align-items:center;" onclick="event.stopPropagation()">
-                            <button class="action-link" onclick="openEditarIntegranteModal(${eq.id}, ${integ.id_personal})" title="Cambiar rol en brigada">Editar</button>
+                            <button class="action-link" onclick="openEditarIntegranteModal(${eq.id}, ${integ.id_personal})" title="Cambiar rol en brigada"></button>
                             <button class="action-link danger" onclick="showConfirmModal({ title: 'Quitar Integrante', message: '¿Seguro que desea quitar a este integrante del equipo?', onConfirm: () => removerIntegranteEquipo(${eq.id}, ${integ.id_personal}) })" title="Quitar del equipo" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
                               ${icon('trash', 16)}
                             </button>
@@ -447,7 +447,7 @@ function renderTurnosTab() {
                       <span style="font-size:11px; color:var(--gray-400); font-style:italic;">Solo lectura</span>
                     ` : `
                       <div style="display:flex; align-items:center; justify-content:center; gap:16px;">
-                        <button class="action-link" onclick="openTurnoModal(${t.id})">Editar</button>
+                        <button class="action-link" onclick="openTurnoModal(${t.id})"></button>
                         <button class="action-link danger" onclick="confirmDeleteTurno(${t.id})" title="Eliminar" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
                           ${icon('trash', 16)}
                         </button>
@@ -979,7 +979,7 @@ function openAsignarPersonalEquipoModal(equipoId) {
               <option value="Médico Líder (Team Leader / Vía Aérea)">Médico Líder (Team Leader / Vía Aérea)</option>
               <option value="Compresiones Torácicas & Desfibrilador">Compresiones Torácicas & Desfibrilador</option>
               <option value="Acceso Vascular & Fármacos IV">Acceso Vascular & Fármacos IV</option>
-              <option value="Registro, Tiempos & Cronómetro">Registro, Tiempos & Cronómetro</option>
+              <option value="Registro, Tiempos & Cronómetro">, Tiempos & Cronómetro</option>
               <option value="Apoyo y Logística">Apoyo y Logística</option>
             </select>
           </div>
@@ -1108,7 +1108,7 @@ function openEditarIntegranteModal(equipoId, personalId) {
               <option value="Médico Líder (Team Leader / Vía Aérea)" ${member.rol_en_equipo.includes('Líder') ? 'selected' : ''}>Médico Líder (Team Leader / Vía Aérea)</option>
               <option value="Compresiones Torácicas & Desfibrilador" ${member.rol_en_equipo.includes('Compresiones') ? 'selected' : ''}>Compresiones Torácicas & Desfibrilador</option>
               <option value="Acceso Vascular & Fármacos IV" ${member.rol_en_equipo.includes('Vascular') ? 'selected' : ''}>Acceso Vascular & Fármacos IV</option>
-              <option value="Registro, Tiempos & Cronómetro" ${member.rol_en_equipo.includes('Registro') ? 'selected' : ''}>Registro, Tiempos & Cronómetro</option>
+              <option value="Registro, Tiempos & Cronómetro" ${member.rol_en_equipo.includes('Registro') ? 'selected' : ''}>, Tiempos & Cronómetro</option>
               <option value="Apoyo y Logística" ${member.rol_en_equipo.includes('Apoyo') ? 'selected' : ''}>Apoyo y Logística</option>
             </select>
           </div>

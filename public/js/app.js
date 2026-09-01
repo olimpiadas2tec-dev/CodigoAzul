@@ -262,7 +262,7 @@ function renderApp() {
     console.error('Error rendering route ' + route + ':', err);
     app.innerHTML = renderLayout(`
       <div class="empty-state" style="padding:50px 20px; text-align:center;">
-        <span style="font-size:36px;">⚠️</span>
+        
         <h2 style="margin:10px 0 6px 0;">Ocurrió un error al cargar esta sección</h2>
         <p style="color:var(--gray-600); font-size:13px; margin-bottom:16px;">${escapeHtml(err.message || String(err))}</p>
         <button class="btn btn-primary btn-sm" onclick="window.location.hash='#/dashboard'; location.reload();">

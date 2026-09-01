@@ -50,7 +50,7 @@ function renderDashboard() {
         <div class="card scale-in">
           <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
             <h2 style="margin:0;">Evolución de Códigos por Mes</h2>
-            <span class="badge" style="background:#f1f5f9; color:#64748b; font-size:11px; font-weight:600; border:1px solid #cbd5e1;">ℹ️ Sistema iniciado en Agosto 2026</span>
+            <span class="badge" style="background:#f1f5f9; color:#64748b; font-size:11px; font-weight:600; border:1px solid #cbd5e1;">ℹ Sistema iniciado en Agosto 2026</span>
           </div>
           <div class="card-body">
             <div class="chart-container" style="height:180px;">
@@ -112,7 +112,7 @@ function renderDashboard() {
                       <div class="recent-title" style="font-weight:700; color:var(--gray-900); font-size:13.5px; display:flex; align-items:center; gap:8px;">
                         <span>${escapeHtml(item.paciente)}</span>
                         ${isMostRecent ? `<span class="badge badge-info" style="font-size:10px; padding:2px 7px; font-weight:700;">🆕 Más Reciente</span>` : ''}
-                        ${isFatal ? `<span class="badge badge-danger" style="font-size:10px; padding:2px 7px; font-weight:700; background:#fee2e2; color:#991b1b; border:1px solid #fca5a5;">⚠️ Atención Fatal</span>` : ''}
+                        ${isFatal ? `<span class="badge badge-danger" style="font-size:10px; padding:2px 7px; font-weight:700; background:#fee2e2; color:#991b1b; border:1px solid #fca5a5;"> Fatal</span>` : ''}
                       </div>
                       <div style="font-size:11.5px; color:#334155; font-weight:600; margin-top:3px; display:inline-block; background:#f1f5f9; padding:2px 8px; border-radius:5px; border:1px solid #cbd5e1;">
                         ${escapeHtml(item.causa || 'Paro Cardiorrespiratorio')}
