@@ -68,8 +68,8 @@ function renderPacientes() {
                 <option value="" ${pacientesState.activo === '' ? 'selected' : ''}>Todos los registros</option>
               </select>
             </div>
-            <button class="btn btn-sm" onclick="toggleSinCamaFilter()" style="flex:0 0 auto; padding:6px 12px; border-radius:10px; font-size:12px; font-weight:700; white-space:nowrap; cursor:pointer; ${pacientesState.sinCama ? 'background:#fef3c7; color:#92400e; border:1.5px solid #fde68a;' : 'background:var(--gray-100); color:var(--gray-700); border:1.5px solid var(--gray-200);'}">
-              ${icon('alertTriangle', 13)} Sin Cama ${pacientesState.sinCama ? '✓' : ''}
+            <button class="btn btn-sm" onclick="toggleSinCamaFilter()" style="flex:0 0 auto; padding:6px 12px; border-radius:10px; font-size:12px; font-weight:700; white-space:nowrap; cursor:pointer; ${pacientesState.sinCama ? 'background:#e0f2fe; color:#0369a1; border:1.5px solid #7dd3fc;' : 'background:var(--gray-100); color:var(--gray-700); border:1.5px solid var(--gray-200);'}">
+              ${icon('check', 13)} Sin Cama ${pacientesState.sinCama ? '✓' : ''}
             </button>
             <button class="btn btn-secondary btn-sm" onclick="clearPacienteFilters()" style="flex:0 0 auto; padding:6px 14px; border-radius:10px; font-size:12px; font-weight:600; white-space:nowrap;">Limpiar</button>
           </div>
@@ -164,6 +164,9 @@ function renderPacientes() {
                             ${icon('refreshCw', 11)} Reingresar
                           </button>
                         `}
+                        <button class="action-link danger" onclick="confirmDeletePaciente(${p.id})" title="Eliminar paciente definitivamente" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none; padding:4px; margin-left:2px; cursor:pointer; color:#dc2626;">
+                          ${icon('trash', 14)}
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -820,6 +823,57 @@ function handleReingresoEliminarCodigo(pacienteId, codigoId) {
   openReingresoCamaModal(pacienteId);
 }
 
+function confirmDeletePaciente(id) {
+  const currentList = getPacientes();
+  const p = currentList.find(item => item.id === id);
+  if (!p) return;
+
+  if (typeof showConfirmModal === 'function') {
+    showConfirmModal({
+      title: 'Eliminar Registro de Paciente',
+      message: `¿Confirma eliminar definitivamente al paciente <strong>${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}</strong> (DNI: ${p.dni || 'S/D'}) del sistema?<br/><br/><span style="color:#dc2626; font-size:12px;">⚠️ Si tiene una cama asignada, la cama quedará libre automáticamente. Esta acción no se puede deshacer.</span>`,
+      confirmText: 'Eliminar Definitivamente',
+      confirmBtnStyle: 'background:#dc2626; color:#fff; font-weight:700; border-radius:8px; padding:8px 16px; border:none; cursor:pointer;',
+      iconName: 'trash',
+      headerBg: '#fee2e2',
+      headerColor: '#991b1b',
+      onConfirm: () => {
+        deletePaciente(id);
+      }
+    });
+  } else {
+    if (confirm(`¿Seguro que desea eliminar al paciente ${p.apellido}, ${p.nombre}?`)) {
+      deletePaciente(id);
+    }
+  }
+}
+
+function deletePaciente(id) {
+  const currentList = getPacientes();
+  const idx = currentList.findIndex(p => p.id === id);
+  if (idx !== -1) {
+    const p = currentList[idx];
+
+    // Liberar la cama si tenía una
+    if (p.cama && p.area && p.area !== 'Sin Designar') {
+      const camasList = getCamas();
+      const cObj = camasList.find(c => (c.area_nombre === p.area && c.numero === p.cama) || c.numero === p.cama);
+      if (cObj) {
+        cObj.estado = 'Libre';
+        cObj.id_paciente = null;
+        cObj.paciente_nombre = null;
+        saveCamas(camasList);
+      }
+    }
+
+    currentList.splice(idx, 1);
+    savePacientes(currentList);
+
+    showToast(`Paciente ${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)} eliminado exitosamente.`, 'success');
+    renderApp();
+  }
+}
+
 window.openPacienteModal = openPacienteModal;
 window.confirmAltaPaciente = confirmAltaPaciente;
 window.doAltaPaciente = doAltaPaciente;
@@ -830,4 +884,6 @@ window.showReingresoFallecidoModal = showReingresoFallecidoModal;
 window.handleReingresoEditarCodigo = handleReingresoEditarCodigo;
 window.handleReingresoEliminarCodigo = handleReingresoEliminarCodigo;
 window.toggleSinCamaFilter = toggleSinCamaFilter;
+window.confirmDeletePaciente = confirmDeletePaciente;
+window.deletePaciente = deletePaciente;
 
