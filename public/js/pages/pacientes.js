@@ -409,18 +409,39 @@ function openPacienteModal(editId = null) {
     }
 
     const currentList = getPacientes();
+    const camasList = getCamas();
+    let oldCama = '';
+    let oldArea = '';
 
-    // Actualizar estado de la cama a Ocupada si se asignó cama
-    if (finalCama) {
-      const camasList = getCamas();
-      const camaObj = camasList.find(c => (c.area_nombre === finalArea && c.numero === finalCama) || c.numero === finalCama);
-      if (camaObj) {
-        camaObj.estado = 'Ocupada';
-        camaObj.id_paciente = isEdit ? editId : (currentList.length > 0 ? Math.max(...currentList.map(p => p.id)) + 1 : 11);
-        camaObj.paciente_nombre = `${apellido}, ${nombre}`;
-        saveCamas(camasList);
+    if (isEdit) {
+      const existing = currentList.find(p => p.id === editId);
+      if (existing) {
+        oldCama = existing.cama || '';
+        oldArea = existing.area || '';
       }
     }
+
+    // 1. Si cambió de cama (o la dejó libre), LIBERAR la cama anterior
+    if (oldCama && oldCama !== finalCama) {
+      const prevCamaObj = camasList.find(c => (c.area_nombre === oldArea && c.numero === oldCama) || c.numero === oldCama);
+      if (prevCamaObj) {
+        prevCamaObj.estado = 'Libre';
+        prevCamaObj.id_paciente = null;
+        prevCamaObj.paciente_nombre = null;
+      }
+    }
+
+    // 2. Si asignó una nueva cama, ocuparla
+    if (finalCama) {
+      const newCamaObj = camasList.find(c => (c.area_nombre === finalArea && c.numero === finalCama) || c.numero === finalCama);
+      if (newCamaObj) {
+        newCamaObj.estado = 'Ocupada';
+        newCamaObj.id_paciente = isEdit ? editId : (currentList.length > 0 ? Math.max(...currentList.map(p => p.id)) + 1 : 11);
+        newCamaObj.paciente_nombre = `${apellido}, ${nombre}`;
+      }
+    }
+
+    saveCamas(camasList);
 
     const persObj = personalList.find(p => p.id === id_personal);
     const personal_a_cargo = persObj ? `${persObj.apellido}, ${persObj.nombre} (${persObj.nombre_rol || 'Médico'})` : 'Médico de Guardia';
