@@ -151,9 +151,11 @@ function renderMateriales() {
                       </span>
                     </td>
                     <td style="vertical-align:middle; padding:10px 12px; text-align:center;">
-                      <div style="display:flex; gap:6px; justify-content:center; align-items:center;">
-                        <button class="btn btn-secondary btn-sm" onclick="openMaterialModal(${m.id})" style="padding:4px 10px; font-size:12px; font-weight:600; border-radius:8px;">Editar</button>
-                        <button class="btn btn-outline btn-sm" onclick="confirmDeleteMaterial(${m.id})" title="Eliminar Material" style="padding:4px 8px; font-size:12px; border-radius:8px; color:var(--gray-500); border-color:#cbd5e1;">${icon('trash', 14)}</button>
+                      <div style="display:flex; gap:14px; justify-content:center; align-items:center;">
+                        <button class="action-link" onclick="openMaterialModal(${m.id})" style="font-weight:700; font-size:13.5px; color:var(--celeste-dark);">Editar</button>
+                        <button class="action-link danger" onclick="confirmDeleteMaterial(${m.id})" title="Eliminar Material" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none; color:var(--danger); cursor:pointer;">
+                          ${icon('trash', 16)}
+                        </button>
                       </div>
                     </td>
                   </tr>
