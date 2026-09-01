@@ -181,7 +181,7 @@ function renderAreasTab() {
                       <span style="font-size:11px; color:var(--gray-400); font-style:italic;">Solo lectura</span>
                     ` : `
                       <div style="display:flex; align-items:center; justify-content:center; gap:16px;">
-                        <button class="action-link" onclick="openAreaModal(${area.id})">${icon('edit', 14)} Editar</button>
+                        <button class="action-link" onclick="openAreaModal(${area.id})">Editar</button>
                         <button class="action-link danger" onclick="confirmDeleteArea(${area.id})" title="Eliminar Área" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
                           ${icon('trash', 16)}
                         </button>
@@ -328,7 +328,7 @@ function renderCamasTab() {
                                 ${isOcupada ? icon('check', 11) + ' Liberar' : icon('plus', 11) + ' Ocupar'}
                               </button>
                               <div style="display:flex; align-items:center; gap:10px;">
-                                <button class="action-link" style="font-size:11px;" onclick="openCamaModal(${cama.id})">${icon('edit', 12)} Editar</button>
+                                <button class="action-link" style="font-size:11px;" onclick="openCamaModal(${cama.id})">Editar</button>
                                 <button class="action-link danger" style="font-size:11px; display:inline-flex; align-items:center; justify-content:center; border:none; background:none;" onclick="confirmDeleteCama(${cama.id})" title="Eliminar Cama">
                                   ${icon('trash', 14)}
                                 </button>

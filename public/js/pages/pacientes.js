@@ -162,7 +162,7 @@ function renderPacientes() {
                         <span style="font-size:11px; color:var(--gray-400); font-style:italic;">Solo lectura</span>
                       ` : `
                         <div style="display:flex; gap:6px; align-items:center; justify-content:center;">
-                          <button class="action-link" style="font-size:11.5px; font-weight:600;" onclick="openPacienteModal(${p.id})">${icon('edit', 13)} Editar</button>
+                          <button class="action-link" style="font-size:11.5px; font-weight:600;" onclick="openPacienteModal(${p.id})">Editar</button>
                           ${p.activo ? `
                             <button class="btn btn-sm" style="padding:3px 7px; font-size:11px; font-weight:600; background:#059669; color:#ffffff; border:none; border-radius:5px; display:inline-flex; align-items:center; gap:3px; box-shadow:0 1px 2px rgba(0,0,0,0.08); cursor:pointer;" onclick="confirmAltaPaciente(${p.id})" title="Registrar Alta Médica (Requiere confirmación)">
                               ${icon('checkCircle', 11)} Dar de Alta
