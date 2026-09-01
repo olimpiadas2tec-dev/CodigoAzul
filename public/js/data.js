@@ -1341,6 +1341,25 @@ function permanentDeleteCodigo(idKey) {
   }
 }
 
+// --- Empty Trash Functions ---
+function emptyTrashPacientes() {
+  const count = getTrashPacientes().length;
+  saveTrashPacientes([]);
+  logAuditoria(null, 'Papelera de Pacientes vaciada', count + ' pacientes eliminados permanentemente');
+}
+
+function emptyTrashPersonal() {
+  const count = getTrashPersonal().length;
+  saveTrashPersonal([]);
+  logAuditoria(null, 'Papelera de Personal vaciada', count + ' registros de personal eliminados permanentemente');
+}
+
+function emptyTrashCodigos() {
+  const count = getTrashCodigos().length;
+  saveTrashCodigos([]);
+  logAuditoria(null, 'Papelera de Códigos Azules vaciada', count + ' eventos eliminados permanentemente');
+}
+
 // --- Auto-cleanup (30 day retention) ---
 function cleanupTrash() {
   var THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;

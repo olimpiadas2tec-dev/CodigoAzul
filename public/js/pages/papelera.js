@@ -182,8 +182,8 @@ function renderPapelera() {
           ${renderTabButton('codigos', 'Historial de Códigos Azules', counts.codigos, 'heart')}
         </div>
 
-        <!-- Controls (Search) -->
-        <div style="padding: 1rem; border-bottom: 1px solid var(--gray-200, #e2e8f0); background: var(--white, #fff); display: flex; justify-content: space-between; align-items: center;">
+        <!-- Controls (Search + Vaciar Papelera) -->
+        <div style="padding: 1rem; border-bottom: 1px solid var(--gray-200, #e2e8f0); background: var(--white, #fff); display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
           <div style="position: relative; width: 100%; max-width: 400px;">
             <div style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--gray-400, #94a3b8);">
               ${getIcon('search', 18)}
@@ -199,6 +199,29 @@ function renderPapelera() {
               onblur="this.style.borderColor='var(--gray-300, #cbd5e1)'; this.style.boxShadow='none';"
             >
           </div>
+
+          <!-- Botón Vaciar Papelera de la Sección Activa -->
+          ${counts[papeleraState.activeTab] > 0 ? `
+            <button 
+              class="btn btn-sm" 
+              onclick="window.emptyPapeleraTab('${papeleraState.activeTab}')" 
+              title="Vaciar todos los registros de esta sección"
+              style="background: #dc2626; color: #ffffff; border: none; padding: 0.6rem 1.2rem; border-radius: var(--radius-lg, 0.5rem); font-size: 0.875rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 2px 4px rgba(220, 38, 38, 0.2); transition: background-color 0.2s ease, transform 0.1s ease;"
+              onmouseover="this.style.background='#b91c1c';"
+              onmouseout="this.style.background='#dc2626';"
+            >
+              ${getIcon('trash', 16)} Vaciar Papelera
+            </button>
+          ` : `
+            <button 
+              class="btn btn-sm" 
+              disabled 
+              title="No hay elementos para vaciar en esta sección"
+              style="background: var(--gray-100, #f1f5f9); color: var(--gray-400, #94a3b8); border: 1px solid var(--gray-200, #e2e8f0); padding: 0.6rem 1.2rem; border-radius: var(--radius-lg, 0.5rem); font-size: 0.875rem; font-weight: 600; cursor: not-allowed; display: inline-flex; align-items: center; gap: 0.5rem;"
+            >
+              ${getIcon('trash', 16)} Vaciar Papelera
+            </button>
+          `}
         </div>
 
         <!-- Content -->
@@ -392,3 +415,39 @@ window.permanentDeleteCodigoFromTrash = function(id, itemName) {
     }
   }
 };
+
+window.emptyPapeleraTab = function(tab) {
+  let sectionName = 'Pacientes';
+  let emptyFn = typeof emptyTrashPacientes === 'function' ? emptyTrashPacientes : null;
+
+  if (tab === 'personal') {
+    sectionName = 'Personal de Salud';
+    emptyFn = typeof emptyTrashPersonal === 'function' ? emptyTrashPersonal : null;
+  } else if (tab === 'codigos') {
+    sectionName = 'Historial de Códigos Azules';
+    emptyFn = typeof emptyTrashCodigos === 'function' ? emptyTrashCodigos : null;
+  }
+
+  if (typeof showPermanentDeleteModal === 'function') {
+    showPermanentDeleteModal({
+      title: `Vaciar Papelera de ${sectionName}`,
+      itemName: `TODOS los registros de ${sectionName} en la papelera`,
+      onConfirm: () => {
+        if (typeof emptyFn === 'function') {
+          emptyFn();
+          safeShowToast(`Papelera de ${sectionName} vaciada con éxito`, 'success');
+          if (typeof window.renderApp === 'function') window.renderApp();
+        }
+      }
+    });
+  } else {
+    if (confirm(`¿Confirma vaciar permanentemente todos los registros de ${sectionName} en la papelera? Esta acción no se puede deshacer.`)) {
+      if (typeof emptyFn === 'function') {
+        emptyFn();
+        safeShowToast(`Papelera de ${sectionName} vaciada con éxito`, 'success');
+        if (typeof window.renderApp === 'function') window.renderApp();
+      }
+    }
+  }
+};
+
