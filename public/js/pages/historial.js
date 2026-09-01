@@ -294,16 +294,21 @@ function renderHistorial() {
         </div>
 
         ${totalPages > 1 ? `
-          <div class="pagination" style="padding:14px 20px; border-top:1px solid var(--gray-200); display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-size:12px; color:var(--gray-500);">
-              Mostrando ${start + 1}-${Math.min(start + historialState.perPage, filtered.length)} de ${filtered.length}
+          <div class="pagination" style="padding:14px 20px; border-top:1px solid var(--gray-200); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <span style="font-size:12.5px; color:var(--gray-500); font-weight:500;">
+              Mostrando <strong style="color:var(--gray-800);">${start + 1}-${Math.min(start + historialState.perPage, filtered.length)}</strong> de <strong style="color:var(--gray-800);">${filtered.length}</strong> registros
             </span>
-            <div class="pagination-pages" style="display:flex; gap:4px;">
-              <button class="page-btn" ${page <= 1 ? 'disabled' : ''} onclick="goToPage(${page - 1})">&laquo;</button>
-              ${Array.from({ length: totalPages }, (_, i) => i + 1).map(p => `
-                <button class="page-btn ${p === page ? 'active' : ''}" onclick="goToPage(${p})">${p}</button>
-              `).join('')}
-              <button class="page-btn" ${page >= totalPages ? 'disabled' : ''} onclick="goToPage(${page + 1})">&raquo;</button>
+            <div class="pagination-pages" style="display:flex; gap:6px; align-items:center;">
+              <button class="page-btn" ${page <= 1 ? 'disabled' : ''} onclick="goToPage(${page - 1})" title="Página Anterior" style="width:34px; height:34px; border-radius:8px; border:1.5px solid ${page <= 1 ? '#e2e8f0' : '#cbd5e1'}; background:${page <= 1 ? '#f8fafc' : '#ffffff'}; color:${page <= 1 ? '#cbd5e1' : 'var(--gray-700)'}; font-size:14px; font-weight:700; display:inline-flex; align-items:center; justify-content:center; cursor:${page <= 1 ? 'not-allowed' : 'pointer'}; transition:all 0.15s ease;">&larr;</button>
+              ${Array.from({ length: totalPages }, (_, i) => i + 1).map(p => {
+                const isActive = p === page;
+                return `
+                  <button class="page-btn ${isActive ? 'active' : ''}" onclick="goToPage(${p})" style="width:34px; height:34px; border-radius:8px; border:1.5px solid ${isActive ? 'var(--celeste-dark)' : '#cbd5e1'}; background:${isActive ? 'var(--celeste-dark)' : '#ffffff'}; color:${isActive ? '#ffffff' : 'var(--gray-800)'}; font-size:13px; font-weight:700; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:${isActive ? '0 2px 6px rgba(2, 132, 199, 0.25)' : 'none'}; transition:all 0.15s ease;">
+                    ${p}
+                  </button>
+                `;
+              }).join('')}
+              <button class="page-btn" ${page >= totalPages ? 'disabled' : ''} onclick="goToPage(${page + 1})" title="Página Siguiente" style="width:34px; height:34px; border-radius:8px; border:1.5px solid ${page >= totalPages ? '#e2e8f0' : '#cbd5e1'}; background:${page >= totalPages ? '#f8fafc' : '#ffffff'}; color:${page >= totalPages ? '#cbd5e1' : 'var(--gray-700)'}; font-size:14px; font-weight:700; display:inline-flex; align-items:center; justify-content:center; cursor:${page >= totalPages ? 'not-allowed' : 'pointer'}; transition:all 0.15s ease;">&rarr;</button>
             </div>
           </div>
         ` : ''}

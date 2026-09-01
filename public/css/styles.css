@@ -1557,3 +1557,44 @@ tbody tr:last-child td {
   color: var(--gray-900);
 }
 
+/* ===== PAGINATION BUTTONS ===== */
+.page-btn {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  border-radius: 8px !important;
+  border: 1.5px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: var(--gray-700) !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+}
+
+.page-btn:hover:not(:disabled):not(.active) {
+  background: #f1f5f9 !important;
+  border-color: var(--celeste-300) !important;
+  color: var(--celeste-dark) !important;
+}
+
+.page-btn.active {
+  background: var(--celeste-dark) !important;
+  color: #ffffff !important;
+  border-color: var(--celeste-dark) !important;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25) !important;
+}
+
+.page-btn:disabled {
+  background: #f8fafc !important;
+  color: #cbd5e1 !important;
+  border-color: #e2e8f0 !important;
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
+  box-shadow: none !important;
+}
+
