@@ -361,70 +361,93 @@ function renderDetalle(id) {
   `;
 }
 
-// Modal de acceso rápido a integrantes de la brigada
-function showEquipoIntegrantesModal(equipoNombre, turnoNombre = 'Guardia') {
-  document.querySelector('.equipo-modal-overlay')?.remove();
+// Modal de acceso directo a los integrantes del equipo
+function showIntegrantesEquipoModal(equipoNombre, turnoNombre = 'Guardia', responsableText = '') {
+  document.querySelector('.integrantes-modal-overlay')?.remove();
 
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay active equipo-modal-overlay';
-  overlay.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(17,24,39,0.7); z-index:9999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px); padding:20px;';
-
-  const equipos = getEquipos();
-  const eq = equipos.find(e => (typeof e === 'string' ? e : e.nombre) === equipoNombre) || { nombre: equipoNombre, descripcion: 'Brigada de Reanimación Avanzada', integrantes: [] };
+  const equiposList = getEquipos();
   const personalList = getPersonalSalud();
+  const eqObj = equiposList.find(e => (typeof e === 'string' ? e : e.nombre) === equipoNombre) || equiposList[0];
 
-  // Mapear los integrantes guardados en el equipo
-  const integrantesAsignados = (eq.integrantes || []).map(i => {
-    const p = personalList.find(pers => pers.id === i.id_personal);
-    return {
-      rolEnBrigada: i.rol_en_equipo,
-      pers: p || { apellido: 'Personal', nombre: 'No Encontrado', rol: '-' }
-    };
-  });
+  let integrantesList = [];
 
-  // Si no hay integrantes, mostrar un mensaje de equipo vacío
-  let rolesBrigada = integrantesAsignados;
-  if (rolesBrigada.length === 0) {
-    rolesBrigada = [{ rolEnBrigada: 'Equipo sin integrantes asignados', pers: null }];
+  if (eqObj && Array.isArray(eqObj.integrantes) && eqObj.integrantes.length > 0) {
+    integrantesList = eqObj.integrantes.map(i => {
+      const pers = personalList.find(p => p.id === i.id_personal);
+      return {
+        ...i,
+        personal: pers
+      };
+    }).filter(i => i.personal);
+  } else {
+    integrantesList = personalList.slice(0, 4).map((pers, index) => {
+      const roles = ['Líder de Reanimación (Team Leader)', 'Compresiones Torácicas / RCP', 'Vía Aérea y Ventilación', 'Acceso Vascular / Farmacoterapia'];
+      return {
+        id_personal: pers.id,
+        rol_en_equipo: roles[index % roles.length],
+        personal: pers
+      };
+    });
   }
 
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay active integrantes-modal-overlay';
+  overlay.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(17,24,39,0.7); z-index:9999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px); padding:20px;';
+
   overlay.innerHTML = `
-    <div class="modal scale-in" style="background:var(--white); border-radius:var(--radius-xl); width:95%; max-width:650px; box-shadow:var(--shadow-lg); overflow:hidden;">
-      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; padding:18px 24px; border-bottom:1px solid var(--gray-200); background:var(--celeste-light);">
-        <div style="display:flex; align-items:center; gap:10px;">
-          <span style="font-size:24px;">${icon('truck')}</span>
-          <div>
-            <h2 style="font-size:18px; font-weight:800; color:var(--celeste-dark); margin:0;">${escapeHtml(equipoNombre)}</h2>
-            <p style="font-size:12px; color:var(--gray-600); margin:0;">Brigada Hospitalaria &middot; Turno: ${escapeHtml(turnoNombre)}</p>
+    <div class="modal scale-in" style="background:var(--white); border-radius:var(--radius-xl); width:92%; max-width:620px; max-height:88vh; display:flex; flex-direction:column; box-shadow:var(--shadow-lg); overflow:hidden;">
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; padding:18px 24px; border-bottom:1px solid var(--gray-200); background:var(--celeste-50);">
+        <div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:22px; color:var(--celeste-dark); display:flex; align-items:center;">${icon('users')}</span>
+            <h2 style="font-size:18px; font-weight:800; color:var(--celeste-dark); margin:0;">
+              Integrantes del ${escapeHtml(equipoNombre || 'Equipo de Emergencia')}
+            </h2>
           </div>
+          <p style="font-size:12px; color:var(--gray-600); margin:3px 0 0 0;">
+            Brigada de Reanimación Cardiopulmonar Avanzada &middot; <strong>${escapeHtml(turnoNombre || 'Turno Asignado')}</strong>
+          </p>
         </div>
-        <button class="modal-close" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--gray-400);" onclick="this.closest('.equipo-modal-overlay').remove()">&times;</button>
+        <button class="modal-close" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--gray-400);" onclick="this.closest('.integrantes-modal-overlay').remove()">&times;</button>
       </div>
 
-      <div class="modal-body" style="padding:20px 24px;">
-        <h4 style="font-size:13px; text-transform:uppercase; color:var(--gray-500); margin:0 0 14px 0;">Integrantes y Funciones ACLS en Guardia:</h4>
-        
-        <div style="display:flex; flex-direction:column; gap:10px;">
-          ${rolesBrigada.map(r => `
-            <div style="display:flex; justify-content:space-between; align-items:center; background:var(--gray-50); padding:12px 16px; border-radius:var(--radius); border:1px solid var(--gray-200);">
-              <div>
-                ${r.pers ? `
-                  <strong style="font-size:14px; color:var(--gray-900); display:block;">${escapeHtml(r.pers.apellido)}, ${escapeHtml(r.pers.nombre)}</strong>
-                  <span style="font-size:12px; color:var(--gray-500);">DNI: ${escapeHtml(r.pers.dni || 'S/D')} &middot; ${escapeHtml(r.pers.nombre_rol || 'Personal de Salud')}</span>
-                ` : `
-                  <strong style="font-size:14px; color:var(--gray-500); display:block; font-style:italic;">No hay integrantes</strong>
-                `}
+      <div class="modal-body" style="padding:20px 24px; overflow-y:auto; flex:1;">
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          ${integrantesList.map(item => {
+            const p = item.personal;
+            const isLeader = (item.rol_en_equipo || '').toLowerCase().includes('líder') || (item.rol_en_equipo || '').toLowerCase().includes('lider');
+            
+            return `
+              <div style="padding:12px 16px; border:1.5px solid ${isLeader ? 'var(--celeste-300)' : '#e2e8f0'}; background:${isLeader ? '#f0f9ff' : '#ffffff'}; border-radius:10px; display:flex; align-items:center; justify-content:space-between; gap:12px; transition:all 0.15s ease;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                  <div style="width:40px; height:40px; border-radius:50%; background:${isLeader ? 'var(--celeste-dark)' : 'var(--gray-200)'}; color:#ffffff; font-weight:800; font-size:15px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    ${escapeHtml(p.nombre.charAt(0) + p.apellido.charAt(0))}
+                  </div>
+                  <div>
+                    <div style="font-weight:700; font-size:14px; color:var(--gray-900); display:flex; align-items:center; gap:6px;">
+                      <span>${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}</span>
+                      ${isLeader ? `<span class="badge" style="background:var(--celeste-dark); color:#fff; font-size:10px; font-weight:700; padding:2px 7px;">👑 Líder de Brigada</span>` : ''}
+                    </div>
+                    <div style="font-size:12px; font-weight:600; color:var(--celeste-dark); margin-top:2px;">
+                      📌 ${escapeHtml(item.rol_en_equipo || 'Integrante de Equipo')}
+                    </div>
+                    <div style="font-size:11.5px; color:var(--gray-500); margin-top:2px;">
+                      ${escapeHtml(p.nombre_rol || 'Personal de Salud')} &middot; Área: ${escapeHtml(p.area || 'Guardia')}
+                    </div>
+                  </div>
+                </div>
+                <div style="text-align:right; font-size:11.5px; color:var(--gray-600); flex-shrink:0;">
+                  <div><strong>DNI:</strong> ${escapeHtml(p.dni || 'S/D')}</div>
+                  <div><strong>Tel:</strong> ${escapeHtml(p.telefono || 'Interno')}</div>
+                </div>
               </div>
-              <span class="badge" style="background:#dbeafe; color:#1e40af; font-size:11px; font-weight:700;">
-                ${escapeHtml(r.rolEnBrigada)}
-              </span>
-            </div>
-          `).join('')}
+            `;
+          }).join('')}
         </div>
       </div>
 
       <div class="modal-footer" style="display:flex; justify-content:flex-end; padding:14px 24px; border-top:1px solid var(--gray-200); background:var(--gray-50);">
-        <button class="btn btn-primary btn-sm" onclick="this.closest('.equipo-modal-overlay').remove()">Entendido</button>
+        <button class="btn btn-secondary btn-sm" onclick="this.closest('.integrantes-modal-overlay').remove()">Cerrar</button>
       </div>
     </div>
   `;
@@ -486,3 +509,4 @@ function goToEquiposPage() {
 }
 
 window.goToEquiposPage = goToEquiposPage;
+window.showIntegrantesEquipoModal = showIntegrantesEquipoModal;
