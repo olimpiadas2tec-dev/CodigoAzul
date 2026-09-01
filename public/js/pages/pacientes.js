@@ -1,7 +1,8 @@
 let pacientesState = {
   search: '',
   area: '',
-  activo: 'true'
+  activo: 'true',
+  sinCama: false
 };
 
 function renderPacientes() {
@@ -30,6 +31,10 @@ function renderPacientes() {
     filtered = filtered.filter(p => p.activo === isActivo);
   }
 
+  if (pacientesState.sinCama) {
+    filtered = filtered.filter(p => !p.cama || p.cama === '' || p.cama === 'Sin Cama' || p.cama.toLowerCase().includes('sin cama'));
+  }
+
   return `
     <div class="page-header page-header-row page-transition">
       <div>
@@ -45,7 +50,7 @@ function renderPacientes() {
     <div class="page-body">
       <div class="card scale-in">
         <div class="card-body" style="padding-bottom:0;">
-          <div class="filters-bar" style="display:flex; flex-wrap:wrap; gap:10px;">
+          <div class="filters-bar" style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
             <div class="filter-group search-input-wrapper" style="flex:1; min-width:240px;">
               <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               <input type="text" id="paciente-search" placeholder="Filtrar por nombre, apellido, DNI o causa..." value="${escapeHtml(pacientesState.search)}" />
@@ -62,6 +67,12 @@ function renderPacientes() {
                 <option value="false" ${pacientesState.activo === 'false' ? 'selected' : ''}>Pacientes Dados de Alta</option>
                 <option value="" ${pacientesState.activo === '' ? 'selected' : ''}>Todos los registros</option>
               </select>
+            </div>
+            <div class="filter-group" style="display:flex; align-items:center;">
+              <label for="paciente-sincama-filter" style="display:flex; align-items:center; gap:6px; background:var(--white); border:1.5px solid ${pacientesState.sinCama ? 'var(--celeste)' : 'var(--gray-200)'}; padding:8px 12px; border-radius:var(--radius); cursor:pointer; font-size:12.5px; font-weight:700; color:${pacientesState.sinCama ? 'var(--celeste-dark)' : 'var(--gray-700)'}; user-select:none; transition:all 0.15s ease;">
+                <input type="checkbox" id="paciente-sincama-filter" ${pacientesState.sinCama ? 'checked' : ''} style="accent-color:var(--celeste); width:15px; height:15px; cursor:pointer;" />
+                <span>🛏️ Sin Cama Asignada</span>
+              </label>
             </div>
             <button class="btn btn-secondary btn-sm" onclick="clearPacienteFilters()">Limpiar</button>
           </div>
@@ -90,7 +101,7 @@ function renderPacientes() {
                       <span style="font-size:32px;">${icon('search')}</span>
                       <h3 style="margin:8px 0 4px 0;">No se encontraron pacientes</h3>
                       <p style="color:var(--gray-500); font-size:13px; margin-bottom:16px;">
-                        ${pacientesState.search ? `No hay resultados para "<strong>${escapeHtml(pacientesState.search)}</strong>".` : 'No hay pacientes que coincidan con los filtros.'}
+                        ${pacientesState.sinCama ? 'No hay pacientes actualmente sin cama asignada.' : (pacientesState.search ? `No hay resultados para "<strong>${escapeHtml(pacientesState.search)}</strong>".` : 'No hay pacientes que coincidan con los filtros.')}
                       </p>
                       <div style="display:flex; gap:10px; justify-content:center;">
                         <button class="btn btn-primary btn-sm" onclick="openPacienteModal()">
@@ -173,6 +184,7 @@ function setupPacientes() {
   const search = document.getElementById('paciente-search');
   const area = document.getElementById('paciente-area-filter');
   const activo = document.getElementById('paciente-activo-filter');
+  const sinCama = document.getElementById('paciente-sincama-filter');
 
   if (search) {
     search.addEventListener('input', (e) => {
@@ -198,10 +210,17 @@ function setupPacientes() {
       });
     }
   });
+
+  if (sinCama) {
+    sinCama.addEventListener('change', (e) => {
+      pacientesState.sinCama = e.target.checked;
+      renderApp();
+    });
+  }
 }
 
 function clearPacienteFilters() {
-  pacientesState = { search: '', area: '', activo: 'true' };
+  pacientesState = { search: '', area: '', activo: 'true', sinCama: false };
   renderApp();
 }
 
