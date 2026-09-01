@@ -579,7 +579,7 @@ function openCamaModal(editId = null) {
       <form id="cama-form" style="display:flex; flex-direction:column; flex:1; min-height:0; overflow:hidden;">
         <div class="modal-body" style="padding:20px 24px; overflow-y:auto; flex:1; min-height:0; display:flex; flex-direction:column; gap:14px;">
           
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
+          <div class="two-col-grid" style="gap:14px;">
             <div class="form-group">
               <label>Área Hospitalaria *</label>
               <select id="cm-area" required>
@@ -589,7 +589,7 @@ function openCamaModal(editId = null) {
 
             <div class="form-group">
               <label>Código de Cama</label>
-              <div id="cm-code-preview" style="background:var(--gray-100); border:1px solid var(--gray-200); border-radius:var(--radius-md); padding:8px 12px; font-size:15px; font-weight:700; color:var(--celeste-dark); letter-spacing:1px;">
+              <div id="cm-code-preview" style="background:var(--gray-100); border:1.5px solid var(--gray-300); border-radius:8px; padding:10px 14px; font-size:15px; font-weight:800; color:var(--celeste-dark); letter-spacing:1px; white-space:nowrap; display:flex; align-items:center; min-height:40px; box-sizing:border-box;">
                 ${escapeHtml(previewCode)}
               </div>
             </div>
