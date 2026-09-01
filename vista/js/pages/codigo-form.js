@@ -83,27 +83,17 @@ function renderCodigoForm(editId = null) {
       ` : ''}
 
       <!-- Stepper / Indicador de Progreso del Formulario -->
-      <div class="card scale-in" style="margin-bottom:20px; padding:14px 20px; background:var(--gray-50); border:1px solid var(--gray-200);">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-          <span style="font-size:13px; font-weight:700; color:var(--gray-700);">Progreso del Formulario de Registro</span>
-          <span style="font-size:12px; font-weight:700; color:var(--celeste-dark);">5 Secciones Clínicas</span>
+      <div class="card scale-in form-stepper-card" style="margin-bottom:20px; padding:12px 16px; background:var(--gray-50); border:1px solid var(--gray-200);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
+          <span style="font-size:13px; font-weight:700; color:var(--gray-700);">Progreso del Registro</span>
+          <span style="font-size:11.5px; font-weight:700; color:var(--celeste-dark);">5 Secciones Clínicas</span>
         </div>
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap:8px;">
-          <div style="background:var(--celeste-50); border:1.5px solid var(--celeste-dark); border-radius:6px; padding:6px 8px; text-align:center;">
-            <div style="font-size:10.5px; font-weight:800; color:var(--celeste-dark);">1. Paciente & Causa</div>
-          </div>
-          <div style="background:var(--white); border:1px solid var(--gray-300); border-radius:6px; padding:6px 8px; text-align:center;">
-            <div style="font-size:10.5px; font-weight:700; color:var(--gray-600);">2. Equipo & Aviso</div>
-          </div>
-          <div style="background:var(--white); border:1px solid var(--gray-300); border-radius:6px; padding:6px 8px; text-align:center;">
-            <div style="font-size:10.5px; font-weight:700; color:var(--gray-600);">3. Cierre Clínico</div>
-          </div>
-          <div style="background:var(--white); border:1px solid var(--gray-300); border-radius:6px; padding:6px 8px; text-align:center;">
-            <div style="font-size:10.5px; font-weight:700; color:var(--gray-600);">4. Materiales</div>
-          </div>
-          <div style="background:var(--white); border:1px solid var(--gray-300); border-radius:6px; padding:6px 8px; text-align:center;">
-            <div style="font-size:10.5px; font-weight:700; color:var(--gray-600);">5. Intervenciones</div>
-          </div>
+        <div class="form-stepper-grid">
+          <div class="stepper-step active">1. Paciente & Causa</div>
+          <div class="stepper-step">2. Equipo & Aviso</div>
+          <div class="stepper-step">3. Cierre Clínico</div>
+          <div class="stepper-step">4. Materiales</div>
+          <div class="stepper-step">5. Intervenciones</div>
         </div>
       </div>
 
