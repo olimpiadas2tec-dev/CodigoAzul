@@ -270,17 +270,18 @@ function openPacienteModal(editId = null) {
               <input type="text" id="m-causa" required placeholder="Ej: Infarto Agudo de Miocardio / Shock Cardiogénico" value="${paciente ? escapeHtml(paciente.causa || '') : ''}" />
             </div>
             <div class="form-group">
-              <label>Área Hospitalaria *</label>
-              <select id="m-area" required>
+              <label>Área Hospitalaria</label>
+              <select id="m-area">
                 <option value="">-- Seleccionar área clínica --</option>
+                <option value="Sin Designar" ${!paciente || paciente.area === 'Sin Designar' ? 'selected' : ''}>Sin Designar (Sin Cama / Alta)</option>
                 ${getAreas().map(a => `<option value="${escapeHtml(a.nombre)}" ${paciente && paciente.area === a.nombre ? 'selected' : ''}>${escapeHtml(a.nombre)}</option>`).join('')}
               </select>
             </div>
 
             <div class="form-group">
-              <label>Cama / Box (Solo Camas Disponibles) *</label>
-              <select id="m-cama" required>
-                <option value="">-- Seleccionar Cama Libre --</option>
+              <label>Cama / Box (Solo Camas Disponibles)</label>
+              <select id="m-cama">
+                <option value="">-- Sin Cama Asignada --</option>
                 ${(() => {
                   const areaName = paciente ? paciente.area : '';
                   const freeCamas = getCamas().filter(c => c.area_nombre === areaName && (c.estado === 'Libre' || (paciente && paciente.cama === c.numero)));
@@ -348,7 +349,7 @@ function openPacienteModal(editId = null) {
       camaSelect.innerHTML = `<option value="">${icon('alertTriangle')} No hay camas libres en esta área</option>`;
     } else {
       camaSelect.innerHTML = `
-        <option value="">-- Seleccionar Cama Libre (${freeCamas.length} disponibles) --</option>
+        <option value="">-- Sin Cama Asignada --</option>
         ${freeCamas.map(c => `
           <option value="${escapeHtml(c.numero)}">
             ${icon('circleFill')} ${escapeHtml(c.numero)} [Disponible]
@@ -368,7 +369,6 @@ function openPacienteModal(editId = null) {
 
   // Filtro en tiempo real para Personal a Cargo (sin importar tildes)
   const filterPersonalInput = document.getElementById('filter-modal-personal');
-  // personalSelect ya fue declarado arriba
   if (filterPersonalInput && personalSelect) {
     filterPersonalInput.addEventListener('input', () => {
       const q = normalizeText(filterPersonalInput.value);
@@ -387,11 +387,17 @@ function openPacienteModal(editId = null) {
     const dni = document.getElementById('m-dni').value.trim();
     const edad = parseInt(document.getElementById('m-edad').value) || 60;
     const causa = document.getElementById('m-causa').value.trim();
+    const area = document.getElementById('m-area') ? document.getElementById('m-area').value : '';
+    const cama = document.getElementById('m-cama') ? document.getElementById('m-cama').value.trim() : '';
+    const id_personal = parseInt(document.getElementById('m-personal').value) || 0;
+    const grupo = document.getElementById('m-grupo') ? document.getElementById('m-grupo').value : 'S/D';
+    const alergias = document.getElementById('m-alergias') ? document.getElementById('m-alergias').value.trim() : 'Ninguna';
+
     let finalCama = cama;
     let finalArea = area;
     let finalActivo = true;
 
-    if (!cama || cama === 'Sin Cama' || area === 'Sin Designar') {
+    if (!cama || cama === 'Sin Cama' || area === 'Sin Designar' || !area) {
       finalCama = '';
       finalArea = 'Sin Designar';
       finalActivo = false;
@@ -407,9 +413,11 @@ function openPacienteModal(editId = null) {
     // Actualizar estado de la cama a Ocupada si se asignó cama
     if (finalCama) {
       const camasList = getCamas();
-      const camaObj = camasList.find(c => c.area_nombre === finalArea && c.numero === finalCama);
+      const camaObj = camasList.find(c => (c.area_nombre === finalArea && c.numero === finalCama) || c.numero === finalCama);
       if (camaObj) {
         camaObj.estado = 'Ocupada';
+        camaObj.id_paciente = isEdit ? editId : (currentList.length > 0 ? Math.max(...currentList.map(p => p.id)) + 1 : 11);
+        camaObj.paciente_nombre = `${apellido}, ${nombre}`;
         saveCamas(camasList);
       }
     }
