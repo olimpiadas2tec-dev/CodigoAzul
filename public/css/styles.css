@@ -378,6 +378,8 @@ body {
 
 .page-header {
   padding: 24px 32px 0;
+  position: relative;
+  z-index: 100;
 }
 
 .page-header h1 {

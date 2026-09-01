@@ -81,11 +81,11 @@ function renderReportes() {
         <p>Análisis integral de desempeño, equipos de respuesta, materiales e intervenciones</p>
       </div>
       <!-- Botón Único Unificado de Exportación con Dropdown -->
-      <div id="export-dropdown-container" style="position:relative; display:inline-block;">
+      <div id="export-dropdown-container" style="position:relative; display:inline-block; z-index:9999;">
         <button class="btn btn-outline btn-sm" onclick="toggleExportDropdown()" style="padding:7px 14px; height:36px; box-sizing:border-box; font-size:12.5px; font-weight:700; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; gap:6px; background:#ffffff; border:1.5px solid var(--celeste-dark); color:var(--celeste-dark); cursor:pointer;" title="Exportar reportes en diferentes formatos">
           ${icon('download', 14)} Exportar Datos <span style="font-size:10px; margin-left:2px;">▼</span>
         </button>
-        <div id="export-dropdown-menu" style="display:none; position:absolute; right:0; top:110%; background:#fff; border:1px solid var(--gray-300); border-radius:8px; box-shadow:0 10px 25px rgba(0,0,0,0.1); z-index:100; min-width:210px; padding:6px 0;">
+        <div id="export-dropdown-menu" style="display:none; position:absolute; right:0; top:110%; background:#fff; border:1px solid var(--gray-300); border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.2); z-index:99999; min-width:210px; padding:6px 0;">
           <button onclick="exportExcel(getData()); toggleExportDropdown();" style="width:100%; text-align:left; padding:9px 14px; background:none; border:none; cursor:pointer; font-size:13px; font-weight:600; color:var(--gray-800); display:flex; align-items:center; gap:10px;">
             ${icon('fileSpreadsheet', 16)} 
             <div>
