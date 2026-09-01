@@ -158,7 +158,9 @@ function renderMateriales() {
                         <span style="font-size:11px; color:var(--gray-400); font-style:italic;">Solo lectura</span>
                       ` : `
                         <div style="display:flex; gap:14px; justify-content:center; align-items:center;">
-                          <button class="action-link" onclick="openMaterialModal(${m.id})" style="font-weight:700; font-size:13.5px; color:var(--celeste-dark);"></button>
+                          <button class="action-link" onclick="openMaterialModal(${m.id})" title="Editar Material" style="display:inline-flex; align-items:center; gap:4px; font-weight:700; font-size:13px; color:var(--celeste-dark); text-decoration:none;">
+                            ${icon('edit', 14)} Editar
+                          </button>
                           <button class="action-link danger" onclick="confirmDeleteMaterial(${m.id})" title="Eliminar Material" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none; color:var(--danger); cursor:pointer;">
                             ${icon('trash', 16)}
                           </button>
