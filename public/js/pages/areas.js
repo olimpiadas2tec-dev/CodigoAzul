@@ -664,37 +664,201 @@ function openCamaModal(editId = null) {
   });
 }
 
+function openOcuparCamaModal(camaId) {
+  const camasList = getCamas();
+  const cama = camasList.find(c => c.id === camaId);
+  if (!cama) return;
+
+  const pacientesList = getPacientes().filter(p => p.activo);
+
+  document.querySelector('.ocupar-modal-overlay')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay active ocupar-modal-overlay';
+  overlay.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(17,24,39,0.7); z-index:9999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px); padding:20px;';
+
+  let selectedPacId = null;
+
+  overlay.innerHTML = `
+    <div class="modal scale-in" style="background:var(--white); border-radius:var(--radius-xl); width:95%; max-width:540px; max-height:90vh; display:flex; flex-direction:column; box-shadow:var(--shadow-lg); overflow:hidden;">
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; padding:18px 24px; border-bottom:1px solid var(--gray-200); background:var(--gray-50);">
+        <div>
+          <h2 style="font-size:17px; font-weight:800; color:var(--gray-900); margin:0; display:flex; align-items:center; gap:8px;">
+            ${icon('bed')} Asignar Paciente a Cama <span style="color:var(--celeste-dark);">${escapeHtml(cama.numero)}</span>
+          </h2>
+          <p style="font-size:12px; color:var(--gray-500); margin:2px 0 0 0;">Sector: <strong>${escapeHtml(cama.area_nombre)}</strong></p>
+        </div>
+        <button class="modal-close" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--gray-400);" onclick="this.closest('.ocupar-modal-overlay').remove()">&times;</button>
+      </div>
+
+      <div class="modal-body" style="padding:18px 24px; display:flex; flex-direction:column; gap:12px; overflow:hidden; flex:1;">
+        <!-- Única Barra de búsqueda en tiempo real -->
+        <div class="search-input-wrapper" style="position:relative; display:flex; align-items:center;">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute; left:12px; width:16px; height:16px; color:var(--gray-400);"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="ocupar-search-input" placeholder="Filtrar por nombre, DNI, causa o cama actual..." style="width:100%; padding:10px 14px 10px 38px; border:1.5px solid var(--gray-300); border-radius:var(--radius); font-size:13px; outline:none;" autofocus />
+        </div>
+
+        <div style="font-size:11.5px; font-weight:700; color:var(--gray-500); text-transform:uppercase; letter-spacing:0.5px;">
+          Seleccione el paciente a internar en ${escapeHtml(cama.numero)}:
+        </div>
+
+        <!-- Contenedor con lista de pacientes -->
+        <div id="ocupar-pacientes-list" style="max-height:300px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; padding-right:4px;">
+        </div>
+      </div>
+
+      <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center; padding:14px 24px; border-top:1px solid var(--gray-200); background:var(--gray-50);">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="this.closest('.ocupar-modal-overlay').remove()">Cancelar</button>
+        <button type="button" id="btn-confirmar-ocupar" disabled class="btn btn-primary btn-sm" style="font-weight:700; gap:6px;">
+          ${icon('check')} Confirmar Asignación
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  const searchInput = document.getElementById('ocupar-search-input');
+  const listContainer = document.getElementById('ocupar-pacientes-list');
+  const btnConfirmar = document.getElementById('btn-confirmar-ocupar');
+
+  function renderPacientesList(query = '') {
+    const q = normalizeText(query);
+    const filtered = pacientesList.filter(p => {
+      if (!q) return true;
+      const fullText = normalizeText(`${p.nombre} ${p.apellido} ${p.dni} ${p.causa} ${p.area} ${p.cama}`);
+      return fullText.includes(q);
+    });
+
+    if (filtered.length === 0) {
+      listContainer.innerHTML = `
+        <div style="padding:24px; text-align:center; color:var(--gray-500); font-size:13px; background:var(--gray-50); border-radius:8px;">
+          ${icon('search', 24)}
+          <div style="margin-top:6px; font-weight:600;">No se encontraron pacientes para "${escapeHtml(query)}"</div>
+        </div>
+      `;
+      return;
+    }
+
+    listContainer.innerHTML = filtered.map(p => {
+      const isSelected = selectedPacId === p.id;
+      const hasCama = Boolean(p.cama && p.cama !== 'Sin Cama');
+
+      return `
+        <div class="ocupar-paciente-card" data-id="${p.id}" style="padding:10px 14px; border:1.5px solid ${isSelected ? 'var(--celeste)' : 'var(--gray-200)'}; background:${isSelected ? '#eff6ff' : 'var(--white)'}; border-radius:8px; cursor:pointer; transition:all 0.15s ease; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-weight:700; color:var(--gray-900); font-size:13.5px;">
+              ${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}
+            </div>
+            <div style="font-size:11.5px; color:var(--gray-500); margin-top:2px;">
+              DNI: ${escapeHtml(p.dni ? formatDNI(p.dni) : 'S/D')} &middot; <span style="color:var(--gray-700);">${escapeHtml(p.causa || 'Sin causa')}</span>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            ${hasCama ? `
+              <span class="badge" style="background:#fff7ed; color:#c2410c; border:1px solid #ffedd5; font-weight:700; font-size:11px; padding:3px 8px; border-radius:6px; display:inline-flex; align-items:center; gap:4px;" title="Al asignar esta nueva cama, su cama anterior (${escapeHtml(p.cama)}) quedará libre automáticamente">
+                🛏️ ${escapeHtml(p.area)} [${escapeHtml(p.cama)}]
+              </span>
+            ` : `
+              <span class="badge" style="background:#ecfdf5; color:#047857; border:1px solid #a7f3d0; font-weight:700; font-size:11px; padding:3px 8px; border-radius:6px; display:inline-flex; align-items:center; gap:4px;">
+                🛏️ Sin cama (Disponible)
+              </span>
+            `}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Listeners para selección de tarjeta de paciente
+    listContainer.querySelectorAll('.ocupar-paciente-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const id = parseInt(card.getAttribute('data-id'));
+        selectedPacId = id;
+        btnConfirmar.disabled = false;
+        renderPacientesList(searchInput.value);
+      });
+    });
+  }
+
+  renderPacientesList();
+
+  // Escuchar entrada de la barra de búsqueda en tiempo real
+  searchInput.addEventListener('input', (e) => {
+    renderPacientesList(e.target.value);
+  });
+
+  // Ejecutar asignación al hacer clic en Confirmar
+  btnConfirmar.addEventListener('click', () => {
+    if (!selectedPacId) return;
+
+    const pacientesAll = getPacientes();
+    const pIdx = pacientesAll.findIndex(p => p.id === selectedPacId);
+    if (pIdx === -1) return;
+
+    const pacienteObj = pacientesAll[pIdx];
+    const prevCamaNum = pacienteObj.cama;
+    const prevAreaName = pacienteObj.area;
+
+    const allCamas = getCamas();
+
+    // 1. Si el paciente ya tenía una cama previa ocupada, liberar la cama anterior
+    if (prevCamaNum && prevCamaNum !== 'Sin Cama') {
+      const prevCamaObj = allCamas.find(c => c.numero === prevCamaNum || (c.area_nombre === prevAreaName && c.numero === prevCamaNum));
+      if (prevCamaObj) {
+        prevCamaObj.estado = 'Libre';
+        prevCamaObj.id_paciente = null;
+        prevCamaObj.paciente_nombre = null;
+      }
+    }
+
+    // 2. Ocupar la cama de destino seleccionada
+    const targetCamaObj = allCamas.find(c => c.id === camaId);
+    if (targetCamaObj) {
+      targetCamaObj.estado = 'Ocupada';
+      targetCamaObj.id_paciente = pacienteObj.id;
+      targetCamaObj.paciente_nombre = `${pacienteObj.apellido}, ${pacienteObj.nombre}`;
+    }
+
+    // 3. Actualizar al paciente con el área y cama de destino
+    pacienteObj.area = cama.area_nombre;
+    pacienteObj.cama = cama.numero;
+
+    saveCamas(allCamas);
+    savePacientes(pacientesAll);
+
+    showToast(`Paciente "${pacienteObj.apellido}, ${pacienteObj.nombre}" asignado a cama ${cama.numero}.${prevCamaNum && prevCamaNum !== 'Sin Cama' ? ' (Se liberó la cama anterior ' + prevCamaNum + ')' : ''}`, 'success');
+
+    overlay.remove();
+    renderApp();
+  });
+}
+
 function toggleCamaEstado(id) {
   const currentCamas = getCamas();
   const idx = currentCamas.findIndex(c => c.id === id);
   if (idx !== -1) {
     const cama = currentCamas[idx];
-    const prevEstado = cama.estado;
-    const newEstado = prevEstado === 'Libre' ? 'Ocupada' : 'Libre';
-    cama.estado = newEstado;
-
-    let pacNombre = '';
-    if (prevEstado === 'Ocupada' && newEstado === 'Libre') {
-      // Al liberar la cama, el paciente que la ocupaba queda sin cama asignada
-      const pacientes = getPacientes();
-      const pIdx = pacientes.findIndex(p => p.activo && (p.cama === cama.numero || (p.area === cama.area_nombre && p.cama === cama.numero)));
-      if (pIdx !== -1) {
-        pacNombre = `${pacientes[pIdx].apellido}, ${pacientes[pIdx].nombre}`;
-        pacientes[pIdx].cama = ''; // Queda sin cama asignada
-        savePacientes(pacientes);
-      }
-      cama.id_paciente = null;
-      cama.paciente_nombre = null;
+    if (cama.estado === 'Libre') {
+      // Abrir modal de selección de paciente para ocupar la cama
+      openOcuparCamaModal(id);
+      return;
     }
+
+    // Si estaba Ocupada -> Liberar la cama
+    let pacNombre = '';
+    const pacientes = getPacientes();
+    const pIdx = pacientes.findIndex(p => p.activo && (p.cama === cama.numero || (p.area === cama.area_nombre && p.cama === cama.numero)));
+    if (pIdx !== -1) {
+      pacNombre = `${pacientes[pIdx].apellido}, ${pacientes[pIdx].nombre}`;
+      pacientes[pIdx].cama = ''; // Queda sin cama asignada
+      savePacientes(pacientes);
+    }
+    cama.estado = 'Libre';
+    cama.id_paciente = null;
+    cama.paciente_nombre = null;
 
     saveCamas(currentCamas);
-
-    if (newEstado === 'Libre') {
-      showToast(`Cama ${cama.numero} liberada.${pacNombre ? ' El paciente (' + pacNombre + ') quedó sin cama asignada.' : ''}`, 'success');
-    } else {
-      showToast(`Cama ${cama.numero} marcada como Ocupada`, 'success');
-    }
-
+    showToast(`Cama ${cama.numero} liberada.${pacNombre ? ' El paciente (' + pacNombre + ') quedó sin cama asignada.' : ''}`, 'success');
     renderApp();
   }
 }
@@ -749,6 +913,8 @@ function confirmDeleteCama(id) {
 window.openAreaModal = openAreaModal;
 window.confirmDeleteArea = confirmDeleteArea;
 window.openCamaModal = openCamaModal;
+window.openOcuparCamaModal = openOcuparCamaModal;
 window.toggleCamaEstado = toggleCamaEstado;
 window.confirmDeleteCama = confirmDeleteCama;
+
 
