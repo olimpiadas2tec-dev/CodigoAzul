@@ -680,13 +680,13 @@ function openOcuparCamaModal(camaId) {
   let selectedPacId = null;
 
   overlay.innerHTML = `
-    <div class="modal scale-in" style="background:var(--white); border-radius:var(--radius-xl); width:95%; max-width:540px; max-height:90vh; display:flex; flex-direction:column; box-shadow:var(--shadow-lg); overflow:hidden;">
+    <div class="modal scale-in" style="background:var(--white); border-radius:var(--radius-xl); width:95%; max-width:650px; max-height:90vh; display:flex; flex-direction:column; box-shadow:var(--shadow-lg); overflow:hidden;">
       <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; padding:18px 24px; border-bottom:1px solid var(--gray-200); background:var(--gray-50);">
         <div>
           <h2 style="font-size:17px; font-weight:800; color:var(--gray-900); margin:0; display:flex; align-items:center; gap:8px;">
             ${icon('bed')} Asignar Paciente a Cama <span style="color:var(--celeste-dark);">${escapeHtml(cama.numero)}</span>
           </h2>
-          <p style="font-size:12px; color:var(--gray-500); margin:2px 0 0 0;">Sector: <strong>${escapeHtml(cama.area_nombre)}</strong></p>
+          <p style="font-size:12px; color:var(--gray-500); margin:2px 0 0 0;">Sector de destino: <strong>${escapeHtml(cama.area_nombre)}</strong></p>
         </div>
         <button class="modal-close" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--gray-400);" onclick="this.closest('.ocupar-modal-overlay').remove()">&times;</button>
       </div>
@@ -703,7 +703,7 @@ function openOcuparCamaModal(camaId) {
         </div>
 
         <!-- Contenedor con lista de pacientes -->
-        <div id="ocupar-pacientes-list" style="max-height:300px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; padding-right:4px;">
+        <div id="ocupar-pacientes-list" style="max-height:340px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; padding-right:4px;">
         </div>
       </div>
 
@@ -745,23 +745,26 @@ function openOcuparCamaModal(camaId) {
       const hasCama = Boolean(p.cama && p.cama !== 'Sin Cama');
 
       return `
-        <div class="ocupar-paciente-card" data-id="${p.id}" style="padding:10px 14px; border:1.5px solid ${isSelected ? 'var(--celeste)' : 'var(--gray-200)'}; background:${isSelected ? '#eff6ff' : 'var(--white)'}; border-radius:8px; cursor:pointer; transition:all 0.15s ease; display:flex; justify-content:space-between; align-items:center;">
-          <div>
-            <div style="font-weight:700; color:var(--gray-900); font-size:13.5px;">
+        <div class="ocupar-paciente-card" data-id="${p.id}" style="padding:12px 16px; border:1.5px solid ${isSelected ? 'var(--celeste)' : 'var(--gray-200)'}; background:${isSelected ? '#eff6ff' : 'var(--white)'}; border-radius:10px; cursor:pointer; transition:all 0.15s ease; display:flex; justify-content:space-between; align-items:center; gap:12px;">
+          <div style="flex:1; min-width:0;">
+            <div style="font-weight:700; color:var(--gray-900); font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
               ${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}
             </div>
-            <div style="font-size:11.5px; color:var(--gray-500); margin-top:2px;">
+            <div style="font-size:11.5px; color:var(--gray-500); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
               DNI: ${escapeHtml(p.dni ? formatDNI(p.dni) : 'S/D')} &middot; <span style="color:var(--gray-700);">${escapeHtml(p.causa || 'Sin causa')}</span>
             </div>
+            <div style="font-size:11px; color:var(--gray-600); margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+              📍 Área actual: <strong>${escapeHtml(p.area)}</strong>
+            </div>
           </div>
-          <div style="text-align:right;">
+          <div style="flex-shrink:0; text-align:right;">
             ${hasCama ? `
-              <span class="badge" style="background:#fff7ed; color:#c2410c; border:1px solid #ffedd5; font-weight:700; font-size:11px; padding:3px 8px; border-radius:6px; display:inline-flex; align-items:center; gap:4px;" title="Al asignar esta nueva cama, su cama anterior (${escapeHtml(p.cama)}) quedará libre automáticamente">
-                🛏️ ${escapeHtml(p.area)} [${escapeHtml(p.cama)}]
+              <span class="badge" style="background:#fff7ed; color:#c2410c; border:1px solid #ffedd5; font-weight:700; font-size:11.5px; padding:5px 10px; border-radius:6px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;" title="Al asignar esta nueva cama, la cama ${escapeHtml(p.cama)} quedará libre automáticamente">
+                🛏️ Cama actual: ${escapeHtml(p.cama)}
               </span>
             ` : `
-              <span class="badge" style="background:#ecfdf5; color:#047857; border:1px solid #a7f3d0; font-weight:700; font-size:11px; padding:3px 8px; border-radius:6px; display:inline-flex; align-items:center; gap:4px;">
-                🛏️ Sin cama (Disponible)
+              <span class="badge" style="background:#ecfdf5; color:#047857; border:1px solid #a7f3d0; font-weight:700; font-size:11.5px; padding:5px 10px; border-radius:6px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;">
+                🛏️ Sin cama asignada
               </span>
             `}
           </div>
