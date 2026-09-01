@@ -575,16 +575,16 @@ function openPersonalModal(editId = null) {
   overlay.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(17,24,39,0.7); z-index:9999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px); padding:20px;';
 
   overlay.innerHTML = `
-    <div class="modal scale-in" style="background:var(--white); border-radius:var(--radius-xl); width:90%; max-width:540px; box-shadow:var(--shadow-lg); overflow:hidden;">
-      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; padding:18px 24px; border-bottom:1px solid var(--gray-200); background:var(--gray-50);">
+    <div class="modal scale-in" style="background:var(--white); border-radius:var(--radius-xl); width:90%; max-width:540px; max-height:90vh; display:flex; flex-direction:column; box-shadow:var(--shadow-lg); overflow:hidden;">
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; padding:18px 24px; border-bottom:1px solid var(--gray-200); background:var(--gray-50); flex-shrink:0;">
         <h2 style="font-size:18px; font-weight:700; color:var(--gray-900); margin:0;">
           ${icon(isEdit ? 'edit' : 'user')} ${isEdit ? 'Editar Personal de Salud' : 'Registrar Personal de Salud'}
         </h2>
         <button class="modal-close" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--gray-400);" onclick="this.closest('.pers-modal-overlay').remove()">&times;</button>
       </div>
 
-      <form id="personal-form">
-        <div class="modal-body" style="padding:20px 24px;">
+      <form id="personal-form" style="display:flex; flex-direction:column; flex:1; overflow:hidden;">
+        <div class="modal-body" style="padding:20px 24px; overflow-y:auto; flex:1;">
           <div class="form-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px;">
             <div class="form-group">
               <label>Apellido *</label>
@@ -643,9 +643,10 @@ function openPersonalModal(editId = null) {
           </div>
         </div>
 
-        <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:10px; padding:14px 24px; border-top:1px solid var(--gray-200); background:var(--gray-50);">
+        <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:10px; padding:14px 24px; border-top:1px solid var(--gray-200); background:var(--gray-50); flex-shrink:0;">
           <button type="button" class="btn btn-secondary btn-sm" onclick="this.closest('.pers-modal-overlay').remove()">Cancelar</button>
           <button type="submit" class="btn btn-primary btn-sm">Guardar Personal</button>
+        </div>
         </div>
       </form>
     </div>
