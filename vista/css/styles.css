@@ -1947,6 +1947,60 @@ tbody tr:last-child td {
     min-height: 38px !important;
   }
 
+  /* Paciente Search Row (Responsive Form Dropdown) */
+  .paciente-search-row {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin-bottom: 8px !important;
+  }
+
+  .paciente-search-row .search-field-wrap {
+    position: relative !important;
+    width: 100% !important;
+    flex: 1 1 100% !important;
+    min-width: 0 !important;
+  }
+
+  .paciente-search-row .search-field-wrap input {
+    font-size: 13px !important;
+    padding: 10px 14px 10px 36px !important;
+    border: 1.5px solid var(--celeste-300) !important;
+    border-radius: 8px !important;
+    width: 100% !important;
+    min-height: 40px !important;
+    box-sizing: border-box !important;
+    background: #ffffff !important;
+  }
+
+  .paciente-search-row .search-field-icon {
+    position: absolute !important;
+    left: 12px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    color: var(--gray-400) !important;
+    pointer-events: none !important;
+  }
+
+  .btn-nn-paciente {
+    background: #fef3c7 !important;
+    color: #92400e !important;
+    border: 1.5px solid #fde68a !important;
+    font-weight: 700 !important;
+    font-size: 12px !important;
+    padding: 9px 12px !important;
+    border-radius: 8px !important;
+    white-space: nowrap !important;
+    cursor: pointer !important;
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 38px !important;
+  }
+
   .table-container {
     width: 100% !important;
     overflow-x: auto !important;

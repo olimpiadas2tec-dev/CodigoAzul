@@ -145,20 +145,20 @@ function renderCodigoForm(editId = null) {
 
                 <!-- Buscador y Lista de selección de pacientes -->
                 <div id="paciente-dropdown-wrapper" style="display:${hasPacienteSelected ? 'none' : 'block'}; margin-top:6px;">
-                  <div style="display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
-                    <div style="position:relative; flex:1 1 180px; min-width:160px;">
-                      <input type="text" id="filter-paciente-input" placeholder="Filtrar pacientes por nombre, DNI o área..." style="font-size:13px; padding:10px 14px 10px 36px; border:1.5px solid var(--celeste-300); border-radius:8px; width:100%; box-sizing:border-box;" />
-                      <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--gray-400);">${icon('search', 16)}</span>
+                  <div class="paciente-search-row">
+                    <div class="search-field-wrap">
+                      <input type="text" id="filter-paciente-input" placeholder="Filtrar pacientes por nombre, DNI o área..." />
+                      <span class="search-field-icon">${icon('search', 16)}</span>
                     </div>
-                    <button type="button" class="btn btn-secondary btn-sm" style="background:#fef3c7; color:#92400e; border:1.5px solid #fde68a; font-weight:700; font-size:12px; padding:9px 12px; white-space:nowrap; cursor:pointer; flex:0 0 auto;" onclick="selectNNPaciente()">
-                       Paciente N.N. (No Identificado)
+                    <button type="button" class="btn btn-nn-paciente" onclick="selectNNPaciente()">
+                      ⚡ Paciente N.N. (No Identificado)
                     </button>
                   </div>
                   
-                  <div id="pacientes-list-container" style="max-height:220px; overflow-y:auto; border:1.5px solid var(--gray-300); border-radius:8px; background:var(--white); padding:6px; box-shadow:inset 0 2px 4px rgba(0,0,0,0.03);">
+                  <div id="pacientes-list-container" style="max-height:240px; overflow-y:auto; border:1.5px solid var(--gray-300); border-radius:8px; background:var(--white); padding:6px; box-shadow:inset 0 2px 4px rgba(0,0,0,0.03);">
                     <!-- Opción Paciente N.N. -->
                     <div class="paciente-select-item" data-id="nn" data-dni="S/D" data-area="Urgencias / Guardia" data-cama="Reanimación" data-grupo="S/D" data-alergias="S/D" data-causa="" data-nombre="N.N. (Paciente No Identificado)"
-                      style="padding:10px 12px; border-radius:6px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:6px; background:#fffbe6; border:1.5px solid #ffe58f; transition:all 0.15s;"
+                      style="padding:10px 12px; border-radius:8px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:6px; background:#fffbe6; border:1.5px solid #ffe58f; transition:all 0.15s;"
                       onclick="selectNNPaciente()">
                       <div>
                         <strong style="font-size:13.5px; color:#d48806;"> N.N. &mdash; Paciente No Identificado</strong>
@@ -172,7 +172,7 @@ function renderCodigoForm(editId = null) {
                     ${pacientesList.length === 0 ? '' : pacientesList.map(p => {
                       return `
                         <div class="paciente-select-item" data-id="${p.id}" data-dni="${p.dni || ''}" data-area="${p.area}" data-cama="${p.cama}" data-grupo="${p.grupo || ''}" data-alergias="${p.alergias || ''}" data-causa="${p.causa || ''}" data-nombre="${escapeHtml(p.apellido + ', ' + p.nombre)}"
-                          style="padding:10px 12px; border-radius:6px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:4px; background:#f8fafc; border:1px solid #e2e8f0; transition:all 0.15s;"
+                          style="padding:10px 12px; border-radius:8px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:4px; background:#f8fafc; border:1px solid #e2e8f0; transition:all 0.15s;"
                           onclick="selectPacienteItem(${p.id})">
                           <div>
                             <strong style="font-size:13.5px; color:var(--gray-900);">${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}</strong>
