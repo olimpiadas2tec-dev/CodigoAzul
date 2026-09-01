@@ -152,7 +152,7 @@ function renderPersonalTab() {
                 </td>
               </tr>
             ` : filtered.map((p, idx) => `
-              <tr style="border-bottom:1px solid var(--gray-100); background:${idx % 2 === 0 ? 'var(--white)' : '#f8fafc'};">
+              <tr style="border-bottom:1px solid var(--gray-100); background:${idx % 2 === 0 ? 'var(--white)' : '#f8fafc'}; cursor:pointer; transition:background 0.15s ease;" onclick="openPersonalDetailModal(${p.id})" title="Haga clic para ver la ficha completa de ${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}">
                 <td style="padding:10px 14px; font-weight:600; color:var(--gray-400); text-align:center; vertical-align:middle;">${p.id}</td>
                 <td style="padding:10px 14px; font-weight:700; color:var(--gray-800); font-size:13.5px; vertical-align:middle; white-space:nowrap;">
                   ${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}
@@ -177,8 +177,8 @@ function renderPersonalTab() {
                     <span style="font-size:11px; color:var(--gray-400); font-style:italic;">Solo lectura</span>
                   ` : `
                     <div style="display:flex; align-items:center; justify-content:center; gap:16px;">
-                      <button class="action-link" onclick="openPersonalModal(${p.id})">Editar</button>
-                      <button class="action-link danger" onclick="confirmDeletePersonal(${p.id})" title="Eliminar Personal" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
+                      <button class="action-link" onclick="event.stopPropagation(); openPersonalModal(${p.id})">Editar</button>
+                      <button class="action-link danger" onclick="event.stopPropagation(); confirmDeletePersonal(${p.id})" title="Eliminar Personal" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
                         ${icon('trash', 16)}
                       </button>
                     </div>
@@ -1466,63 +1466,238 @@ window.openAsignacionTurnoModal = openAsignacionTurnoModal;
 window.deleteAsignacionTurno = deleteAsignacionTurno;
 window.showConfirmModal = showConfirmModal;
 
-function mostrarInfoPersonal(id) {
-  if (!id) return;
-  const p = getPersonalSalud().find(item => item.id === id);
-  if (!p) return;
-  
-  document.querySelector('.info-personal-overlay')?.remove();
-  
+function openPersonalDetailModal(personalId) {
+  const list = getPersonalSalud();
+  const pers = list.find(p => String(p.id) === String(personalId));
+  if (!pers) return;
+
+  const rolesList = getRolesSalud();
+  const rolObj = rolesList.find(r => r.id === pers.id_rol_profesional);
+  const rolText = pers.nombre_rol || (rolObj ? rolObj.nombre_rol : 'Personal de Salud');
+
+  // Pacientes asignados a cargo
+  const pacientesList = (typeof getPacientes === 'function' ? getPacientes() : []) || [];
+  const misPacientes = pacientesList.filter(p => 
+    String(p.id_personal) === String(pers.id) || 
+    (p.personal_a_cargo && pers.apellido && p.personal_a_cargo.toLowerCase().includes(pers.apellido.toLowerCase()))
+  );
+
+  // Equipos de emergencia en los que participa
+  const equiposList = (typeof getEquipos === 'function' ? getEquipos() : []) || [];
+  const misEquipos = [];
+  equiposList.forEach(eq => {
+    if (Array.isArray(eq.integrantes)) {
+      const member = eq.integrantes.find(i => String(i.id_personal) === String(pers.id));
+      if (member) {
+        misEquipos.push({
+          equipoNombre: eq.nombre,
+          rolEnEquipo: member.rol_en_equipo || 'Integrante'
+        });
+      }
+    }
+  });
+
+  // Participación en Códigos Azules
+  const codigosList = (typeof getData === 'function' ? getData() : []) || [];
+  const misCodigos = codigosList.filter(c => {
+    if (String(c.id_personal) === String(pers.id)) return true;
+    if (c.responsable && pers.apellido && c.responsable.toLowerCase().includes(pers.apellido.toLowerCase())) return true;
+    if (Array.isArray(c.equipo_integrantes)) {
+      return c.equipo_integrantes.some(i => String(i.id_personal) === String(pers.id) || (i.nombre && pers.apellido && i.nombre.toLowerCase().includes(pers.apellido.toLowerCase())));
+    }
+    return false;
+  });
+
+  const formattedDNI = pers.dni ? formatDNI(pers.dni) : 'S/D (Sin Documento)';
+  const initials = ((pers.nombre ? pers.nombre.charAt(0) : '') + (pers.apellido ? pers.apellido.charAt(0) : '')).toUpperCase() || 'PS';
+
+  document.querySelector('.personal-detail-overlay')?.remove();
+
   const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay active info-personal-overlay';
-  overlay.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(17,24,39,0.7); z-index:9999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px); padding:20px;';
-  
-  const initials = (p.nombre.charAt(0) + p.apellido.charAt(0)).toUpperCase();
-  
+  overlay.className = 'modal-overlay active personal-detail-overlay';
+  overlay.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(17,24,39,0.75); z-index:9999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px); padding:20px;';
+
   overlay.innerHTML = `
-    <div class="modal scale-in" style="background:var(--white); border-radius:var(--radius-xl); width:90%; max-width:400px; box-shadow:var(--shadow-lg); overflow:hidden;">
-      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:flex-start; padding:24px 24px 0 24px; border:none; background:var(--white);">
-        <div style="display:flex; align-items:center; gap:16px;">
-          <div style="min-width:56px; height:56px; border-radius:50%; background:var(--celeste-100); color:var(--celeste-dark); display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:20px;">
+    <div class="modal scale-in" style="background:var(--white); border-radius:var(--radius-xl); width:95%; max-width:780px; max-height:90vh; display:flex; flex-direction:column; box-shadow:var(--shadow-lg); overflow:hidden;">
+      
+      <!-- Header -->
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; padding:20px 24px; border-bottom:1px solid var(--gray-200); background:#f8fafc;">
+        <div style="display:flex; align-items:center; gap:14px;">
+          <div style="width:48px; height:48px; border-radius:50%; background:var(--celeste-100, #e0f2fe); color:var(--celeste-dark, #0369a1); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:18px; border:2px solid var(--celeste-300);">
             ${initials}
           </div>
           <div>
-            <h2 style="font-size:20px; font-weight:700; color:var(--gray-900); margin:0;">${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}</h2>
-            <div style="font-size:14px; color:var(--celeste-dark); font-weight:600; margin-top:4px;">${escapeHtml(p.nombre_rol || 'Personal de Salud')}</div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <h2 style="font-size:20px; font-weight:800; color:var(--gray-900); margin:0;">
+                ${escapeHtml(pers.apellido)}, ${escapeHtml(pers.nombre)}
+              </h2>
+              <span class="badge" style="font-size:11px; padding:4px 10px; font-weight:700; ${getRolBadgeStyle(rolText)}">
+                ${escapeHtml(rolText)}
+              </span>
+            </div>
+            <div style="font-size:12.5px; color:var(--gray-500); margin-top:2px;">
+              Ficha de Personal de Salud · ID #${pers.id} · Área: ${escapeHtml(pers.area || 'Sin Designar')}
+            </div>
           </div>
         </div>
-        <button class="modal-close" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--gray-400); margin-top:-8px; margin-right:-8px;" onclick="this.closest('.info-personal-overlay').remove()">&times;</button>
+        <button class="modal-close" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--gray-400);" onclick="this.closest('.personal-detail-overlay').remove()">&times;</button>
       </div>
-      
-      <div class="modal-body" style="padding:24px;">
-        <div style="display:flex; flex-direction:column; gap:16px;">
-          <div style="display:flex; flex-direction:column; gap:4px;">
-            <span style="font-size:12px; color:var(--gray-500); text-transform:uppercase; font-weight:600;">Documento (DNI)</span>
-            <span style="font-size:15px; color:var(--gray-800); font-weight:600;">${formatDNI(p.dni)}</span>
+
+      <!-- Body -->
+      <div class="modal-body" style="padding:24px; overflow-y:auto; flex:1; display:flex; flex-direction:column; gap:20px;">
+        
+        <!-- Grid de Tarjetas Informativas -->
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap:14px;">
+          
+          <!-- Card 1: Contacto y Documentos -->
+          <div style="background:#f8fafc; border:1px solid var(--gray-200); border-radius:12px; padding:16px;">
+            <div style="font-size:11px; text-transform:uppercase; font-weight:800; color:var(--gray-400); letter-spacing:0.5px; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+              ${icon('user', 14)} Documentación y Contacto
+            </div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <div>
+                <span style="font-size:11px; color:var(--gray-500); display:block;">DNI / Documento</span>
+                <span style="font-size:13.5px; font-weight:700; color:var(--gray-800);">${escapeHtml(formattedDNI)}</span>
+              </div>
+              <div>
+                <span style="font-size:11px; color:var(--gray-500); display:block;">Teléfono / Interno</span>
+                <span style="font-size:13px; font-weight:600; color:${pers.telefono ? 'var(--gray-800)' : 'var(--gray-400)'};">${pers.telefono ? escapeHtml(pers.telefono) : 'No registrado'}</span>
+              </div>
+              <div>
+                <span style="font-size:11px; color:var(--gray-500); display:block;">Correo Electrónico Institucional</span>
+                <span style="font-size:13px; font-weight:700; color:var(--celeste-dark, #0369a1);">${pers.email ? escapeHtml(pers.email) : 'No registrado'}</span>
+              </div>
+            </div>
           </div>
-          <div style="display:flex; flex-direction:column; gap:4px;">
-            <span style="font-size:12px; color:var(--gray-500); text-transform:uppercase; font-weight:600;">Teléfono de Contacto</span>
-            <span style="font-size:15px; color:var(--gray-800); font-weight:600;">${escapeHtml(p.telefono || 'No registrado')}</span>
+
+          <!-- Card 2: Rol y Servicio -->
+          <div style="background:#f8fafc; border:1px solid var(--gray-200); border-radius:12px; padding:16px;">
+            <div style="font-size:11px; text-transform:uppercase; font-weight:800; color:var(--gray-400); letter-spacing:0.5px; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+              ${icon('building', 14)} Servicio & Rol Hospitalario
+            </div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <div>
+                <span style="font-size:11px; color:var(--gray-500); display:block;">Rol Profesional Institucional</span>
+                <span style="font-size:13px; font-weight:700; color:var(--gray-800);">${escapeHtml(rolText)}</span>
+              </div>
+              <div>
+                <span style="font-size:11px; color:var(--gray-500); display:block;">Área / Servicio Asignado</span>
+                <span style="font-size:13.5px; font-weight:700; color:var(--gray-800);">${escapeHtml(pers.area || 'Sin Designar')}</span>
+              </div>
+              <div>
+                <span style="font-size:11px; color:var(--gray-500); display:block;">Estado en Sistema</span>
+                <span style="font-size:12.5px; color:#059669; font-weight:700; display:inline-flex; align-items:center; gap:5px;">
+                  <span style="width:7px; height:7px; border-radius:50%; background:#10b981;"></span> Activo
+                </span>
+              </div>
+            </div>
           </div>
-          <div style="display:flex; flex-direction:column; gap:4px;">
-            <span style="font-size:12px; color:var(--gray-500); text-transform:uppercase; font-weight:600;">Especialidad / Rol Base</span>
-            <span style="font-size:15px; color:var(--gray-800);">${escapeHtml(p.nombre_rol || 'No asignado')}</span>
+
+          <!-- Card 3: Integración en Brigada -->
+          <div style="background:#f8fafc; border:1px solid var(--gray-200); border-radius:12px; padding:16px;">
+            <div style="font-size:11px; text-transform:uppercase; font-weight:800; color:var(--gray-400); letter-spacing:0.5px; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+              ${icon('users', 14)} Equipos de Emergencia
+            </div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              ${misEquipos.length === 0 ? `
+                <span style="font-size:12px; color:var(--gray-400); font-style:italic;">No integra ningún equipo de emergencia actualmente</span>
+              ` : misEquipos.map(eq => `
+                <div style="background:#fff; border:1px solid #e2e8f0; padding:6px 10px; border-radius:6px;">
+                  <div style="font-weight:700; font-size:12.5px; color:var(--gray-800);">${escapeHtml(eq.equipoNombre)}</div>
+                  <div style="font-size:11px; color:var(--celeste-dark); font-weight:600;">${escapeHtml(eq.rolEnEquipo)}</div>
+                </div>
+              `).join('')}
+            </div>
           </div>
-          <div style="display:flex; flex-direction:column; gap:4px;">
-            <span style="font-size:12px; color:var(--gray-500); text-transform:uppercase; font-weight:600;">Estado en Sistema</span>
-            <span style="font-size:15px; color:#059669; font-weight:600; display:flex; align-items:center; gap:6px;">
-              <span style="width:8px; height:8px; border-radius:50%; background:#10b981;"></span> Activo
-            </span>
-          </div>
+
         </div>
+
+        <!-- Seccion: Pacientes Asignados a Cargo -->
+        <div style="border-top:1px solid var(--gray-200); padding-top:16px;">
+          <h3 style="font-size:14px; font-weight:800; color:var(--gray-800); margin:0 0 12px 0; display:flex; align-items:center; gap:6px;">
+            ${icon('user', 16)} Pacientes Internados a Cargo (${misPacientes.length})
+          </h3>
+          ${misPacientes.length === 0 ? `
+            <div style="background:#f8fafc; border:1px dashed var(--gray-300); border-radius:10px; padding:14px; text-align:center; color:var(--gray-500); font-size:12.5px;">
+              No tiene pacientes internados asignados actualmente a su cargo.
+            </div>
+          ` : `
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:10px;">
+              ${misPacientes.map(p => `
+                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:12px; display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <div style="font-weight:700; font-size:13px; color:var(--gray-800);">${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}</div>
+                    <div style="font-size:11.5px; color:var(--gray-500); margin-top:2px;">
+                      DNI: ${p.dni ? formatDNI(p.dni) : 'S/D'} · Cama: ${escapeHtml(p.cama || 'Sin Cama')}
+                    </div>
+                  </div>
+                  <button class="btn btn-sm" onclick="document.querySelector('.personal-detail-overlay')?.remove(); if (typeof openPacienteDetailModal==='function') openPacienteDetailModal(${p.id});" style="background:var(--celeste-dark); color:#fff; font-weight:700; font-size:11px; padding:4px 8px; border-radius:6px; border:none; cursor:pointer;">
+                    Ver Paciente
+                  </button>
+                </div>
+              `).join('')}
+            </div>
+          `}
+        </div>
+
+        <!-- Seccion: Historial de Intervenciones en Código Azul -->
+        <div style="border-top:1px solid var(--gray-200); padding-top:16px;">
+          <h3 style="font-size:14px; font-weight:800; color:var(--gray-800); margin:0 0 12px 0; display:flex; align-items:center; gap:6px;">
+            ${icon('heart', 16)} Participación en Eventos de Código Azul (${misCodigos.length})
+          </h3>
+          ${misCodigos.length === 0 ? `
+            <div style="background:#f8fafc; border:1px dashed var(--gray-300); border-radius:10px; padding:14px; text-align:center; color:var(--gray-500); font-size:12.5px;">
+              No registra participaciones directas en eventos de Código Azul.
+            </div>
+          ` : `
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              ${misCodigos.map(c => {
+                const isFatal = c.estado?.value === 'fatal';
+                return `
+                  <div style="background:${isFatal ? '#fff8f8' : '#f0fdf4'}; border:1px solid ${isFatal ? '#fecaca' : '#bbf7d0'}; border-radius:10px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; gap:12px;">
+                    <div>
+                      <div style="font-weight:700; font-size:13px; color:var(--gray-800);">
+                        Código Azul #${c.id} · Paciente: ${escapeHtml(c.paciente || 'N/D')}
+                      </div>
+                      <div style="font-size:11.5px; color:var(--gray-500); margin-top:2px;">
+                        Ubicación: ${escapeHtml(c.ubicacion || 'Guardia')} · Fecha: ${new Date(c.fecha || c.createdAt).toLocaleString()}
+                      </div>
+                    </div>
+                    <a href="#/detalle/${c.id}" class="btn btn-sm" onclick="document.querySelector('.personal-detail-overlay')?.remove();" style="background:${isFatal ? '#dc2626' : '#16a34a'}; color:#fff; font-weight:700; font-size:11.5px; padding:4px 10px; border-radius:6px; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
+                      Ver Código ${icon('chevronRight', 12)}
+                    </a>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          `}
+        </div>
+
       </div>
-      
-      <div class="modal-footer" style="padding:16px 24px; border-top:1px solid var(--gray-200); background:var(--gray-50); display:flex; justify-content:center;">
-        <button class="btn btn-primary" style="width:100%;" onclick="this.closest('.info-personal-overlay').remove()">Cerrar</button>
+
+      <!-- Footer -->
+      <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center; padding:14px 24px; border-top:1px solid var(--gray-200); background:#f8fafc;">
+        <div>
+          ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? '' : `
+            <button class="btn btn-secondary btn-sm" onclick="document.querySelector('.personal-detail-overlay')?.remove(); openPersonalModal(${pers.id});" style="font-weight:700;">
+              ${icon('edit', 14)} Editar Profesional
+            </button>
+          `}
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="this.closest('.personal-detail-overlay').remove()">
+          Cerrar Ficha
+        </button>
       </div>
+
     </div>
   `;
+
   document.body.appendChild(overlay);
 }
 
-window.mostrarInfoPersonal = mostrarInfoPersonal;
+function mostrarInfoPersonal(id) {
+  openPersonalDetailModal(id);
+}
+
+window.openPersonalDetailModal = openPersonalDetailModal;
+window.mostrarInfoPersonal = openPersonalDetailModal;
