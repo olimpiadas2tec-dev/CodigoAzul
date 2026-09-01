@@ -82,14 +82,7 @@ function renderLayout(content, activeRoute) {
   ` : '';
 
   const roleBar = `
-    <div style="background:#f8fafc; border-bottom:1px solid #e2e8f0; padding:8px 24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-      <div style="display:flex; align-items:center; gap:8px;">
-        ${isConsultaRole() ? `
-          <span class="badge" style="background:#e0f2fe; color:#0369a1; border:1px solid #7dd3fc; font-weight:800; font-size:11.5px; padding:4px 12px; border-radius:12px; display:inline-flex; align-items:center; gap:5px;">
-            👁️ Modo Consulta (Acceso de Solo Lectura)
-          </span>
-        ` : ''}
-      </div>
+    <div style="background:#f8fafc; border-bottom:1px solid #e2e8f0; padding:8px 24px; display:flex; justify-content:flex-end; align-items:center; flex-wrap:wrap; gap:8px;">
       <div style="font-size:12px; color:var(--gray-600); font-weight:600;">
         Usuario activo: <strong>${escapeHtml(user?.user || 'Usuario')}</strong> &middot; Rol: <strong>${escapeHtml(user?.role || 'Administrador')}</strong>
       </div>
