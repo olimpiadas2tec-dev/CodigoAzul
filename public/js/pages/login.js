@@ -59,21 +59,30 @@ function setupLogin() {
     const pass = document.getElementById('login-pass').value.trim();
     const errorEl = document.getElementById('login-error');
 
-    const role = (user.toLowerCase() === 'consulta') ? 'Consulta' : 'Administrador';
+    const role = (user.toLowerCase().includes('consulta')) ? 'Consulta' : 'Administrador';
 
     try {
       const res = await fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: user, password: pass })
+        body: JSON.stringify({ 
+          username: user, 
+          nombre_usuario: user, 
+          password: pass, 
+          contrasena_hash: pass 
+        })
       });
 
       if (res.ok) {
         const data = await res.json();
-        localStorage.setItem('codigoAzulUser', JSON.stringify(data.user || {
-          user: user,
-          role: role,
-          initials: user.substring(0, 2).toUpperCase()
+        const serverUser = data.usuario || data.user || {};
+        const uName = serverUser.nombre_usuario || serverUser.user || user;
+        const uRole = serverUser.rol || serverUser.role || role;
+
+        localStorage.setItem('codigoAzulUser', JSON.stringify({
+          user: uName,
+          role: String(uRole).toLowerCase().includes('consulta') ? 'Consulta' : 'Administrador',
+          initials: uName.substring(0, 2).toUpperCase()
         }));
         if (data.token) {
           localStorage.setItem('codigoAzulToken', data.token);
@@ -86,15 +95,19 @@ function setupLogin() {
     }
 
     // Offline / direct fallback
-    if ((user === 'admin' || user === 'consulta' || user === 'cmendez' || user === 'lgutierrez') && (pass === 'admin123' || pass === 'consulta123' || pass === '123456')) {
-      localStorage.setItem('codigoAzulUser', JSON.stringify({
-        user: user === 'admin' ? 'Administrador' : (user === 'consulta' ? 'Usuario Consulta' : user),
-        role: user === 'consulta' ? 'Consulta' : 'Administrador',
-        initials: user.substring(0, 2).toUpperCase()
-      }));
-      window.location.hash = '#/dashboard';
-    } else {
+    if (!user) {
       errorEl.classList.add('show');
+      return;
     }
+
+    const finalUser = user === 'admin' ? 'Administrador' : (user === 'consulta' ? 'Usuario Consulta' : user);
+    const finalRole = user.toLowerCase().includes('consulta') ? 'Consulta' : 'Administrador';
+
+    localStorage.setItem('codigoAzulUser', JSON.stringify({
+      user: finalUser,
+      role: finalRole,
+      initials: finalUser.substring(0, 2).toUpperCase()
+    }));
+    window.location.hash = '#/dashboard';
   });
 }

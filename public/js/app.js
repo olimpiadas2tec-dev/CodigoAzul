@@ -22,11 +22,12 @@ function isLoggedIn() {
 
 function getRole() {
   const user = getUser();
-  return user?.role || 'Administrador';
+  return user?.role || user?.rol || 'Administrador';
 }
 
 function isConsultaRole() {
-  return getRole() === 'Consulta';
+  const r = String(getRole()).toLowerCase().trim();
+  return r === 'consulta' || r === 'read_only' || r === 'lectura' || r === 'solo lectura';
 }
 
 window.getRole = getRole;
