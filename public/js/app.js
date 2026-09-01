@@ -12,8 +12,13 @@ const SVG = {
 };
 
 function getUser() {
-  const stored = localStorage.getItem('codigoAzulUser');
-  return stored ? JSON.parse(stored) : null;
+  try {
+    const stored = localStorage.getItem('codigoAzulUser');
+    if (!stored || stored === 'undefined' || stored === 'null') return null;
+    return JSON.parse(stored);
+  } catch (e) {
+    return null;
+  }
 }
 
 function isLoggedIn() {
@@ -157,6 +162,7 @@ function parseRoute() {
 
 function renderApp() {
   const app = document.getElementById('app');
+  if (!app) return;
   const { route, param } = parseRoute();
 
   if (!isLoggedIn() && route !== 'login') {
@@ -180,83 +186,98 @@ function renderApp() {
   let content = '';
   let activeRoute = route;
 
-  switch (route) {
-    case 'login':
-      app.innerHTML = renderLogin();
-      setupLogin();
-      return;
-    case 'dashboard':
-      content = renderDashboard();
-      break;
-    case 'historial':
-      content = renderHistorial();
-      break;
-    case 'nuevo':
-      content = renderCodigoForm(null);
-      break;
-    case 'editar':
-      content = renderCodigoForm(parseInt(param));
-      break;
-    case 'detalle':
-      content = renderDetalle(parseInt(param));
-      break;
-    case 'pacientes':
-      content = renderPacientes();
-      break;
-    case 'areas':
-      content = renderAreas();
-      break;
-    case 'personal':
-      content = renderPersonal();
-      break;
-    case 'materiales':
-      content = renderMateriales();
-      break;
-    case 'reportes':
-      content = renderReportes();
-      break;
-    default:
-      activeRoute = 'dashboard';
-      content = renderDashboard();
-  }
-
-  app.innerHTML = renderLayout(content, activeRoute);
-
-  // Run page-specific setup
-  requestAnimationFrame(() => {
+  try {
     switch (route) {
+      case 'login':
+        app.innerHTML = renderLogin();
+        setupLogin();
+        return;
+      case 'dashboard':
+        content = renderDashboard();
+        break;
       case 'historial':
-        setupHistorial();
+        content = renderHistorial();
         break;
       case 'nuevo':
-        setupCodigoForm(null);
+        content = renderCodigoForm(null);
         break;
       case 'editar':
-        setupCodigoForm(parseInt(param));
+        content = renderCodigoForm(parseInt(param));
         break;
       case 'detalle':
-        // No setup needed for detalle yet
+        content = renderDetalle(parseInt(param));
         break;
       case 'pacientes':
-        setupPacientes();
+        content = renderPacientes();
         break;
       case 'areas':
-        setupAreas();
+        content = renderAreas();
         break;
       case 'personal':
-        setupPersonal();
+        content = renderPersonal();
         break;
       case 'materiales':
-        setupMateriales();
+        content = renderMateriales();
         break;
       case 'reportes':
-        setupReportes();
+        content = renderReportes();
         break;
-      case 'dashboard':
-        setupDashboard();
-        break;
+      default:
+        activeRoute = 'dashboard';
+        content = renderDashboard();
     }
-  });
+
+    app.innerHTML = renderLayout(content, activeRoute);
+
+    // Run page-specific setup
+    requestAnimationFrame(() => {
+      try {
+        switch (route) {
+          case 'historial':
+            setupHistorial();
+            break;
+          case 'nuevo':
+            setupCodigoForm(null);
+            break;
+          case 'editar':
+            setupCodigoForm(parseInt(param));
+            break;
+          case 'pacientes':
+            setupPacientes();
+            break;
+          case 'areas':
+            setupAreas();
+            break;
+          case 'personal':
+            setupPersonal();
+            break;
+          case 'materiales':
+            setupMateriales();
+            break;
+          case 'reportes':
+            setupReportes();
+            break;
+          case 'dashboard':
+            setupDashboard();
+            break;
+        }
+      } catch (setupErr) {
+        console.warn('Page setup error:', setupErr);
+      }
+    });
+  } catch (err) {
+    console.error('Error rendering route ' + route + ':', err);
+    app.innerHTML = renderLayout(`
+      <div class="empty-state" style="padding:50px 20px; text-align:center;">
+        <span style="font-size:36px;">⚠️</span>
+        <h2 style="margin:10px 0 6px 0;">Ocurrió un error al cargar esta sección</h2>
+        <p style="color:var(--gray-600); font-size:13px; margin-bottom:16px;">${escapeHtml(err.message || String(err))}</p>
+        <button class="btn btn-primary btn-sm" onclick="window.location.hash='#/dashboard'; location.reload();">
+          Reintentar y Volver al Dashboard
+        </button>
+      </div>
+    `, 'dashboard');
+  }
 }
 
 window.renderApp = renderApp;
