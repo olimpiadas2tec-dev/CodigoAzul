@@ -70,8 +70,8 @@ function renderPacientes() {
                 <option value="" ${pacientesState.activo === '' ? 'selected' : ''}>Todos los registros</option>
               </select>
             </div>
-            <label style="flex:0 0 auto; display:inline-flex; align-items:center; gap:7px; padding:6px 14px; border-radius:10px; font-size:12px; font-weight:700; white-space:nowrap; cursor:pointer; user-select:none; transition:all 0.15s ease; ${pacientesState.sinCama ? 'background:#e0f2fe; color:#0369a1; border:1.5px solid #7dd3fc;' : 'background:#ffffff; color:var(--gray-700); border:1.5px solid #cbd5e1;'}">
-              <input type="checkbox" ${pacientesState.sinCama ? 'checked' : ''} onchange="toggleSinCamaFilter()" style="width:15px; height:15px; accent-color:#0284c7; cursor:pointer; margin:0;" />
+            <label style="flex:0 0 auto; font-size:12.5px; color:var(--gray-700); font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px; user-select:none; padding:0 4px;">
+              <input type="checkbox" ${pacientesState.sinCama ? 'checked' : ''} onchange="toggleSinCamaFilter()" style="cursor:pointer;" />
               <span>Sin Cama</span>
             </label>
             <button class="btn btn-secondary btn-sm" onclick="clearPacienteFilters()" style="flex:0 0 auto; padding:6px 14px; border-radius:10px; font-size:12px; font-weight:600; white-space:nowrap;">Limpiar</button>
