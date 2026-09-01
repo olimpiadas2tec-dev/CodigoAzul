@@ -1863,11 +1863,33 @@ tbody tr:last-child td {
     gap: 12px !important;
   }
 
-  .page-header-row .btn,
-  .page-header-row a.btn {
+  .page-header-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
     width: 100% !important;
+    gap: 8px !important;
+  }
+
+  .page-header-actions .page-action-item {
+    flex: 1 1 50% !important;
+    min-width: 0 !important;
+  }
+
+  .page-header-actions .page-action-item .btn,
+  .page-header-actions a.page-action-item,
+  .page-header-actions .page-action-btn {
+    width: 100% !important;
+    height: 38px !important;
+    padding: 6px 8px !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
     justify-content: center !important;
-    min-height: 40px !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
   }
 
   .page-body {

@@ -90,13 +90,13 @@ function renderHistorial() {
         <h1>Historial de Códigos Azules</h1>
         <p> oficial de eventos clínicos, causas, equipos intervinientes y resultados</p>
       </div>
-      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-             <!-- Botón Único Unificado de Exportación con Dropdown -->
-        <div id="export-dropdown-container" style="position:relative; display:inline-block; z-index:9999;">
-          <button class="btn btn-outline btn-sm" onclick="toggleExportDropdown()" style="padding:7px 14px; height:36px; box-sizing:border-box; font-size:12.5px; font-weight:700; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; gap:6px; background:#ffffff; border:1.5px solid var(--celeste-dark); color:var(--celeste-dark); cursor:pointer;" title="Exportar registros en diferentes formatos">
+      <div class="page-header-actions">
+        <!-- Botón Único Unificado de Exportación con Dropdown -->
+        <div id="export-dropdown-container" class="page-action-item" style="position:relative; z-index:9999;">
+          <button class="btn btn-outline btn-sm page-action-btn" onclick="toggleExportDropdown()" style="padding:7px 12px; height:38px; width:100%; box-sizing:border-box; font-size:12px; font-weight:700; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; gap:6px; background:#ffffff; border:1.5px solid var(--celeste-dark); color:var(--celeste-dark); cursor:pointer;" title="Exportar registros en diferentes formatos">
             ${icon('download', 14)} Exportar Datos <span style="font-size:10px; margin-left:2px;">▼</span>
           </button>
-          <div id="export-dropdown-menu" style="display:none; position:absolute; right:0; top:110%; background:#fff; border:1px solid var(--gray-300); border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.2); z-index:99999; min-width:210px; padding:6px 0;">
+          <div id="export-dropdown-menu" style="display:none; position:absolute; right:0; top:110%; background:#fff; border:1px solid var(--gray-300); border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.2); z-index:99999; min-width:210px; max-width:calc(100vw - 32px); padding:6px 0;">
             <button onclick="exportExcel(getFilteredData()); toggleExportDropdown();" style="width:100%; text-align:left; padding:9px 14px; background:none; border:none; cursor:pointer; font-size:13px; font-weight:600; color:var(--gray-800); display:flex; align-items:center; gap:10px;">
               ${icon('fileSpreadsheet', 16)} 
               <div>
@@ -122,7 +122,7 @@ function renderHistorial() {
         </div>
 
         ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? '' : `
-          <a href="#/nuevo" class="btn btn-primary btn-sm" style="padding:7px 14px; height:36px; box-sizing:border-box; font-size:12.5px; font-weight:700; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; gap:6px; background:var(--celeste-dark); border:none; color:#ffffff; cursor:pointer;">
+          <a href="#/nuevo" class="btn btn-primary btn-sm page-action-item page-action-btn" style="padding:7px 12px; height:38px; width:100%; box-sizing:border-box; font-size:12px; font-weight:700; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; gap:6px; background:var(--celeste-dark); border:none; color:#ffffff; cursor:pointer; text-decoration:none;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Registrar Código
           </a>
