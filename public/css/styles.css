@@ -229,7 +229,13 @@ body {
   align-items: center;
   gap: 2px;
   width: 100%;
-  overflow: visible;
+  overflow-y: auto;
+  overflow-x: visible;
+  scrollbar-width: none;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+  display: none;
 }
 
 .sidebar-nav a {
