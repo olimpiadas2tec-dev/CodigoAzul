@@ -80,18 +80,18 @@ function renderPacientes() {
         </div>
 
         <div class="table-container table-stagger" style="overflow-x:auto;">
-          <table style="width:100%; min-width:1050px; border-collapse:collapse;">
+          <table style="width:100%; border-collapse:collapse; font-size:12.5px;">
             <thead>
               <tr style="background:var(--gray-50); border-bottom:1px solid var(--gray-200);">
-                <th style="padding:12px 10px; vertical-align:middle; text-align:left;">#</th>
-                <th style="padding:12px 10px; vertical-align:middle; text-align:left;">Paciente</th>
-                <th style="padding:12px 10px; vertical-align:middle; text-align:left; white-space:nowrap;">DNI / Edad</th>
-                <th style="padding:12px 10px; vertical-align:middle; text-align:left;">Área & Cama</th>
-                <th style="padding:12px 10px; vertical-align:middle; text-align:left;">Causa / Diagnóstico</th>
-                <th style="padding:12px 10px; vertical-align:middle; text-align:left;">Médico Responsable</th>
-                <th style="padding:12px 10px; vertical-align:middle; text-align:left;">Grupo & Alergias</th>
-                <th style="padding:12px 14px; vertical-align:middle; text-align:center; white-space:nowrap; min-width:100px;">ESTADO</th>
-                <th style="padding:8px 10px; vertical-align:middle; text-align:center; position:sticky; right:0; background:var(--gray-50); z-index:5; box-shadow:-6px 0 10px -4px rgba(0,0,0,0.08); white-space:nowrap;">Acciones</th>
+                <th style="padding:10px 12px; vertical-align:middle; text-align:left;">#</th>
+                <th style="padding:10px 12px; vertical-align:middle; text-align:left;">PACIENTE</th>
+                <th style="padding:10px 12px; vertical-align:middle; text-align:left; white-space:nowrap;">DNI / EDAD</th>
+                <th style="padding:10px 12px; vertical-align:middle; text-align:left;">ÁREA & CAMA</th>
+                <th style="padding:10px 12px; vertical-align:middle; text-align:left;">CAUSA / DIAGNÓSTICO</th>
+                <th style="padding:10px 12px; vertical-align:middle; text-align:left;">MÉDICO RESPONSABLE</th>
+                <th style="padding:10px 12px; vertical-align:middle; text-align:left;">GRUPO & ALERGIAS</th>
+                <th style="padding:10px 14px; vertical-align:middle; text-align:center; white-space:nowrap;">ESTADO</th>
+                <th style="padding:10px 14px; vertical-align:middle; text-align:center; white-space:nowrap;">ACCIONES</th>
               </tr>
             </thead>
             <tbody>
@@ -123,23 +123,23 @@ function renderPacientes() {
 
                 return `
                   <tr class="paciente-table-row" style="border-bottom:1px solid var(--gray-100);">
-                    <td style="padding:12px 10px; vertical-align:middle; font-weight:600; color:var(--gray-400);">${p.id}</td>
-                    <td style="padding:12px 10px; vertical-align:middle; font-weight:700; color:var(--gray-800); white-space:nowrap;">${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}</td>
-                    <td style="padding:12px 10px; vertical-align:middle; white-space:nowrap;">
+                    <td style="padding:10px 12px; vertical-align:middle; font-weight:600; color:var(--gray-400);">${p.id}</td>
+                    <td style="padding:10px 12px; vertical-align:middle; font-weight:700; color:var(--gray-800); white-space:nowrap;">${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}</td>
+                    <td style="padding:10px 12px; vertical-align:middle; white-space:nowrap;">
                       <span style="font-size:12px; font-weight:600; color:var(--gray-800);">${escapeHtml(formattedDNI)}</span>
                       ${p.edad ? `<span style="font-size:12px; color:var(--gray-500);"> · ${p.edad} años</span>` : ''}
                     </td>
-                    <td style="padding:12px 10px; vertical-align:middle;">
+                    <td style="padding:10px 12px; vertical-align:middle;">
                       <div style="font-weight:600; color:var(--gray-700);">${escapeHtml(p.area)}</div>
                       <div style="font-size:11px; color:var(--gray-700); font-weight:700;">${icon('bed')} ${escapeHtml(p.cama || 'Sin Cama')}</div>
                     </td>
-                    <td style="padding:12px 10px; vertical-align:middle;">
+                    <td style="padding:10px 12px; vertical-align:middle;">
                       <span style="font-size:12px; font-weight:600; color:var(--gray-800); background:var(--gray-100); border:1px solid var(--gray-200); padding:4px 8px; border-radius:6px; display:inline-block;">
                         ${escapeHtml(p.causa || 'Paro Cardiorrespiratorio')}
                       </span>
                     </td>
-                    <td style="padding:12px 10px; vertical-align:middle; font-size:12px; color:var(--gray-700); white-space:nowrap;">${escapeHtml(docName)}</td>
-                    <td style="padding:12px 10px; vertical-align:middle;">
+                    <td style="padding:10px 12px; vertical-align:middle; font-size:12px; color:var(--gray-700); white-space:nowrap;">${escapeHtml(docName)}</td>
+                    <td style="padding:10px 12px; vertical-align:middle;">
                       <div style="display:flex; flex-direction:column; gap:3px; align-items:flex-start;">
                         <span class="badge" style="background:var(--gray-100); color:var(--gray-700); border:1px solid var(--gray-300); font-weight:700; font-size:10px;">${escapeHtml(p.grupo || 'S/D')}</span>
                         ${hasAlergia ? `
@@ -151,12 +151,12 @@ function renderPacientes() {
                         `}
                       </div>
                     </td>
-                    <td style="padding:10px 14px; vertical-align:middle; text-align:center; white-space:nowrap; min-width:100px;">
+                    <td style="padding:10px 14px; vertical-align:middle; text-align:center; white-space:nowrap;">
                       <span class="badge ${p.activo ? 'badge-success' : 'badge-warning'}" style="font-size:11px; padding:4px 10px;">
                         ${p.activo ? 'Internado' : 'Alta'}
                       </span>
                     </td>
-                    <td class="sticky-actions-cell" style="padding:8px 10px; vertical-align:middle; text-align:center; position:sticky; right:0; z-index:2; box-shadow:-6px 0 10px -4px rgba(0,0,0,0.08); white-space:nowrap;">
+                    <td style="padding:10px 14px; vertical-align:middle; text-align:center; white-space:nowrap;">
                       <div style="display:flex; gap:6px; align-items:center; justify-content:center;">
                         <button class="action-link" style="font-size:11.5px; font-weight:600;" onclick="openPacienteModal(${p.id})">Editar</button>
                         ${p.activo ? `
