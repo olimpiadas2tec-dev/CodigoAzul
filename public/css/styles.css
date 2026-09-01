@@ -1843,6 +1843,10 @@ tbody tr:last-child td {
     display: none !important;
   }
 
+  .top-logout-btn {
+    display: none !important;
+  }
+
   .app-top-header {
     padding: 0 12px !important;
   }

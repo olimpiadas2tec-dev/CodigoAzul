@@ -240,12 +240,11 @@ function renderRolesTab() {
             `}
           </div>
         </div>
-      </div>
-      <div class="card-body" style="padding:0;">
-        <table style="width:100%; border-collapse:collapse; font-size:13px;">
+      <div class="table-container table-stagger" style="padding:0; overflow-x:auto; width:100%; border-radius:0;">
+        <table style="width:100%; min-width:520px; border-collapse:collapse; font-size:13px;">
           <thead>
             <tr style="border-bottom:2px solid var(--gray-200); background:var(--gray-50); text-align:left;">
-              <th style="padding:10px 16px; width:60px;">#</th>
+              <th style="padding:10px 16px; width:50px; text-align:center;">#</th>
               <th style="padding:10px 16px;">Nombre del Rol</th>
               <th style="padding:10px 16px;">Descripción</th>
               <th style="padding:10px 16px;">Personal Asignado</th>
@@ -419,23 +418,23 @@ function renderTurnosTab() {
   const asignacionesList = getAsignacionesTurnos();
 
   return `
-    <div class="two-col-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+    <div class="two-col-grid" style="gap:20px;">
       
       <!-- Card 1: Horarios de Turnos -->
       <div class="card scale-in" style="background:#fafafa; border:1px solid var(--gray-200); box-shadow:none;">
-        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; min-height:64px;">
+        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; padding:16px 20px;">
           <div>
-            <h2 style="margin:0; font-size:16px;">Horarios de Turnos</h2>
-            <p style="font-size:12px; color:var(--gray-500); margin:0;">Franjas horarias no solapadas</p>
+            <h2 style="margin:0; font-size:16px; font-weight:800; color:var(--gray-900);">Horarios de Turnos</h2>
+            <p style="font-size:12px; color:var(--gray-500); margin:2px 0 0 0;">Franjas horarias no solapadas</p>
           </div>
           ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? '' : `
-            <button class="btn btn-primary btn-sm" onclick="openTurnoModal()">
-              ${icon('plus', 16)} Nuevo Turno Horario
+            <button class="btn btn-primary btn-sm" onclick="openTurnoModal()" style="white-space:nowrap;">
+              ${icon('plus', 16)} Nuevo Turno
             </button>
           `}
         </div>
-        <div class="card-body" style="padding:0;">
-          <table style="width:100%; border-collapse:collapse; font-size:13px;">
+        <div class="table-container table-stagger" style="padding:0; overflow-x:auto; width:100%; border-radius:0;">
+          <table style="width:100%; min-width:440px; border-collapse:collapse; font-size:13px;">
             <thead>
               <tr style="border-bottom:2px solid var(--gray-200); background:var(--gray-50); text-align:left;">
                 <th style="padding:10px 14px;">Turno</th>
@@ -457,9 +456,9 @@ function renderTurnosTab() {
                       </span>
                     </div>
                   </td>
-                  <td style="padding:10px 14px; color:var(--gray-600); vertical-align:middle;">${t.hora_inicio}</td>
-                  <td style="padding:10px 14px; color:var(--gray-600); vertical-align:middle;">${t.hora_fin}</td>
-                  <td style="padding:10px 14px; vertical-align:middle; text-align:center;">
+                  <td style="padding:10px 14px; color:var(--gray-600); vertical-align:middle; white-space:nowrap;">${t.hora_inicio}</td>
+                  <td style="padding:10px 14px; color:var(--gray-600); vertical-align:middle; white-space:nowrap;">${t.hora_fin}</td>
+                  <td style="padding:10px 14px; vertical-align:middle; text-align:center; white-space:nowrap;">
                     ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? `
                       <span style="font-size:11px; color:var(--gray-400); font-style:italic;">Solo lectura</span>
                     ` : `
@@ -480,19 +479,19 @@ function renderTurnosTab() {
 
       <!-- Card 2: Asignación de Equipos a Turnos -->
       <div class="card scale-in">
-        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; min-height:64px;">
+        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; padding:16px 20px;">
           <div>
-            <h2 style="margin:0; font-size:16px;">Asignación de Equipos a Turnos</h2>
-            <p style="font-size:12px; color:var(--gray-500); margin:0;">Regla 1 a 1: 1 equipo por turno</p>
+            <h2 style="margin:0; font-size:16px; font-weight:800; color:var(--gray-900);">Asignación de Equipos a Turnos</h2>
+            <p style="font-size:12px; color:var(--gray-500); margin:2px 0 0 0;">Regla 1 a 1: 1 equipo por turno</p>
           </div>
           ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? '' : `
-            <button class="btn btn-primary btn-sm" onclick="openAsignacionTurnoModal()">
+            <button class="btn btn-primary btn-sm" onclick="openAsignacionTurnoModal()" style="white-space:nowrap;">
               ${icon('calendar', 16)} Asignar Turno a Equipo
             </button>
           `}
         </div>
-        <div class="card-body" style="padding:0;">
-          <table style="width:100%; border-collapse:collapse; font-size:13px;">
+        <div class="table-container table-stagger" style="padding:0; overflow-x:auto; width:100%; border-radius:0;">
+          <table style="width:100%; min-width:480px; border-collapse:collapse; font-size:13px;">
             <thead>
               <tr style="border-bottom:2px solid var(--gray-200); background:var(--gray-50); text-align:left;">
                 <th style="padding:10px 14px;">Equipo</th>
@@ -512,11 +511,11 @@ function renderTurnosTab() {
                       ${escapeHtml(asig.equipo_nombre.replace('Equipo ', ''))}
                     </div>
                   </td>
-                  <td style="padding:10px 14px; font-weight:600; vertical-align:middle;">${escapeHtml(asig.turno_nombre)}</td>
-                  <td style="padding:10px 14px; font-size:12px; color:var(--gray-600); vertical-align:middle;">
+                  <td style="padding:10px 14px; font-weight:600; vertical-align:middle; white-space:nowrap;">${escapeHtml(asig.turno_nombre)}</td>
+                  <td style="padding:10px 14px; font-size:12px; color:var(--gray-600); vertical-align:middle; white-space:nowrap;">
                     ${asig.fecha_desde} &rarr; ${asig.fecha_hasta || 'Indefinido'}
                   </td>
-                  <td style="padding:10px 14px; vertical-align:middle; text-align:center;">
+                  <td style="padding:10px 14px; vertical-align:middle; text-align:center; white-space:nowrap;">
                     ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? `
                       <span style="font-size:11px; color:var(--gray-400); font-style:italic;">Solo lectura</span>
                     ` : `
@@ -1690,14 +1689,14 @@ function openPersonalDetailModal(personalId) {
           ` : `
             <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:10px;">
               ${misPacientes.map(p => `
-                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:12px; display:flex; justify-content:space-between; align-items:center;">
-                  <div>
+                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                  <div style="min-width:0; flex:1 1 160px;">
                     <div style="font-weight:700; font-size:13px; color:var(--gray-800);">${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}</div>
                     <div style="font-size:11.5px; color:var(--gray-500); margin-top:2px;">
                       DNI: ${p.dni ? formatDNI(p.dni) : 'S/D'} · Cama: ${escapeHtml(p.cama || 'Sin Cama')}
                     </div>
                   </div>
-                  <button class="btn btn-sm" onclick="document.querySelector('.personal-detail-overlay')?.remove(); if (typeof openPacienteDetailModal==='function') openPacienteDetailModal(${p.id});" style="background:var(--celeste-dark); color:#fff; font-weight:700; font-size:11px; padding:4px 8px; border-radius:6px; border:none; cursor:pointer;">
+                  <button class="btn btn-sm" onclick="document.querySelector('.personal-detail-overlay')?.remove(); if (typeof openPacienteDetailModal==='function') openPacienteDetailModal(${p.id});" style="background:var(--celeste-dark); color:#fff; font-weight:700; font-size:11.5px; padding:6px 10px; border-radius:6px; border:none; cursor:pointer; flex-shrink:0; white-space:nowrap;">
                     Ver Paciente
                   </button>
                 </div>
@@ -1720,8 +1719,8 @@ function openPersonalDetailModal(personalId) {
               ${misCodigos.map(c => {
                 const isFatal = c.estado?.value === 'fatal';
                 return `
-                  <div style="background:${isFatal ? '#fff8f8' : '#f0fdf4'}; border:1px solid ${isFatal ? '#fecaca' : '#bbf7d0'}; border-radius:10px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; gap:12px;">
-                    <div>
+                  <div style="background:${isFatal ? '#fff8f8' : '#f0fdf4'}; border:1px solid ${isFatal ? '#fecaca' : '#bbf7d0'}; border-radius:10px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <div style="min-width:0; flex:1 1 180px;">
                       <div style="font-weight:700; font-size:13px; color:var(--gray-800);">
                         Código Azul #${c.id} · Paciente: ${escapeHtml(c.paciente || 'N/D')}
                       </div>
@@ -1729,7 +1728,7 @@ function openPersonalDetailModal(personalId) {
                         Ubicación: ${escapeHtml(c.ubicacion || 'Guardia')} · Fecha: ${new Date(c.fecha || c.createdAt).toLocaleString()}
                       </div>
                     </div>
-                    <a href="#/detalle/${c.id}" class="btn btn-sm" onclick="document.querySelector('.personal-detail-overlay')?.remove();" style="background:${isFatal ? '#dc2626' : '#16a34a'}; color:#fff; font-weight:700; font-size:11.5px; padding:4px 10px; border-radius:6px; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
+                    <a href="#/detalle/${c.id}" class="btn btn-sm" onclick="document.querySelector('.personal-detail-overlay')?.remove();" style="background:${isFatal ? '#dc2626' : '#16a34a'}; color:#fff; font-weight:700; font-size:11.5px; padding:6px 10px; border-radius:6px; text-decoration:none; display:inline-flex; align-items:center; gap:4px; flex-shrink:0; white-space:nowrap;">
                       Ver Código ${icon('chevronRight', 12)}
                     </a>
                   </div>
