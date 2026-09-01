@@ -168,9 +168,14 @@ function renderPersonalTab() {
                   ${p.email ? `<div style="font-size:11px; color:var(--gray-500); font-weight:600;">${escapeHtml(p.email)}</div>` : ''}
                 </td>
                 <td style="padding:10px 14px; vertical-align:middle;">
-                  <span style="font-weight:600; color:${p.area === 'Sin Designar' ? 'var(--gray-400)' : 'var(--gray-700)'}; font-size:12.5px;">
+                  <div style="font-weight:600; color:${p.area === 'Sin Designar' ? 'var(--gray-400)' : 'var(--gray-700)'}; font-size:12.5px;">
                     ${escapeHtml(p.area || 'Sin Designar')}
-                  </span>
+                  </div>
+                  ${p.turno && p.turno !== 'Sin Designar' ? `
+                    <div style="font-size:11px; color:var(--celeste-dark, #0369a1); font-weight:700; margin-top:2px; display:inline-flex; align-items:center; gap:3px;">
+                      ${icon('clock', 11)} ${escapeHtml(p.turno)}
+                    </div>
+                  ` : ''}
                 </td>
                 <td style="padding:10px 14px; vertical-align:middle; text-align:center;">
                   ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? `
@@ -566,6 +571,7 @@ function openPersonalModal(editId = null) {
   const personalList = getPersonalSalud();
   const rolesList = getRolesSalud();
   const areasList = getAreas();
+  const turnosList = getTurnos();
   const pers = isEdit ? personalList.find(p => p.id === editId) : null;
 
   document.querySelector('.pers-modal-overlay')?.remove();
@@ -612,7 +618,7 @@ function openPersonalModal(editId = null) {
             <input type="email" id="p-email" required placeholder="Ej: c.mendez@hospital.gob.ar" value="${pers ? escapeHtml(pers.email || '') : ''}" style="font-weight:600;" />
           </div>
 
-          <!-- ROL DE SALUD (CON OPCIÓN SIN DESIGNAR) -->
+          <!-- ROL DE SALUD -->
           <div class="form-group" style="margin-bottom:12px;">
             <label style="color:var(--celeste-dark); font-weight:700;">Rol de Salud Institucional *</label>
             <select id="p-rol" required style="border:2px solid var(--celeste-300); font-weight:600;">
@@ -625,21 +631,28 @@ function openPersonalModal(editId = null) {
             </select>
           </div>
 
-          <!-- ÁREA ASIGNADA (CON TODAS LAS ÁREAS DISPONIBLES + BUSCADOR EN VIVO + SIN DESIGNAR) -->
-          <div class="form-group">
-            <label style="color:var(--celeste-dark); font-weight:700;">Área / Servicio Asignado *</label>
-            <div class="search-input-wrapper" style="margin-bottom:6px;">
-              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input type="text" id="filter-pers-area" placeholder="Filtrar área en tiempo real..." style="font-size:12px; padding:6px 10px 6px 36px; border:1px solid var(--gray-300); border-radius:6px; width:100%;" />
-            </div>
-            <select id="p-area" required style="font-weight:600;">
-              <option value="Sin Designar" ${pers && (!pers.area || pers.area === 'Sin Designar') ? 'selected' : ''}>Sin Designar</option>
-              ${areasList.map(a => `
-                <option value="${escapeHtml(a.nombre)}" ${pers && pers.area === a.nombre ? 'selected' : ''}>
-                  ${icon('building')} ${escapeHtml(a.nombre)}
+          <!-- TURNO / HORARIO ASIGNADO -->
+          <div class="form-group" style="margin-bottom:12px;">
+            <label style="color:var(--celeste-dark); font-weight:700;">Turno / Horario Asignado *</label>
+            <select id="p-turno" required style="border:2px solid var(--celeste-300); font-weight:600;">
+              <option value="Sin Designar" ${pers && (!pers.turno || pers.turno === 'Sin Designar') ? 'selected' : ''}>Sin Designar</option>
+              ${turnosList.map(t => `
+                <option value="${escapeHtml(t.nombre)}" ${pers && pers.turno === t.nombre ? 'selected' : ''}>
+                  ${escapeHtml(t.nombre)} (${t.hora_inicio} - ${t.hora_fin})
                 </option>
               `).join('')}
             </select>
+          </div>
+
+          <!-- ÁREA ASIGNADA (BARRA ÚNICA CON BUSCADOR EN TIEMPO REAL Y DESPLEGABLE INTEGRADO) -->
+          <div class="form-group" style="margin-bottom:12px; position:relative;">
+            <label style="color:var(--celeste-dark); font-weight:700;">Área / Servicio Asignado *</label>
+            <div style="position:relative; width:100%;">
+              <input type="text" id="p-area-search" placeholder="Escriba para filtrar o seleccionar área..." autocomplete="off" value="${pers ? escapeHtml(pers.area || 'Sin Designar') : 'Sin Designar'}" style="font-size:12.5px; font-weight:600; padding:9px 12px 9px 36px; border:2px solid var(--celeste-300); border-radius:10px; width:100%; outline:none; background:#ffffff; box-shadow:0 1px 2px rgba(0,0,0,0.04);" />
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); width:16px; height:16px; color:var(--gray-400); pointer-events:none;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="hidden" id="p-area" value="${pers ? escapeHtml(pers.area || 'Sin Designar') : 'Sin Designar'}" />
+              <div id="p-area-dropdown" style="display:none; position:absolute; top:calc(100% + 4px); left:0; right:0; max-height:180px; overflow-y:auto; background:#ffffff; border:1.5px solid var(--celeste-300); border-radius:10px; z-index:99999; box-shadow:0 8px 24px rgba(0,0,0,0.15); padding:4px 0;"></div>
+            </div>
           </div>
         </div>
 
@@ -653,16 +666,59 @@ function openPersonalModal(editId = null) {
 
   document.body.appendChild(overlay);
 
-  // Filtro en tiempo real para Áreas (sin importar tildes)
-  const filterAreaInput = document.getElementById('filter-pers-area');
-  const areaSelect = document.getElementById('p-area');
-  if (filterAreaInput && areaSelect) {
-    filterAreaInput.addEventListener('input', () => {
-      const q = normalizeText(filterAreaInput.value);
-      Array.from(areaSelect.options).forEach(opt => {
-        const text = normalizeText(opt.text);
-        opt.style.display = (!q || text.includes(q)) ? '' : 'none';
-      });
+  // Buscador de área único en tiempo real
+  const searchAreaInput = document.getElementById('p-area-search');
+  const hiddenAreaInput = document.getElementById('p-area');
+  const areaDropdown = document.getElementById('p-area-dropdown');
+
+  if (searchAreaInput && areaDropdown) {
+    const allAreaOptions = [
+      { id: 'Sin Designar', nombre: 'Sin Designar' },
+      ...areasList.map(a => ({ id: a.nombre, nombre: a.nombre }))
+    ];
+
+    function renderAreaOptions(q = '') {
+      const query = normalizeText(q);
+      const matches = allAreaOptions.filter(a => !query || normalizeText(a.nombre).includes(query));
+
+      if (matches.length === 0) {
+        areaDropdown.innerHTML = `<div style="padding:10px 14px; font-size:12px; color:var(--gray-400); text-align:center;">No se encontraron áreas de salud</div>`;
+      } else {
+        areaDropdown.innerHTML = matches.map(a => `
+          <div class="area-opt-item" data-val="${escapeHtml(a.nombre)}" style="padding:8px 14px; font-size:12.5px; font-weight:600; cursor:pointer; color:var(--gray-800); display:flex; align-items:center; gap:8px; border-bottom:1px solid #f1f5f9;">
+            ${icon('building', 14)} ${escapeHtml(a.nombre)}
+          </div>
+        `).join('');
+
+        areaDropdown.querySelectorAll('.area-opt-item').forEach(item => {
+          item.addEventListener('mouseenter', () => { item.style.background = '#e0f2fe'; item.style.color = '#0369a1'; });
+          item.addEventListener('mouseleave', () => { item.style.background = 'transparent'; item.style.color = 'var(--gray-800)'; });
+          item.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            const val = item.getAttribute('data-val');
+            searchAreaInput.value = val;
+            hiddenAreaInput.value = val;
+            areaDropdown.style.display = 'none';
+          });
+        });
+      }
+    }
+
+    searchAreaInput.addEventListener('focus', () => {
+      renderAreaOptions(searchAreaInput.value === 'Sin Designar' ? '' : searchAreaInput.value);
+      areaDropdown.style.display = 'block';
+    });
+
+    searchAreaInput.addEventListener('input', () => {
+      hiddenAreaInput.value = searchAreaInput.value.trim() || 'Sin Designar';
+      renderAreaOptions(searchAreaInput.value);
+      areaDropdown.style.display = 'block';
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!searchAreaInput.contains(e.target) && !areaDropdown.contains(e.target)) {
+        areaDropdown.style.display = 'none';
+      }
     });
   }
 
@@ -674,6 +730,7 @@ function openPersonalModal(editId = null) {
     const telefono = document.getElementById('p-tel').value.trim();
     const email = document.getElementById('p-email') ? document.getElementById('p-email').value.trim() : '';
     const rolSelect = document.getElementById('p-rol');
+    const turno = document.getElementById('p-turno') ? document.getElementById('p-turno').value : 'Sin Designar';
     
     let id_rol_profesional = null;
     let nombre_rol = 'Sin Designar';
@@ -682,7 +739,7 @@ function openPersonalModal(editId = null) {
       nombre_rol = rolSelect.options[rolSelect.selectedIndex]?.getAttribute('data-nombre') || 'Personal de Salud';
     }
 
-    const area = document.getElementById('p-area').value;
+    const area = hiddenAreaInput ? hiddenAreaInput.value : (document.getElementById('p-area-search')?.value || 'Sin Designar');
 
     if (!apellido || !nombre || !dni || !email) {
       showToast('Complete todos los campos obligatorios (*)', 'error');
@@ -699,13 +756,13 @@ function openPersonalModal(editId = null) {
     if (isEdit) {
       const idx = currentList.findIndex(p => p.id === editId);
       if (idx !== -1) {
-        currentList[idx] = { ...currentList[idx], apellido, nombre, dni, telefono, email, id_rol_profesional, nombre_rol, area };
+        currentList[idx] = { ...currentList[idx], apellido, nombre, dni, telefono, email, id_rol_profesional, nombre_rol, area, turno };
         savePersonalSalud(currentList);
         showToast('Personal actualizado con éxito', 'success');
       }
     } else {
       const newId = currentList.length > 0 ? Math.max(...currentList.map(p => p.id)) + 1 : 1;
-      currentList.push({ id: newId, apellido, nombre, dni, telefono, email, id_rol_profesional, nombre_rol, area });
+      currentList.push({ id: newId, apellido, nombre, dni, telefono, email, id_rol_profesional, nombre_rol, area, turno });
       savePersonalSalud(currentList);
       showToast('Personal de salud registrado exitosamente', 'success');
     }
