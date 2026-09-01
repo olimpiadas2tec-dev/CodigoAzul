@@ -111,15 +111,15 @@ function renderMateriales() {
                 let textColor = '#166534';
 
                 if (stock <= 10) {
-                  stockStatusBadge = `<span class="badge" style="background:#fef2f2; color:#991b1b; border:1px solid #fca5a5; font-size:10px; font-weight:700;">Crítico</span>`;
+                  stockStatusBadge = `<span class="badge badge-danger" style="font-size:10px; font-weight:700; padding:2px 8px;">Crítico</span>`;
                   barColor = '#dc2626';
                   textColor = '#991b1b';
                 } else if (stock <= 25) {
-                  stockStatusBadge = `<span class="badge" style="background:#fffbe0; color:#92400e; border:1px solid #fde68a; font-size:10px; font-weight:700;">Reposición</span>`;
+                  stockStatusBadge = `<span class="badge badge-warning" style="font-size:10px; font-weight:700; padding:2px 8px;">Reposición</span>`;
                   barColor = '#f59e0b';
                   textColor = '#92400e';
                 } else {
-                  stockStatusBadge = `<span class="badge" style="background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; font-size:10px; font-weight:700;">Óptimo</span>`;
+                  stockStatusBadge = `<span class="badge badge-success" style="font-size:10px; font-weight:700; padding:2px 8px;">Óptimo</span>`;
                   barColor = '#10b981';
                   textColor = '#065f46';
                 }
@@ -131,8 +131,8 @@ function renderMateriales() {
                       ${escapeHtml(m.nombre)}
                     </td>
                     <td style="vertical-align:middle; padding:10px 12px;">
-                      <span class="badge ${m.tipo === 'Medicamento' ? 'badge-info' : 'badge-success'}" style="display:inline-flex; align-items:center; gap:5px; padding:4px 10px; font-size:11.5px; font-weight:700; white-space:nowrap; border-radius:9999px;">
-                        ${m.tipo === 'Medicamento' ? `${icon('pill', 13)} Medicamento` : `${icon('package', 13)} Insumo`}
+                      <span class="badge ${m.tipo === 'Medicamento' ? 'badge-info' : 'badge-success'}" style="font-weight:700;">
+                        ${m.tipo === 'Medicamento' ? 'Medicamento' : 'Insumo'}
                       </span>
                     </td>
                     <td style="vertical-align:middle; padding:10px 12px;">
