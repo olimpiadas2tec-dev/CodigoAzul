@@ -65,10 +65,11 @@ function renderMateriales() {
               <button onclick="setMaterialTypeFilter('')" class="btn btn-sm" style="padding:6px 14px; font-size:12px; font-weight:700; border-radius:8px; border:none; cursor:pointer; transition:all 0.15s ease; ${materialesState.tipo === '' ? 'background:#ffffff; color:var(--gray-900); box-shadow:0 1px 3px rgba(0,0,0,0.1);' : 'background:transparent; color:var(--gray-600);'}">
                 Todos (${materialesList.length})
               </button>
-              <button onclick="setMaterialTypeFilter('Medicamento')" class="btn btn-sm" style="padding:6px 14px; font-size:12px; font-weight:700; border-radius:8px; border:none; cursor:pointer; transition:all 0.15s ease; ${materialesState.tipo === 'Medicamento' ? 'background:var(--celeste-dark); color:#ffffff; box-shadow:0 1px 3px rgba(0,0,0,0.1);' : 'background:transparent; color:var(--gray-600);'}">s (${medCount})
+              <button onclick="setMaterialTypeFilter('Medicamento')" class="btn btn-sm" style="padding:6px 14px; font-size:12px; font-weight:700; border-radius:8px; border:none; cursor:pointer; transition:all 0.15s ease; ${materialesState.tipo === 'Medicamento' ? 'background:var(--celeste-dark); color:#ffffff; box-shadow:0 1px 3px rgba(0,0,0,0.1);' : 'background:transparent; color:var(--gray-600);'}">
+                Medicamentos (${medCount})
               </button>
               <button onclick="setMaterialTypeFilter('Insumo')" class="btn btn-sm" style="padding:6px 14px; font-size:12px; font-weight:700; border-radius:8px; border:none; cursor:pointer; transition:all 0.15s ease; ${materialesState.tipo === 'Insumo' ? 'background:#059669; color:#ffffff; box-shadow:0 1px 3px rgba(0,0,0,0.1);' : 'background:transparent; color:var(--gray-600);'}">
-                🩺 Insumos (${insCount})
+                Insumos (${insCount})
               </button>
             </div>
 
@@ -84,26 +85,25 @@ function renderMateriales() {
                 <th style="padding:10px 12px; text-align:left;">FÁRMACO / MATERIAL</th>
                 <th style="padding:10px 12px; text-align:left;">CATEGORÍA</th>
                 <th style="padding:10px 12px; text-align:left;">STOCK DISPONIBLE</th>
-                <th style="padding:10px 12px; text-align:left;">PRESENTACIÓN</th>
-                <th style="padding:10px 12px; text-align:left;">DESCRIPCIÓN CLÍNICA</th>
+                <th style="padding:10px 12px; text-align:left;">UNIDAD</th>
+                <th style="padding:10px 12px; text-align:left;">INDICACIÓN CLINICA</th>
                 <th style="padding:10px 12px; text-align:center;">ACCIONES</th>
               </tr>
             </thead>
             <tbody>
               ${filtered.length === 0 ? `
                 <tr>
-                  <td colspan="7">
+                  <td colspan="7" style="vertical-align:middle;">
                     <div class="empty-state" style="padding:30px 20px; text-align:center;">
                       <span style="font-size:32px;">${icon('search')}</span>
-                      <h3 style="margin:8px 0 4px 0;">No se encontraron insumos</h3>
-                      <p style="color:var(--gray-500); font-size:13px;"> materiales o fármacos que coincidan con los criterios.</p>
-                      <button class="btn btn-secondary btn-sm" style="margin-top:12px;" onclick="materialesState.search=''; materialesState.tipo=''; renderApp();">Limpiar Filtros</button>
+                      <h3 style="margin-top:8px;">No se encontraron fármacos o insumos</h3>
+                      <p>Intente ajustar los filtros de búsqueda o categoría</p>
                     </div>
                   </td>
                 </tr>
               ` : filtered.map(m => {
-                const stock = m.cantidad !== undefined ? m.cantidad : (m.stock !== undefined ? m.stock : 50);
-                const stockMax = m.stockMax || 100;
+                const stock = m.cantidad !== undefined ? m.cantidad : (m.stock !== undefined ? m.stock : 20);
+                const stockMax = m.stockMax || 30;
                 const pct = Math.min(100, Math.round((stock / stockMax) * 100));
 
                 let stockStatusBadge = '';
@@ -111,7 +111,7 @@ function renderMateriales() {
                 let textColor = '#166534';
 
                 if (stock <= 10) {
-                  stockStatusBadge = `<span class="badge" style="background:#fef2f2; color:#991b1b; border:1px solid #fca5a5; font-size:10px; font-weight:700;"></span>`;
+                  stockStatusBadge = `<span class="badge" style="background:#fef2f2; color:#991b1b; border:1px solid #fca5a5; font-size:10px; font-weight:700;">Crítico</span>`;
                   barColor = '#dc2626';
                   textColor = '#991b1b';
                 } else if (stock <= 25) {
@@ -131,8 +131,8 @@ function renderMateriales() {
                       ${escapeHtml(m.nombre)}
                     </td>
                     <td style="vertical-align:middle; padding:10px 12px;">
-                      <span class="badge ${m.tipo === 'Medicamento' ? 'badge-info' : 'badge-success'}" style="font-weight:700;">
-                        ${m.tipo === 'Medicamento' ? ' Medicamento' : '🩺 Insumo'}
+                      <span class="badge ${m.tipo === 'Medicamento' ? 'badge-info' : 'badge-success'}" style="display:inline-flex; align-items:center; gap:5px; padding:4px 10px; font-size:11.5px; font-weight:700; white-space:nowrap; border-radius:9999px;">
+                        ${m.tipo === 'Medicamento' ? `${icon('pill', 13)} Medicamento` : `${icon('package', 13)} Insumo`}
                       </span>
                     </td>
                     <td style="vertical-align:middle; padding:10px 12px;">
@@ -231,8 +231,8 @@ function openMaterialModal(editId = null) {
             <div class="form-group">
               <label>Tipo *</label>
               <select id="m-tip" required>
-                <option value="Medicamento" ${mat && mat.tipo === 'Medicamento' ? 'selected' : ''}></option>
-                <option value="Insumo" ${mat && mat.tipo === 'Insumo' ? 'selected' : ''}></option>
+                <option value="Medicamento" ${mat && mat.tipo === 'Medicamento' ? 'selected' : ''}>Medicamento</option>
+                <option value="Insumo" ${mat && mat.tipo === 'Insumo' ? 'selected' : ''}>Insumo</option>
               </select>
             </div>
             <div class="form-group">
