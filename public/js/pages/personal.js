@@ -421,8 +421,8 @@ function renderTurnosTab() {
     <div class="two-col-grid" style="gap:20px;">
       
       <!-- Card 1: Horarios de Turnos -->
-      <div class="card scale-in" style="background:#fafafa; border:1px solid var(--gray-200); box-shadow:none;">
-        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; padding:16px 20px;">
+      <div class="card scale-in" style="background:#fff; border:1px solid var(--gray-200); box-shadow:var(--shadow-sm); border-radius:14px; overflow:hidden;">
+        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; padding:16px 20px; background:var(--gray-50); border-bottom:1px solid var(--gray-200);">
           <div>
             <h2 style="margin:0; font-size:16px; font-weight:800; color:var(--gray-900);">Horarios de Turnos</h2>
             <p style="font-size:12px; color:var(--gray-500); margin:2px 0 0 0;">Franjas horarias no solapadas</p>
@@ -433,53 +433,41 @@ function renderTurnosTab() {
             </button>
           `}
         </div>
-        <div class="table-container table-stagger" style="padding:0; overflow-x:auto; width:100%; border-radius:0;">
-          <table style="width:100%; min-width:440px; border-collapse:collapse; font-size:13px;">
-            <thead>
-              <tr style="border-bottom:2px solid var(--gray-200); background:var(--gray-50); text-align:left;">
-                <th style="padding:10px 14px;">Turno</th>
-                <th style="padding:10px 14px;">Hora Inicio</th>
-                <th style="padding:10px 14px;">Hora Fin</th>
-                <th style="padding:10px 14px; text-align:center;">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${turnosList.map(t => {
-                const isCovered = asignacionesList.some(a => a.turno_nombre === t.nombre);
-                return `
-                <tr style="border-bottom:1px solid var(--gray-100);">
-                  <td style="padding:10px 14px; font-weight:700; vertical-align:middle; white-space:nowrap;">
-                    <div style="display:inline-flex; align-items:center; gap:6px;">
-                      <span>${escapeHtml(t.nombre)}</span>
-                      <span class="badge" style="font-size:10px; padding:2px 6px; ${isCovered ? 'background:#d1fae5; color:#065f46; border:1px solid #a7f3d0;' : 'background:#fee2e2; color:#991b1b; border:1px solid #fecaca;'}">
-                        ${isCovered ? 'Cubierto' : 'Sin asignar'}
-                      </span>
-                    </div>
-                  </td>
-                  <td style="padding:10px 14px; color:var(--gray-600); vertical-align:middle; white-space:nowrap;">${t.hora_inicio}</td>
-                  <td style="padding:10px 14px; color:var(--gray-600); vertical-align:middle; white-space:nowrap;">${t.hora_fin}</td>
-                  <td style="padding:10px 14px; vertical-align:middle; text-align:center; white-space:nowrap;">
-                    ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? `
-                      <span style="font-size:11px; color:var(--gray-400); font-style:italic;">Solo lectura</span>
-                    ` : `
-                      <div style="display:flex; align-items:center; justify-content:center; gap:16px;">
-                        <button class="action-link" onclick="openTurnoModal(${t.id})">Editar</button>
-                        <button class="action-link danger" onclick="confirmDeleteTurno(${t.id})" title="Eliminar" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
-                          ${icon('trash', 16)}
-                        </button>
-                      </div>
-                    `}
-                  </td>
-                </tr>
-              `;}).join('')}
-            </tbody>
-          </table>
+        <div style="padding:14px 16px; display:flex; flex-direction:column; gap:10px;">
+          ${turnosList.map(t => {
+            const isCovered = asignacionesList.some(a => a.turno_nombre === t.nombre);
+            return `
+              <div style="background:#fff; border:1px solid var(--gray-200); border-radius:10px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+                <div style="min-width:0; flex:1 1 180px;">
+                  <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                    <strong style="font-size:14px; color:var(--gray-900);">${escapeHtml(t.nombre)}</strong>
+                    <span class="badge" style="font-size:10.5px; font-weight:700; padding:2px 8px; white-space:nowrap; ${isCovered ? 'background:#d1fae5; color:#065f46; border:1px solid #a7f3d0;' : 'background:#fee2e2; color:#991b1b; border:1px solid #fecaca;'}">
+                      ${isCovered ? 'Cubierto' : 'Sin asignar'}
+                    </span>
+                  </div>
+                  <div style="font-size:12.5px; color:var(--gray-600); margin-top:4px; display:flex; align-items:center; gap:6px;">
+                    ${icon('clock', 13)} Horario: <strong style="color:var(--gray-800);">${t.hora_inicio}</strong> &rarr; <strong style="color:var(--gray-800);">${t.hora_fin}</strong>
+                  </div>
+                </div>
+                ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? `
+                  <span style="font-size:11px; color:var(--gray-400); font-style:italic;">Solo lectura</span>
+                ` : `
+                  <div style="display:flex; align-items:center; gap:12px; flex-shrink:0;">
+                    <button class="action-link" onclick="openTurnoModal(${t.id})" style="font-weight:700;">Editar</button>
+                    <button class="action-link danger" onclick="confirmDeleteTurno(${t.id})" title="Eliminar" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none; cursor:pointer;">
+                      ${icon('trash', 16)}
+                    </button>
+                  </div>
+                `}
+              </div>
+            `;
+          }).join('')}
         </div>
       </div>
 
       <!-- Card 2: Asignación de Equipos a Turnos -->
-      <div class="card scale-in">
-        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; padding:16px 20px;">
+      <div class="card scale-in" style="background:#fff; border:1px solid var(--gray-200); box-shadow:var(--shadow-sm); border-radius:14px; overflow:hidden;">
+        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; padding:16px 20px; background:var(--gray-50); border-bottom:1px solid var(--gray-200);">
           <div>
             <h2 style="margin:0; font-size:16px; font-weight:800; color:var(--gray-900);">Asignación de Equipos a Turnos</h2>
             <p style="font-size:12px; color:var(--gray-500); margin:2px 0 0 0;">Regla 1 a 1: 1 equipo por turno</p>
@@ -490,47 +478,36 @@ function renderTurnosTab() {
             </button>
           `}
         </div>
-        <div class="table-container table-stagger" style="padding:0; overflow-x:auto; width:100%; border-radius:0;">
-          <table style="width:100%; min-width:480px; border-collapse:collapse; font-size:13px;">
-            <thead>
-              <tr style="border-bottom:2px solid var(--gray-200); background:var(--gray-50); text-align:left;">
-                <th style="padding:10px 14px;">Equipo</th>
-                <th style="padding:10px 14px;">Turno</th>
-                <th style="padding:10px 14px;">Vigencia (Desde - Hasta)</th>
-                <th style="padding:10px 14px; text-align:center;">Acción</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${asignacionesList.length === 0 ? `
-                <tr><td colspan="4" style="text-align:center; padding:20px; color:var(--gray-400);">Sin asignaciones registradas.</td></tr>
-              ` : asignacionesList.map(asig => `
-                <tr style="border-bottom:1px solid var(--gray-100);">
-                  <td style="padding:10px 14px; font-weight:700; color:var(--celeste-dark); white-space:nowrap; vertical-align:middle;">
-                    <div style="display:flex; align-items:center; gap:6px;">
-                      ${icon('truck', 16)}
-                      ${escapeHtml(asig.equipo_nombre.replace('Equipo ', ''))}
-                    </div>
-                  </td>
-                  <td style="padding:10px 14px; font-weight:600; vertical-align:middle; white-space:nowrap;">${escapeHtml(asig.turno_nombre)}</td>
-                  <td style="padding:10px 14px; font-size:12px; color:var(--gray-600); vertical-align:middle; white-space:nowrap;">
-                    ${asig.fecha_desde} &rarr; ${asig.fecha_hasta || 'Indefinido'}
-                  </td>
-                  <td style="padding:10px 14px; vertical-align:middle; text-align:center; white-space:nowrap;">
-                    ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? `
-                      <span style="font-size:11px; color:var(--gray-400); font-style:italic;">Solo lectura</span>
-                    ` : `
-                      <div style="display:flex; align-items:center; justify-content:center; gap:16px;">
-                        <button class="action-link" onclick="openAsignacionTurnoModal(${asig.id})">Editar</button>
-                        <button class="action-link danger" onclick="deleteAsignacionTurno(${asig.id})" title="Quitar asignación" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
-                          ${icon('trash', 16)}
-                        </button>
-                      </div>
-                    `}
-                  </td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
+        <div style="padding:14px 16px; display:flex; flex-direction:column; gap:10px;">
+          ${asignacionesList.length === 0 ? `
+            <div style="background:#f8fafc; border:1px dashed var(--gray-300); border-radius:10px; padding:18px; text-align:center; color:var(--gray-500); font-size:12.5px;">
+              Sin asignaciones registradas actualmente.
+            </div>
+          ` : asignacionesList.map(asig => `
+            <div style="background:#fff; border:1px solid var(--gray-200); border-radius:10px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+              <div style="min-width:0; flex:1 1 180px;">
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                  <span style="background:var(--celeste-50); color:var(--celeste-dark); border:1px solid var(--celeste-200); padding:3px 8px; border-radius:6px; font-weight:800; font-size:12px; display:inline-flex; align-items:center; gap:4px; white-space:nowrap;">
+                    ${icon('truck', 14)} ${escapeHtml(asig.equipo_nombre)}
+                  </span>
+                  <strong style="font-size:13.5px; color:var(--gray-900);">${escapeHtml(asig.turno_nombre)}</strong>
+                </div>
+                <div style="font-size:12px; color:var(--gray-600); margin-top:4px; display:flex; align-items:center; gap:4px;">
+                  ${icon('calendar', 12)} Vigencia: <strong style="color:var(--gray-800);">${asig.fecha_desde}</strong> &rarr; <strong style="color:var(--gray-800);">${asig.fecha_hasta || 'Indefinido'}</strong>
+                </div>
+              </div>
+              ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? `
+                <span style="font-size:11px; color:var(--gray-400); font-style:italic;">Solo lectura</span>
+              ` : `
+                <div style="display:flex; align-items:center; gap:12px; flex-shrink:0;">
+                  <button class="action-link" onclick="openAsignacionTurnoModal(${asig.id})" style="font-weight:700;">Editar</button>
+                  <button class="action-link danger" onclick="deleteAsignacionTurno(${asig.id})" title="Quitar asignación" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none; cursor:pointer;">
+                    ${icon('trash', 16)}
+                  </button>
+                </div>
+              `}
+            </div>
+          `).join('')}
         </div>
       </div>
     </div>
