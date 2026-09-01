@@ -1395,46 +1395,6 @@ function deleteAsignacionTurno(id) {
   renderApp();
 }
 
-// Modal Genérico Reutilizable de Confirmación de Eliminación
-function showConfirmModal({ title, message, onConfirm, isAlertOnly = false }) {
-  document.querySelector('.confirm-dialog-overlay')?.remove();
-
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay active confirm-dialog-overlay';
-  overlay.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(17,24,39,0.7); z-index:10000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px); padding:20px;';
-
-  overlay.innerHTML = `
-    <div class="modal scale-in" style="background:var(--white); border-radius:var(--radius-xl); width:90%; max-width:440px; box-shadow:var(--shadow-lg); overflow:hidden;">
-      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; padding:18px 24px; border-bottom:1px solid var(--gray-200); background:${isAlertOnly ? '#fef3c7' : '#fee2e2'};">
-        <h3 style="font-size:17px; font-weight:800; color:${isAlertOnly ? '#92400e' : '#991b1b'}; margin:0;">
-          ${icon(isAlertOnly ? 'alertTriangle' : 'trash')} ${escapeHtml(title)}
-        </h3>
-        <button class="modal-close" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--gray-400);" onclick="this.closest('.confirm-dialog-overlay').remove()">&times;</button>
-      </div>
-      <div class="modal-body" style="padding:20px 24px; font-size:13.5px; color:var(--gray-700); line-height:1.5;">
-        ${message}
-      </div>
-      <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:10px; padding:14px 24px; border-top:1px solid var(--gray-200); background:var(--gray-50);">
-        ${isAlertOnly ? `
-          <button class="btn btn-primary btn-sm" onclick="this.closest('.confirm-dialog-overlay').remove()">Aceptar</button>
-        ` : `
-          <button class="btn btn-secondary btn-sm" onclick="this.closest('.confirm-dialog-overlay').remove()">Cancelar</button>
-          <button class="btn btn-sm" id="btn-confirm-action" style="background:#dc2626; color:#fff; font-weight:700;">Eliminar Definitivamente</button>
-        `}
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(overlay);
-
-  if (!isAlertOnly && typeof onConfirm === 'function') {
-    document.getElementById('btn-confirm-action')?.addEventListener('click', () => {
-      overlay.remove();
-      onConfirm();
-    });
-  }
-}
-
 // Exponer en window para onclicks
 window.openPersonalModal = openPersonalModal;
 window.confirmDeletePersonal = confirmDeletePersonal;

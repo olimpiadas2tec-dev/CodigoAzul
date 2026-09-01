@@ -182,18 +182,36 @@ function renderPieChart(data, options = {}) {
 /**
  * Modal Genérico Reutilizable de Confirmación de Eliminación / Alertas
  */
-function showConfirmModal({ title, message, onConfirm, isAlertOnly = false }) {
+function showConfirmModal({
+  title,
+  message,
+  onConfirm,
+  isAlertOnly = false,
+  confirmText = 'Eliminar Definitivamente',
+  confirmBtnStyle = 'background:#dc2626; color:#fff; font-weight:700;',
+  iconName = null,
+  headerBg = null,
+  headerColor = null
+}) {
   document.querySelector('.confirm-dialog-overlay')?.remove();
+
+  const isDanger = confirmText.includes('Eliminar') || confirmText.includes('Quitar');
+  const defaultHeaderBg = isAlertOnly ? '#fef3c7' : (isDanger ? '#fee2e2' : '#e0f2fe');
+  const defaultHeaderColor = isAlertOnly ? '#92400e' : (isDanger ? '#991b1b' : '#0369a1');
+  const defaultIcon = iconName || (isAlertOnly ? 'alertTriangle' : (isDanger ? 'trash' : 'checkCircle'));
+
+  const bg = headerBg || defaultHeaderBg;
+  const fg = headerColor || defaultHeaderColor;
 
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay active confirm-dialog-overlay';
   overlay.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(17,24,39,0.7); z-index:10000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px); padding:20px;';
 
   overlay.innerHTML = `
-    <div class="modal scale-in" style="background:var(--white); border-radius:var(--radius-xl); width:90%; max-width:440px; box-shadow:var(--shadow-lg); overflow:hidden;">
-      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; padding:18px 24px; border-bottom:1px solid var(--gray-200); background:${isAlertOnly ? '#fef3c7' : '#fee2e2'};">
-        <h3 style="font-size:17px; font-weight:800; color:${isAlertOnly ? '#92400e' : '#991b1b'}; margin:0;">
-          ${icon(isAlertOnly ? 'alertTriangle' : 'trash')} ${escapeHtml(title)}
+    <div class="modal scale-in" style="background:var(--white); border-radius:var(--radius-xl); width:90%; max-width:460px; box-shadow:var(--shadow-lg); overflow:hidden;">
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; padding:18px 24px; border-bottom:1px solid var(--gray-200); background:${bg};">
+        <h3 style="font-size:17px; font-weight:800; color:${fg}; margin:0; display:flex; align-items:center; gap:8px;">
+          ${icon(defaultIcon)} ${escapeHtml(title)}
         </h3>
         <button class="modal-close" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--gray-400);" onclick="this.closest('.confirm-dialog-overlay').remove()">&times;</button>
       </div>
@@ -205,7 +223,7 @@ function showConfirmModal({ title, message, onConfirm, isAlertOnly = false }) {
           <button class="btn btn-primary btn-sm" onclick="this.closest('.confirm-dialog-overlay').remove()">Aceptar</button>
         ` : `
           <button class="btn btn-secondary btn-sm" onclick="this.closest('.confirm-dialog-overlay').remove()">Cancelar</button>
-          <button class="btn btn-sm" id="btn-confirm-action" style="background:#dc2626; color:#fff; font-weight:700;">Eliminar Definitivamente</button>
+          <button class="btn btn-sm" id="btn-confirm-action" style="${confirmBtnStyle}">${escapeHtml(confirmText)}</button>
         `}
       </div>
     </div>

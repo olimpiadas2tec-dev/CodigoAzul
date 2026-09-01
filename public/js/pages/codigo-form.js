@@ -901,9 +901,14 @@ function submitCodigoForm(editId = null) {
   if (typeof showConfirmModal === 'function') {
     showConfirmModal({
       title: isEdit ? 'Confirmar Edición de Código Azul' : 'Confirmación de Registro de Código Azul',
+      confirmText: isEdit ? 'Guardar Cambios' : 'Confirmar y Asentar Registro',
+      confirmBtnStyle: 'background:var(--celeste); color:#fff; font-weight:700; padding:8px 18px; border-radius:8px; border:none; cursor:pointer;',
+      iconName: 'checkCircle',
+      headerBg: '#e0f2fe',
+      headerColor: '#0369a1',
       message: `
         <div style="font-size:13.5px; color:var(--gray-700); line-height:1.5;">
-          <p style="margin:0 0 10px 0;">¿Confirma asentar oficialmente los siguientes datos del evento?</p>
+          <p style="margin:0 0 10px 0;">¿Confirma asentar oficialmente los siguientes datos del evento clínico?</p>
           <div style="background:var(--gray-50); border:1px solid var(--gray-200); border-radius:8px; padding:12px; font-size:12.5px; display:flex; flex-direction:column; gap:4px;">
             <div><strong>Paciente:</strong> ${escapeHtml(pacienteObj.apellido + ', ' + pacienteObj.nombre)} (DNI: ${pacienteObj.dni ? formatDNI(pacienteObj.dni) : 'S/D'})</div>
             <div><strong>Ubicación:</strong> ${escapeHtml(pacienteObj.area)} [${escapeHtml(pacienteObj.cama || 'Cama')}]</div>
