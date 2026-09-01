@@ -41,10 +41,12 @@ function renderPacientes() {
         <h1>Gestión de Pacientes</h1>
         <p>Alta, edición, camas asignadas y antecedentes clínicos de pacientes hospitalizados</p>
       </div>
-      <button class="btn btn-primary btn-sm" onclick="openPacienteModal()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Nuevo Paciente
-      </button>
+      ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? '' : `
+        <button class="btn btn-primary btn-sm" onclick="openPacienteModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Nuevo Paciente
+        </button>
+      `}
     </div>
 
     <div class="page-body">
@@ -101,9 +103,11 @@ function renderPacientes() {
                         ${pacientesState.sinCama ? 'No hay pacientes actualmente sin cama asignada.' : (pacientesState.search ? `No hay resultados para "<strong>${escapeHtml(pacientesState.search)}</strong>".` : 'No hay pacientes que coincidan con los filtros.')}
                       </p>
                       <div style="display:flex; gap:10px; justify-content:center;">
-                        <button class="btn btn-primary btn-sm" onclick="openPacienteModal()">
-                          ${icon('user')} Registrar Nuevo Paciente Aquí
-                        </button>
+                        ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? '' : `
+                          <button class="btn btn-primary btn-sm" onclick="openPacienteModal()">
+                            ${icon('user')} Registrar Nuevo Paciente Aquí
+                          </button>
+                        `}
                         <button class="btn btn-secondary btn-sm" onclick="clearPacienteFilters()">
                           Limpiar Filtros
                         </button>
@@ -153,21 +157,25 @@ function renderPacientes() {
                       </span>
                     </td>
                     <td style="padding:10px 14px; vertical-align:middle; text-align:center; white-space:nowrap;">
-                      <div style="display:flex; gap:6px; align-items:center; justify-content:center;">
-                        <button class="action-link" style="font-size:11.5px; font-weight:600;" onclick="openPacienteModal(${p.id})">Editar</button>
-                        ${p.activo ? `
-                          <button class="btn btn-sm" style="padding:3px 7px; font-size:11px; font-weight:600; background:#059669; color:#ffffff; border:none; border-radius:5px; display:inline-flex; align-items:center; gap:3px; box-shadow:0 1px 2px rgba(0,0,0,0.08); cursor:pointer;" onclick="confirmAltaPaciente(${p.id})" title="Registrar Alta Médica (Requiere confirmación)">
-                            ${icon('checkCircle', 11)} Dar de Alta
+                      ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? `
+                        <span style="font-size:11px; color:var(--gray-400); font-style:italic;">Solo lectura</span>
+                      ` : `
+                        <div style="display:flex; gap:6px; align-items:center; justify-content:center;">
+                          <button class="action-link" style="font-size:11.5px; font-weight:600;" onclick="openPacienteModal(${p.id})">Editar</button>
+                          ${p.activo ? `
+                            <button class="btn btn-sm" style="padding:3px 7px; font-size:11px; font-weight:600; background:#059669; color:#ffffff; border:none; border-radius:5px; display:inline-flex; align-items:center; gap:3px; box-shadow:0 1px 2px rgba(0,0,0,0.08); cursor:pointer;" onclick="confirmAltaPaciente(${p.id})" title="Registrar Alta Médica (Requiere confirmación)">
+                              ${icon('checkCircle', 11)} Dar de Alta
+                            </button>
+                          ` : `
+                            <button class="btn btn-sm" style="padding:3px 7px; font-size:11px; font-weight:600; background:var(--celeste-dark); color:#ffffff; border:none; border-radius:5px; display:inline-flex; align-items:center; gap:3px; box-shadow:0 1px 2px rgba(0,0,0,0.08); cursor:pointer;" onclick="reingresarPaciente(${p.id})" title="Reingresar Paciente">
+                              ${icon('refreshCw', 11)} Reingresar
+                            </button>
+                          `}
+                          <button class="action-link danger" onclick="confirmDeletePaciente(${p.id})" title="Eliminar paciente definitivamente" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none; padding:4px; margin-left:2px; cursor:pointer; color:#dc2626;">
+                            ${icon('trash', 14)}
                           </button>
-                        ` : `
-                          <button class="btn btn-sm" style="padding:3px 7px; font-size:11px; font-weight:600; background:var(--celeste-dark); color:#ffffff; border:none; border-radius:5px; display:inline-flex; align-items:center; gap:3px; box-shadow:0 1px 2px rgba(0,0,0,0.08); cursor:pointer;" onclick="reingresarPaciente(${p.id})" title="Reingresar Paciente">
-                            ${icon('refreshCw', 11)} Reingresar
-                          </button>
-                        `}
-                        <button class="action-link danger" onclick="confirmDeletePaciente(${p.id})" title="Eliminar paciente definitivamente" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none; padding:4px; margin-left:2px; cursor:pointer; color:#dc2626;">
-                          ${icon('trash', 14)}
-                        </button>
-                      </div>
+                        </div>
+                      `}
                     </td>
                   </tr>
                 `;

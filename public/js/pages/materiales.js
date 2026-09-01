@@ -30,10 +30,12 @@ function renderMateriales() {
         <h1>Carro de Emergencias e Insumos Médicos</h1>
         <p>Catálogo, control de stock y administración de fármacos y materiales de Código Azul</p>
       </div>
-      <button class="btn btn-primary btn-sm" onclick="openMaterialModal()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Nuevo Material / Fármaco
-      </button>
+      ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? '' : `
+        <button class="btn btn-primary btn-sm" onclick="openMaterialModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Nuevo Material / Fármaco
+        </button>
+      `}
     </div>
 
     <div class="page-body">
@@ -80,43 +82,45 @@ function renderMateriales() {
             <thead>
               <tr style="background:var(--gray-50); border-bottom:1px solid var(--gray-200);">
                 <th style="padding:10px 12px; text-align:left;">#</th>
-                <th style="padding:10px 12px; text-align:left;">NOMBRE / PRESENTACIÓN</th>
-                <th style="padding:10px 12px; text-align:left;">TIPO</th>
-                <th style="padding:10px 12px; text-align:left;">STOCK EN CARRO</th>
-                <th style="padding:10px 12px; text-align:left;">UNIDAD</th>
-                <th style="padding:10px 12px; text-align:left;">INDICACIÓN CLÍNICA</th>
+                <th style="padding:10px 12px; text-align:left;">FÁRMACO / MATERIAL</th>
+                <th style="padding:10px 12px; text-align:left;">CATEGORÍA</th>
+                <th style="padding:10px 12px; text-align:left;">STOCK DISPONIBLE</th>
+                <th style="padding:10px 12px; text-align:left;">PRESENTACIÓN</th>
+                <th style="padding:10px 12px; text-align:left;">DESCRIPCIÓN CLÍNICA</th>
                 <th style="padding:10px 12px; text-align:center;">ACCIONES</th>
               </tr>
             </thead>
             <tbody>
               ${filtered.length === 0 ? `
                 <tr>
-                  <td colspan="7" style="padding:30px; text-align:center;">
-                    <div class="empty-state">
-                      <h3>No se encontraron materiales</h3>
-                      <p style="color:var(--gray-500); font-size:13px;">Intente con otro término o agregue un nuevo material al carro</p>
+                  <td colspan="7">
+                    <div class="empty-state" style="padding:30px 20px; text-align:center;">
+                      <span style="font-size:32px;">${icon('search')}</span>
+                      <h3 style="margin:8px 0 4px 0;">No se encontraron insumos</h3>
+                      <p style="color:var(--gray-500); font-size:13px;">No hay materiales o fármacos que coincidan con los criterios.</p>
+                      <button class="btn btn-secondary btn-sm" style="margin-top:12px;" onclick="materialesState.search=''; materialesState.tipo=''; renderApp();">Limpiar Filtros</button>
                     </div>
                   </td>
                 </tr>
               ` : filtered.map(m => {
-                const stock = m.stock !== undefined ? m.stock : 20;
-                const stockMax = Math.max(m.stockMax || 50, stock);
-                const pct = Math.min(Math.round((stock / stockMax) * 100), 100);
+                const stock = m.cantidad !== undefined ? m.cantidad : (m.stock !== undefined ? m.stock : 50);
+                const stockMax = m.stockMax || 100;
+                const pct = Math.min(100, Math.round((stock / stockMax) * 100));
 
                 let stockStatusBadge = '';
-                let barColor = '#10b981';
-                let textColor = '#065f46';
+                let barColor = '#059669';
+                let textColor = '#166534';
 
                 if (stock <= 10) {
-                  stockStatusBadge = `<span class="badge badge-danger" style="font-size:10px; font-weight:700; background:#fee2e2; color:#991b1b; border:1px solid #fca5a5;">🚨 Crítico</span>`;
-                  barColor = '#ef4444';
+                  stockStatusBadge = `<span class="badge" style="background:#fef2f2; color:#991b1b; border:1px solid #fca5a5; font-size:10px; font-weight:700;">⚠️ Crítico</span>`;
+                  barColor = '#dc2626';
                   textColor = '#991b1b';
-                } else if (stock <= 15) {
-                  stockStatusBadge = `<span class="badge badge-warning" style="font-size:10px; font-weight:700; background:#fef3c7; color:#92400e; border:1px solid #fde68a;">⚠️ Stock Bajo</span>`;
+                } else if (stock <= 25) {
+                  stockStatusBadge = `<span class="badge" style="background:#fffbe0; color:#92400e; border:1px solid #fde68a; font-size:10px; font-weight:700;">Reposición</span>`;
                   barColor = '#f59e0b';
                   textColor = '#92400e';
                 } else {
-                  stockStatusBadge = `<span class="badge badge-success" style="font-size:10px; font-weight:700; background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0;">✓ Óptimo</span>`;
+                  stockStatusBadge = `<span class="badge" style="background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; font-size:10px; font-weight:700;">Óptimo</span>`;
                   barColor = '#10b981';
                   textColor = '#065f46';
                 }
@@ -151,12 +155,16 @@ function renderMateriales() {
                       </span>
                     </td>
                     <td style="vertical-align:middle; padding:10px 12px; text-align:center;">
-                      <div style="display:flex; gap:14px; justify-content:center; align-items:center;">
-                        <button class="action-link" onclick="openMaterialModal(${m.id})" style="font-weight:700; font-size:13.5px; color:var(--celeste-dark);">Editar</button>
-                        <button class="action-link danger" onclick="confirmDeleteMaterial(${m.id})" title="Eliminar Material" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none; color:var(--danger); cursor:pointer;">
-                          ${icon('trash', 16)}
-                        </button>
-                      </div>
+                      ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? `
+                        <span style="font-size:11px; color:var(--gray-400); font-style:italic;">Solo lectura</span>
+                      ` : `
+                        <div style="display:flex; gap:14px; justify-content:center; align-items:center;">
+                          <button class="action-link" onclick="openMaterialModal(${m.id})" style="font-weight:700; font-size:13.5px; color:var(--celeste-dark);">Editar</button>
+                          <button class="action-link danger" onclick="confirmDeleteMaterial(${m.id})" title="Eliminar Material" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none; color:var(--danger); cursor:pointer;">
+                            ${icon('trash', 16)}
+                          </button>
+                        </div>
+                      `}
                     </td>
                   </tr>
                 `;

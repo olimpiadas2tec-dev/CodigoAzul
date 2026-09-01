@@ -11,10 +11,12 @@ function renderDashboard() {
         <h1>Dashboard General</h1>
         <p>Monitoreo en tiempo real del Sistema de Código Azul</p>
       </div>
-      <a href="#/nuevo" class="btn btn-primary">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Nuevo Código
-      </a>
+      ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? '' : `
+        <a href="#/nuevo" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Nuevo Código
+        </a>
+      `}
     </div>
     <div class="page-body">
       <div class="kpi-grid stagger">

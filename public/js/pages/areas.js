@@ -15,19 +15,21 @@ function renderAreas() {
         <h1>Gestión de Áreas y Camas Hospitalarias</h1>
         <p>Infraestructura clínica, capacidad de internación y control de disponibilidad de camas</p>
       </div>
-      <div style="display:flex; gap:8px;">
-        ${tab === 'areas' ? `
-          <button class="btn btn-primary btn-sm" onclick="openAreaModal()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Nueva Área
-          </button>
-        ` : `
-          <button class="btn btn-primary btn-sm" onclick="openCamaModal()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Nueva Cama
-          </button>
-        `}
-      </div>
+      ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? '' : `
+        <div style="display:flex; gap:8px;">
+          ${tab === 'areas' ? `
+            <button class="btn btn-primary btn-sm" onclick="openAreaModal()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Nueva Área
+            </button>
+          ` : `
+            <button class="btn btn-primary btn-sm" onclick="openCamaModal()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Nueva Cama
+            </button>
+          `}
+        </div>
+      `}
     </div>
 
     <div class="page-body">
@@ -175,12 +177,16 @@ function renderAreasTab() {
                     </span>
                   </td>
                   <td style="padding:10px 14px; vertical-align:middle; text-align:center;">
-                    <div style="display:flex; align-items:center; justify-content:center; gap:16px;">
-                      <button class="action-link" onclick="openAreaModal(${area.id})">Editar</button>
-                      <button class="action-link danger" onclick="confirmDeleteArea(${area.id})" title="Eliminar Área" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
-                        ${icon('trash', 16)}
-                      </button>
-                    </div>
+                    ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? `
+                      <span style="font-size:11px; color:var(--gray-400); font-style:italic;">Solo lectura</span>
+                    ` : `
+                      <div style="display:flex; align-items:center; justify-content:center; gap:16px;">
+                        <button class="action-link" onclick="openAreaModal(${area.id})">Editar</button>
+                        <button class="action-link danger" onclick="confirmDeleteArea(${area.id})" title="Eliminar Área" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
+                          ${icon('trash', 16)}
+                        </button>
+                      </div>
+                    `}
                   </td>
                 </tr>
               `;
@@ -315,15 +321,19 @@ function renderCamasTab() {
                           </div>
 
                           <div style="margin-top:10px; padding-top:8px; border-top:1px solid ${isOcupada ? '#fecaca' : '#bbf7d0'}; display:flex; justify-content:space-between; align-items:center;">
-                            <button class="btn btn-sm" style="font-size:11px; padding:3px 8px; font-weight:600; background:${isOcupada ? '#f1f5f9' : 'var(--celeste-dark)'}; color:${isOcupada ? '#334155' : '#ffffff'}; border:${isOcupada ? '1px solid #cbd5e1' : 'none'}; border-radius:5px; display:inline-flex; align-items:center; gap:3px; cursor:pointer;" onclick="toggleCamaEstado(${cama.id})">
-                              ${isOcupada ? icon('check', 11) + ' Liberar' : icon('plus', 11) + ' Ocupar'}
-                            </button>
-                            <div style="display:flex; align-items:center; gap:10px;">
-                              <button class="action-link" style="font-size:11px;" onclick="openCamaModal(${cama.id})">Editar</button>
-                              <button class="action-link danger" style="font-size:11px; display:inline-flex; align-items:center; justify-content:center; border:none; background:none;" onclick="confirmDeleteCama(${cama.id})" title="Eliminar Cama">
-                                ${icon('trash', 14)}
+                            ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? `
+                              <span style="font-size:11px; color:var(--gray-500); font-style:italic;">Solo lectura</span>
+                            ` : `
+                              <button class="btn btn-sm" style="font-size:11px; padding:3px 8px; font-weight:600; background:${isOcupada ? '#f1f5f9' : 'var(--celeste-dark)'}; color:${isOcupada ? '#334155' : '#ffffff'}; border:${isOcupada ? '1px solid #cbd5e1' : 'none'}; border-radius:5px; display:inline-flex; align-items:center; gap:3px; cursor:pointer;" onclick="toggleCamaEstado(${cama.id})">
+                                ${isOcupada ? icon('check', 11) + ' Liberar' : icon('plus', 11) + ' Ocupar'}
                               </button>
-                            </div>
+                              <div style="display:flex; align-items:center; gap:10px;">
+                                <button class="action-link" style="font-size:11px;" onclick="openCamaModal(${cama.id})">Editar</button>
+                                <button class="action-link danger" style="font-size:11px; display:inline-flex; align-items:center; justify-content:center; border:none; background:none;" onclick="confirmDeleteCama(${cama.id})" title="Eliminar Cama">
+                                  ${icon('trash', 14)}
+                                </button>
+                              </div>
+                            `}
                           </div>
                         </div>
                       `;

@@ -20,6 +20,18 @@ function isLoggedIn() {
   return getUser() !== null;
 }
 
+function getRole() {
+  const user = getUser();
+  return user?.role || 'Administrador';
+}
+
+function isConsultaRole() {
+  return getRole() === 'Consulta';
+}
+
+window.getRole = getRole;
+window.isConsultaRole = isConsultaRole;
+
 function logout() {
   localStorage.removeItem('codigoAzulUser');
   window.location.hash = '#/login';
@@ -63,6 +75,25 @@ function renderLayout(content, activeRoute) {
     </div>
   ` : '';
 
+  const roleBar = `
+    <div style="background:#f8fafc; border-bottom:1px solid #e2e8f0; padding:8px 24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+      <div style="display:flex; align-items:center; gap:8px;">
+        ${isConsultaRole() ? `
+          <span class="badge" style="background:#e0f2fe; color:#0369a1; border:1px solid #7dd3fc; font-weight:800; font-size:11.5px; padding:4px 12px; border-radius:12px; display:inline-flex; align-items:center; gap:5px;">
+            👁️ Modo Consulta (Acceso de Solo Lectura)
+          </span>
+        ` : `
+          <span class="badge" style="background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; font-weight:800; font-size:11.5px; padding:4px 12px; border-radius:12px; display:inline-flex; align-items:center; gap:5px;">
+            ⚡ Modo Administrador (Acceso Completo)
+          </span>
+        `}
+      </div>
+      <div style="font-size:12px; color:var(--gray-600); font-weight:600;">
+        Usuario activo: <strong>${escapeHtml(user?.user || 'Usuario')}</strong> &middot; Rol: <strong>${escapeHtml(user?.role || 'Administrador')}</strong>
+      </div>
+    </div>
+  `;
+
   return `
     <div class="app-layout">
       <button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">
@@ -80,9 +111,11 @@ function renderLayout(content, activeRoute) {
           <a href="#/historial" class="${activeRoute === 'historial' ? 'active' : ''}" data-tooltip="Historial" title="Historial">
             ${SVG.historial}
           </a>
-          <a href="#/nuevo" class="${activeRoute === 'nuevo' ? 'active' : ''}" data-tooltip="Nuevo Código" title="Nuevo Código de Emergencia">
-            ${SVG.nuevo}
-          </a>
+          ${isConsultaRole() ? '' : `
+            <a href="#/nuevo" class="${activeRoute === 'nuevo' ? 'active' : ''}" data-tooltip="Nuevo Código" title="Nuevo Código de Emergencia">
+              ${SVG.nuevo}
+            </a>
+          `}
           <a href="#/pacientes" class="${activeRoute === 'pacientes' ? 'active' : ''}" data-tooltip="Pacientes" title="Gestión de Pacientes">
             ${SVG.pacientes}
           </a>
@@ -107,6 +140,7 @@ function renderLayout(content, activeRoute) {
         </div>
       </aside>
       <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+        ${roleBar}
         ${alertBanner}
         <main class="main-content" style="flex:1; overflow-y:auto;">
           ${content}
@@ -134,6 +168,14 @@ function renderApp() {
   }
 
   if (isLoggedIn() && route === 'login') {
+    window.location.hash = '#/dashboard';
+    return;
+  }
+
+  if (isLoggedIn() && isConsultaRole() && (route === 'nuevo' || route === 'editar')) {
+    if (typeof showToast === 'function') {
+      showToast('Acceso restringido: El rol Consulta solo dispone de permisos de lectura.', 'warning');
+    }
     window.location.hash = '#/dashboard';
     return;
   }

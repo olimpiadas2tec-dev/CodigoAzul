@@ -120,12 +120,12 @@ function renderHistorial() {
               </div>
             </button>
           </div>
-        </div>
-
-        <a href="#/nuevo" class="btn btn-primary btn-sm">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Registrar Código
-        </a>
+             ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? '' : `
+          <a href="#/nuevo" class="btn btn-primary btn-sm">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Registrar Código
+          </a>
+        `}
       </div>
     </div>
 
@@ -184,11 +184,11 @@ function renderHistorial() {
             <!-- Selectores de Fecha con Labels Explícitos "Desde:" y "Hasta:" -->
             <div class="filter-group" style="display:flex; align-items:center; gap:6px;">
               <label for="filter-from" style="font-size:12px; font-weight:700; color:var(--gray-600);">Desde:</label>
-              <input type="date" id="filter-from" value="${historialState.dateFrom}" style="padding:6px 10px; border-radius:6px; border:1px solid var(--gray-300); font-size:12.5px;" />
+              <input type="date" id="filter-from" value="${historialState.dateFrom}" style="padding:6px 10px; border-radius:6px; border:1.5px solid var(--gray-300); font-size:12.5px;" />
             </div>
             <div class="filter-group" style="display:flex; align-items:center; gap:6px;">
               <label for="filter-to" style="font-size:12px; font-weight:700; color:var(--gray-600);">Hasta:</label>
-              <input type="date" id="filter-to" value="${historialState.dateTo}" style="padding:6px 10px; border-radius:6px; border:1px solid var(--gray-300); font-size:12.5px;" />
+              <input type="date" id="filter-to" value="${historialState.dateTo}" style="padding:6px 10px; border-radius:6px; border:1.5px solid var(--gray-300); font-size:12.5px;" />
             </div>
 
             <button class="btn btn-secondary btn-sm" onclick="clearFilters()">Limpiar</button>
@@ -278,15 +278,21 @@ function renderHistorial() {
                     </td>
                     <td style="vertical-align:middle; text-align:center;">
                       <div style="display:inline-flex; gap:6px; justify-content:center; align-items:center;">
-                        <a href="#/editar/${d.id}" onclick="event.stopPropagation();" class="btn btn-outline btn-xs" style="padding:6px 8px; color:var(--gray-700); border-color:var(--gray-300); background:#fff; border-radius:6px; display:inline-flex; align-items:center;" title="Editar Registro de Código Azul">
-                          ${icon('edit', 14)}
+                        <a href="#/detalle/${d.id}" onclick="event.stopPropagation();" class="btn btn-outline btn-xs" style="padding:6px 8px; color:var(--celeste-dark); border-color:var(--celeste-300); background:#f0f9ff; border-radius:6px; display:inline-flex; align-items:center;" title="Ver Detalle Clínico">
+                          ${icon('eye', 14)}
                         </a>
-                        <button class="btn btn-outline btn-xs" style="padding:6px 8px; color:#b91c1c; border-color:#fca5a5; background:#fef2f2; border-radius:6px; display:inline-flex; align-items:center; cursor:pointer;" onclick="event.stopPropagation(); confirmDeleteCodigo(${d.id});" title="Eliminar Registro de Auditoría">
-                          ${icon('trash', 14)}
-                        </button>
+                        ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? '' : `
+                          <a href="#/editar/${d.id}" onclick="event.stopPropagation();" class="btn btn-outline btn-xs" style="padding:6px 8px; color:var(--gray-700); border-color:var(--gray-300); background:#fff; border-radius:6px; display:inline-flex; align-items:center;" title="Editar Registro de Código Azul">
+                            ${icon('edit', 14)}
+                          </a>
+                          <button class="btn btn-outline btn-xs" style="padding:6px 8px; color:#b91c1c; border-color:#fca5a5; background:#fef2f2; border-radius:6px; display:inline-flex; align-items:center; cursor:pointer;" onclick="event.stopPropagation(); confirmDeleteCodigo(${d.id});" title="Eliminar Registro de Auditoría">
+                            ${icon('trash', 14)}
+                          </button>
+                        `}
                       </div>
                     </td>
                   </tr>
+                `;</tr>
                 `;
               }).join('')}
             </tbody>

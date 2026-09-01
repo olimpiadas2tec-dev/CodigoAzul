@@ -178,12 +178,16 @@ function renderPersonalTab() {
                   </span>
                 </td>
                 <td style="padding:10px 14px; vertical-align:middle; text-align:center;">
-                  <div style="display:flex; align-items:center; justify-content:center; gap:16px;">
-                    <button class="action-link" onclick="openPersonalModal(${p.id})">Editar</button>
-                    <button class="action-link danger" onclick="confirmDeletePersonal(${p.id})" title="Eliminar Personal" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
-                      ${icon('trash', 16)}
-                    </button>
-                  </div>
+                  ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? `
+                    <span style="font-size:11px; color:var(--gray-400); font-style:italic;">Solo lectura</span>
+                  ` : `
+                    <div style="display:flex; align-items:center; justify-content:center; gap:16px;">
+                      <button class="action-link" onclick="openPersonalModal(${p.id})">Editar</button>
+                      <button class="action-link danger" onclick="confirmDeletePersonal(${p.id})" title="Eliminar Personal" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
+                        ${icon('trash', 16)}
+                      </button>
+                    </div>
+                  `}
                 </td>
               </tr>
             `).join('')}
@@ -203,26 +207,29 @@ function renderRolesTab() {
 
   if (personalTabState.onlyRolesSinPersonal) {
     rolesList = rolesList.filter(rol => {
-      const count = personalList.filter(p => p.id_rol_profesional === rol.id || p.nombre_rol === rol.nombre_rol).length;
-      return count === 0;
+      const personalCount = personalList.filter(p => p.id_rol_profesional === rol.id || p.nombre_rol === rol.nombre_rol).length;
+      return personalCount === 0;
     });
   }
 
   return `
     <div class="card scale-in">
-      <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-        <div>
-          <h2 style="margin:0; font-size:16px;">Roles Profesionales de Salud</h2>
-          <p style="font-size:13px; color:var(--gray-500); margin:0;">Categorías clínicas y especialidades requeridas para el personal</p>
-        </div>
-        <div style="display:flex; align-items:center; gap:16px;">
-          <label style="font-size:12px; color:var(--gray-600); display:flex; align-items:center; gap:6px; cursor:pointer; font-weight:500; user-select:none;">
-            <input type="checkbox" id="filter-roles-sin-personal" ${personalTabState.onlyRolesSinPersonal ? 'checked' : ''} onchange="toggleRolesSinPersonal(this.checked)" style="cursor:pointer;" />
-            Mostrar solo roles sin personal
-          </label>
-          <button class="btn btn-primary btn-sm" onclick="openRolModal()">
-            ${icon('plus', 16)} Nuevo Rol de Salud
-          </button>
+      <div class="card-body" style="padding-bottom:12px;">
+        <div class="filters-bar" style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-size:13px; color:var(--gray-600);">
+            Gestión de especialidades y funciones clínicas obligatorias en el hospital.
+          </div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <label style="font-size:12.5px; color:var(--gray-700); font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px;">
+              <input type="checkbox" onchange="toggleRolesSinPersonal(this.checked)" ${personalTabState.onlyRolesSinPersonal ? 'checked' : ''} />
+              Filtrar sólo roles vacíos (sin personal)
+            </label>
+            ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? '' : `
+              <button class="btn btn-primary btn-sm" onclick="openRolModal()">
+                ${icon('plus')} Nuevo Rol
+              </button>
+            `}
+          </div>
         </div>
       </div>
       <div class="card-body" style="padding:0;">
@@ -257,12 +264,16 @@ function renderRolesTab() {
                     </span>
                   </td>
                   <td style="padding:10px 16px; vertical-align:middle; text-align:center;">
-                    <div style="display:flex; align-items:center; justify-content:center; gap:16px;">
-                      <button class="action-link" onclick="openRolModal(${rol.id})">Editar</button>
-                      <button class="action-link danger" onclick="confirmDeleteRol(${rol.id})" title="Eliminar Rol" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
-                        ${icon('trash', 16)}
-                      </button>
-                    </div>
+                    ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? `
+                      <span style="font-size:11px; color:var(--gray-400); font-style:italic;">Solo lectura</span>
+                    ` : `
+                      <div style="display:flex; align-items:center; justify-content:center; gap:16px;">
+                        <button class="action-link" onclick="openRolModal(${rol.id})">Editar</button>
+                        <button class="action-link danger" onclick="confirmDeleteRol(${rol.id})" title="Eliminar Rol" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
+                          ${icon('trash', 16)}
+                        </button>
+                      </div>
+                    `}
                   </td>
                 </tr>
               `;
@@ -286,11 +297,11 @@ function renderEquiposTab() {
       <div style="font-size:13px; color:var(--gray-600);">
         Configuración institucional: <strong>${equiposList.length} de 3 Equipos activos</strong> (Equipo A, Equipo B, Equipo C).
       </div>
-      ${equiposList.length < 3 ? `
+      ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? '' : (equiposList.length < 3 ? `
         <button class="btn btn-primary btn-sm" onclick="openEquipoModal()">${icon('plus')} Nuevo Equipo</button>
       ` : `
         <span class="badge badge-info" style="font-size:12px;">${icon('alertTriangle', 12)} Límite de 3 Equipos alcanzado</span>
-      `}
+      `)}
     </div>
 
     <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap:20px;">
@@ -310,15 +321,19 @@ function renderEquiposTab() {
                   <div style="font-size:12px; color:var(--gray-500); margin-top:2px;">${escapeHtml(eq.descripcion || 'Brigada de Paro Cardíaco')}</div>
                 </div>
               </div>
-              <div style="display:flex; align-items:center; gap:14px;">
-                <button class="btn btn-outline btn-sm" onclick="openAsignarPersonalEquipoModal(${eq.id})" title="Asignar Integrante" style="padding:6px 12px; font-size:12.5px;">
-                  ${icon('plus')} Asignar
-                </button>
-                <button class="action-link" onclick="openEquipoModal(${eq.id})" title="Editar Equipo" style="font-size:13px;">Editar</button>
-                <button class="action-link danger" onclick="confirmDeleteEquipo(${eq.id})" title="Eliminar Equipo" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
-                  ${icon('trash', 16)}
-                </button>
-              </div>
+              ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? `
+                <span style="font-size:11px; color:var(--gray-500); font-style:italic;">Solo lectura</span>
+              ` : `
+                <div style="display:flex; align-items:center; gap:14px;">
+                  <button class="btn btn-outline btn-sm" onclick="openAsignarPersonalEquipoModal(${eq.id})" title="Asignar Integrante" style="padding:6px 12px; font-size:12.5px;">
+                    ${icon('plus')} Asignar
+                  </button>
+                  <button class="action-link" onclick="openEquipoModal(${eq.id})" title="Editar Equipo" style="font-size:13px;">Editar</button>
+                  <button class="action-link danger" onclick="confirmDeleteEquipo(${eq.id})" title="Eliminar Equipo" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
+                    ${icon('trash', 16)}
+                  </button>
+                </div>
+              `}
             </div>
             <div class="card-body" style="padding:16px;">
               <h4 style="font-size:12px; text-transform:uppercase; color:var(--gray-400); margin-bottom:10px;">
@@ -366,12 +381,14 @@ function renderEquiposTab() {
                             </div>
                           </div>
                         </div>
-                        <div style="display:flex; gap:16px; align-items:center;" onclick="event.stopPropagation()">
-                          <button class="action-link" onclick="openEditarIntegranteModal(${eq.id}, ${integ.id_personal})" title="Cambiar rol en brigada">Editar</button>
-                          <button class="action-link danger" onclick="showConfirmModal({ title: 'Quitar Integrante', message: '¿Seguro que desea quitar a este integrante del equipo?', onConfirm: () => removerIntegranteEquipo(${eq.id}, ${integ.id_personal}) })" title="Quitar del equipo" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
-                            ${icon('trash', 16)}
-                          </button>
-                        </div>
+                        ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? '' : `
+                          <div style="display:flex; gap:16px; align-items:center;" onclick="event.stopPropagation()">
+                            <button class="action-link" onclick="openEditarIntegranteModal(${eq.id}, ${integ.id_personal})" title="Cambiar rol en brigada">Editar</button>
+                            <button class="action-link danger" onclick="showConfirmModal({ title: 'Quitar Integrante', message: '¿Seguro que desea quitar a este integrante del equipo?', onConfirm: () => removerIntegranteEquipo(${eq.id}, ${integ.id_personal}) })" title="Quitar del equipo" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
+                              ${icon('trash', 16)}
+                            </button>
+                          </div>
+                        `}
                       </li>
                     `;
                   }).join('')}
@@ -386,7 +403,7 @@ function renderEquiposTab() {
 }
 
 // -------------------------------------------------------------
-// TAB 4: TURNOS Y ASIGNACIONES (BOTONES CORRECTAMENTE UBICADOS)
+// TAB 4: TURNOS Y ASIGNACIONES
 // -------------------------------------------------------------
 function renderTurnosTab() {
   const turnosList = getTurnos();
@@ -402,9 +419,11 @@ function renderTurnosTab() {
             <h2 style="margin:0; font-size:16px;">Horarios de Turnos</h2>
             <p style="font-size:12px; color:var(--gray-500); margin:0;">Franjas horarias no solapadas</p>
           </div>
-          <button class="btn btn-primary btn-sm" onclick="openTurnoModal()">
-            ${icon('plus', 16)} Nuevo Turno Horario
-          </button>
+          ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? '' : `
+            <button class="btn btn-primary btn-sm" onclick="openTurnoModal()">
+              ${icon('plus', 16)} Nuevo Turno Horario
+            </button>
+          `}
         </div>
         <div class="card-body" style="padding:0;">
           <table style="width:100%; border-collapse:collapse; font-size:13px;">
@@ -432,12 +451,16 @@ function renderTurnosTab() {
                   <td style="padding:10px 14px; color:var(--gray-600); vertical-align:middle;">${t.hora_inicio}</td>
                   <td style="padding:10px 14px; color:var(--gray-600); vertical-align:middle;">${t.hora_fin}</td>
                   <td style="padding:10px 14px; vertical-align:middle; text-align:center;">
-                    <div style="display:flex; align-items:center; justify-content:center; gap:16px;">
-                      <button class="action-link" onclick="openTurnoModal(${t.id})">Editar</button>
-                      <button class="action-link danger" onclick="confirmDeleteTurno(${t.id})" title="Eliminar" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
-                        ${icon('trash', 16)}
-                      </button>
-                    </div>
+                    ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? `
+                      <span style="font-size:11px; color:var(--gray-400); font-style:italic;">Solo lectura</span>
+                    ` : `
+                      <div style="display:flex; align-items:center; justify-content:center; gap:16px;">
+                        <button class="action-link" onclick="openTurnoModal(${t.id})">Editar</button>
+                        <button class="action-link danger" onclick="confirmDeleteTurno(${t.id})" title="Eliminar" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
+                          ${icon('trash', 16)}
+                        </button>
+                      </div>
+                    `}
                   </td>
                 </tr>
               `;}).join('')}
@@ -453,9 +476,11 @@ function renderTurnosTab() {
             <h2 style="margin:0; font-size:16px;">Asignación de Equipos a Turnos</h2>
             <p style="font-size:12px; color:var(--gray-500); margin:0;">Regla 1 a 1: 1 equipo por turno</p>
           </div>
-          <button class="btn btn-primary btn-sm" onclick="openAsignacionTurnoModal()" style="background:var(--celeste); border:none;">
-            ${icon('calendar', 16)} Asignar Turno a Equipo
-          </button>
+          ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? '' : `
+            <button class="btn btn-primary btn-sm" onclick="openAsignacionTurnoModal()" style="background:var(--celeste); border:none;">
+              ${icon('calendar', 16)} Asignar Turno a Equipo
+            </button>
+          `}
         </div>
         <div class="card-body" style="padding:0;">
           <table style="width:100%; border-collapse:collapse; font-size:13px;">
@@ -483,11 +508,15 @@ function renderTurnosTab() {
                     ${asig.fecha_desde} &rarr; ${asig.fecha_hasta || 'Indefinido'}
                   </td>
                   <td style="padding:10px 14px; vertical-align:middle; text-align:center;">
-                    <div style="display:flex; align-items:center; justify-content:center;">
-                      <button class="action-link danger" onclick="deleteAsignacionTurno(${asig.id})" title="Quitar asignación" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none; margin:0 auto;">
-                        ${icon('trash', 16)}
-                      </button>
-                    </div>
+                    ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? `
+                      <span style="font-size:11px; color:var(--gray-400); font-style:italic;">Solo lectura</span>
+                    ` : `
+                      <div style="display:flex; align-items:center; justify-content:center;">
+                        <button class="action-link danger" onclick="deleteAsignacionTurno(${asig.id})" title="Quitar asignación" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none; margin:0 auto;">
+                          ${icon('trash', 16)}
+                        </button>
+                      </div>
+                    `}
                   </td>
                 </tr>
               `).join('')}
