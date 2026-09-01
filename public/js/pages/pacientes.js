@@ -231,6 +231,10 @@ function openPacienteModal(editId = null) {
   const paciente = isEdit ? pacientesList.find(p => p.id === editId) : null;
   const personalList = getPersonalSalud();
 
+  const selectedDoc = paciente ? (personalList.find(p => p.id === paciente.id_personal || (paciente.personal_a_cargo && paciente.personal_a_cargo.includes(p.apellido)))) : null;
+  const initialDocId = selectedDoc ? selectedDoc.id : '';
+  const initialDocText = selectedDoc ? `${selectedDoc.apellido}, ${selectedDoc.nombre} — [${selectedDoc.nombre_rol || 'Médico'}] (${selectedDoc.area || 'Guardia'})` : '';
+
   document.querySelector('.paciente-modal-overlay')?.remove();
 
   const overlay = document.createElement('div');
@@ -294,21 +298,15 @@ function openPacienteModal(editId = null) {
               </select>
             </div>
 
-            <!-- Médico / Personal a Cargo con Buscador en Tiempo Real -->
-            <div class="form-group full-width" style="grid-column: 1 / -1;">
+            <!-- Médico / Personal de Salud a Cargo (UNA SOLA BARRA CON FILTRO EN TIEMPO REAL) -->
+            <div class="form-group full-width" style="grid-column: 1 / -1; position: relative;">
               <label style="color:var(--celeste-dark); font-weight:700;">Médico / Personal de Salud a Cargo *</label>
-              <div class="search-input-wrapper" style="margin-bottom:6px;">
-                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" id="filter-modal-personal" placeholder="Filtrar personal por nombre, apellido o rol..." style="font-size:12.5px; padding:6px 10px 6px 36px; border:1.5px solid var(--celeste-300); border-radius:6px; width:100%;" />
+              <div style="position:relative; width:100%;">
+                <input type="text" id="m-personal-search" placeholder="Escriba para buscar y seleccionar profesional a cargo..." autocomplete="off" value="${escapeHtml(initialDocText)}" required style="font-size:12.5px; font-weight:600; padding:9px 12px 9px 36px; border:1.5px solid var(--celeste-300); border-radius:10px; width:100%; outline:none; background:#ffffff; box-shadow:0 1px 2px rgba(0,0,0,0.04); transition:all 0.15s ease;" />
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); width:16px; height:16px; color:var(--gray-400); pointer-events:none;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="hidden" id="m-personal" value="${initialDocId}" />
+                <div id="m-personal-dropdown" style="display:none; position:absolute; top:calc(100% + 4px); left:0; right:0; max-height:200px; overflow-y:auto; background:#ffffff; border:1.5px solid var(--celeste-300); border-radius:10px; z-index:99999; box-shadow:0 8px 24px rgba(0,0,0,0.15); padding:4px 0;"></div>
               </div>
-              <select id="m-personal" required style="font-weight:600; padding:8px 10px; border-radius:6px; width:100%;">
-                <option value="">-- Seleccionar Profesional Responsable --</option>
-                ${personalList.map(pers => `
-                  <option value="${pers.id}" ${paciente && (paciente.id_personal === pers.id || (paciente.personal_a_cargo && paciente.personal_a_cargo.includes(pers.apellido))) ? 'selected' : ''} data-text="${escapeHtml(pers.apellido + ' ' + pers.nombre + ' ' + (pers.nombre_rol || ''))}">
-                    ${pers.apellido}, ${pers.nombre} — [${pers.nombre_rol || 'Médico'}] (${pers.area || 'Guardia'})
-                  </option>
-                `).join('')}
-              </select>
             </div>
 
             <div class="form-group">
@@ -339,7 +337,9 @@ function openPacienteModal(editId = null) {
   // Filtrado dinámico de camas (SOLO LIBRES) y auto-selección de médico a cargo
   const areaSelect = document.getElementById('m-area');
   const camaSelect = document.getElementById('m-cama');
-  const personalSelect = document.getElementById('m-personal');
+  const personalSearchInput = document.getElementById('m-personal-search');
+  const personalHiddenInput = document.getElementById('m-personal');
+  const personalDropdown = document.getElementById('m-personal-dropdown');
   
   areaSelect.addEventListener('change', () => {
     const selectedArea = areaSelect.value;
@@ -351,7 +351,7 @@ function openPacienteModal(editId = null) {
       camaSelect.innerHTML = `
         <option value="">-- Sin Cama Asignada --</option>
         ${freeCamas.map(c => `
-          <option value="${escapeHtml(c.numero)}">
+          <option value="${escapeHtml(c.numero)}" ${paciente && paciente.cama === c.numero ? 'selected' : ''}>
             ${icon('circleFill')} ${escapeHtml(c.numero)} [Disponible]
           </option>
         `).join('')}
@@ -359,24 +359,67 @@ function openPacienteModal(editId = null) {
     }
 
     // Auto-seleccionar al primer personal de salud que esté a cargo de esta área
-    if (selectedArea && personalSelect) {
+    if (selectedArea && personalSearchInput && personalHiddenInput) {
       const personalDeArea = personalList.find(p => p.area === selectedArea);
       if (personalDeArea) {
-        personalSelect.value = personalDeArea.id;
+        personalHiddenInput.value = personalDeArea.id;
+        personalSearchInput.value = `${personalDeArea.apellido}, ${personalDeArea.nombre} — [${personalDeArea.nombre_rol || 'Médico'}] (${personalDeArea.area || 'Guardia'})`;
       }
     }
   });
 
-  // Filtro en tiempo real para Personal a Cargo (sin importar tildes)
-  const filterPersonalInput = document.getElementById('filter-modal-personal');
-  if (filterPersonalInput && personalSelect) {
-    filterPersonalInput.addEventListener('input', () => {
-      const q = normalizeText(filterPersonalInput.value);
-      Array.from(personalSelect.options).forEach(opt => {
-        if (!opt.value) return;
-        const text = normalizeText(opt.getAttribute('data-text') || opt.text);
-        opt.style.display = (!q || text.includes(q)) ? '' : 'none';
+  // Filtro en tiempo real en UNA SOLA BARRA para Personal a Cargo
+  function renderPersonalDropdown(filterQuery = '') {
+    const q = normalizeText(filterQuery);
+    const matches = personalList.filter(p => {
+      if (!q) return true;
+      const full = normalizeText(`${p.apellido} ${p.nombre} ${p.nombre_rol || ''} ${p.area || ''}`);
+      return full.includes(q);
+    });
+
+    if (matches.length === 0) {
+      personalDropdown.innerHTML = `<div style="padding:10px 14px; font-size:12px; color:var(--gray-400); text-align:center;">No se encontró personal de salud</div>`;
+    } else {
+      personalDropdown.innerHTML = matches.map(p => `
+        <div class="personal-dropdown-item" data-id="${p.id}" data-text="${escapeHtml(`${p.apellido}, ${p.nombre} — [${p.nombre_rol || 'Médico'}] (${p.area || 'Guardia'})`)}" style="padding:8px 12px; cursor:pointer; font-size:12px; border-bottom:1px solid #f1f5f9; transition:background 0.15s ease;">
+          <div style="font-weight:700; color:var(--gray-800);">${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}</div>
+          <div style="font-size:11px; color:var(--gray-500);">${escapeHtml(p.nombre_rol || 'Médico')} · ${escapeHtml(p.area || 'Guardia')}</div>
+        </div>
+      `).join('');
+
+      Array.from(personalDropdown.querySelectorAll('.personal-dropdown-item')).forEach(el => {
+        el.addEventListener('mouseenter', () => el.style.background = '#f0f9ff');
+        el.addEventListener('mouseleave', () => el.style.background = '#ffffff');
       });
+    }
+    personalDropdown.style.display = 'block';
+  }
+
+  if (personalSearchInput && personalDropdown) {
+    personalSearchInput.addEventListener('focus', () => {
+      renderPersonalDropdown(personalSearchInput.value);
+    });
+
+    personalSearchInput.addEventListener('input', () => {
+      personalHiddenInput.value = '';
+      renderPersonalDropdown(personalSearchInput.value);
+    });
+
+    personalDropdown.addEventListener('click', (e) => {
+      const item = e.target.closest('.personal-dropdown-item');
+      if (item) {
+        const id = item.getAttribute('data-id');
+        const text = item.getAttribute('data-text');
+        personalHiddenInput.value = id;
+        personalSearchInput.value = text;
+        personalDropdown.style.display = 'none';
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!personalSearchInput.contains(e.target) && !personalDropdown.contains(e.target)) {
+        personalDropdown.style.display = 'none';
+      }
     });
   }
 
