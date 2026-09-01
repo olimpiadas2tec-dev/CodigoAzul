@@ -229,30 +229,37 @@ function renderCamasTab() {
   return `
     <div class="card scale-in">
       <div class="card-body" style="padding:14px 16px;">
-        <div class="filters-bar">
-          <div class="filter-group search-input-wrapper" style="flex:1; min-width:200px;">
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <!-- Buscador -->
+          <div class="search-input-wrapper" style="width:100%; position:relative;">
             <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" id="cama-search" placeholder="Filtrar cama (Ej: Box 1, UTI-02, 301)..." value="${escapeHtml(areasTabState.searchCama)}" />
+            <input type="text" id="cama-search" placeholder="Filtrar cama (Ej: Box 1, UTI-02, 301)..." value="${escapeHtml(areasTabState.searchCama)}" style="width:100%; height:40px; border-radius:8px; border:1.5px solid var(--gray-300); padding:8px 12px 8px 36px; font-size:13px; box-sizing:border-box;" />
           </div>
-          <div class="filter-group">
-            <select id="cama-area-filter">
+
+          <!-- Selectores de Área y Estado -->
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:8px;">
+            <select id="cama-area-filter" style="width:100%; height:40px; border-radius:8px; border:1.5px solid var(--gray-300); padding:8px 12px; font-size:13px; box-sizing:border-box; background:#fff;">
               <option value="">Todas las áreas hospitalarias</option>
               ${areasList.map(a => `<option value="${a.id}" ${String(areasTabState.filterAreaCamas) === String(a.id) ? 'selected' : ''}>${escapeHtml(a.nombre)}</option>`).join('')}
             </select>
-          </div>
-          <div class="filter-group">
-            <select id="cama-estado-filter">
+            <select id="cama-estado-filter" style="width:100%; height:40px; border-radius:8px; border:1.5px solid var(--gray-300); padding:8px 12px; font-size:13px; box-sizing:border-box; background:#fff;">
               <option value="">Todos los estados</option>
-              <option value="Libre" ${areasTabState.filterEstadoCamas === 'Libre' ? 'selected' : ''}>${icon('circleFill')} Camas Libres</option>
-              <option value="Ocupada" ${areasTabState.filterEstadoCamas === 'Ocupada' ? 'selected' : ''}>${icon('circleFill')} Camas Ocupadas</option>
+              <option value="Libre" ${areasTabState.filterEstadoCamas === 'Libre' ? 'selected' : ''}>🟢 Camas Libres</option>
+              <option value="Ocupada" ${areasTabState.filterEstadoCamas === 'Ocupada' ? 'selected' : ''}>🔴 Camas Ocupadas</option>
             </select>
           </div>
-          <button class="btn btn-secondary btn-sm" onclick="areasTabState.searchCama=''; areasTabState.filterAreaCamas=''; areasTabState.filterEstadoCamas=''; renderApp();">Limpiar Filtros</button>
         </div>
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:8px; border-top:1px solid var(--gray-100);">
+
+        <!-- Sub-barra integrada con contador y botón limpiar -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:8px; border-top:1px solid var(--gray-100); flex-wrap:wrap; gap:8px;">
           <div style="font-size:12.5px; color:var(--gray-500); font-weight:600;">
             Mostrando <strong style="color:var(--gray-900); font-weight:800;">${filtered.length}</strong> de <strong style="color:var(--gray-700); font-weight:800;">${camasList.length}</strong> camas hospitalarias
           </div>
+          ${(areasTabState.searchCama || areasTabState.filterAreaCamas || areasTabState.filterEstadoCamas) ? `
+            <button class="btn btn-secondary btn-sm" onclick="areasTabState.searchCama=''; areasTabState.filterAreaCamas=''; areasTabState.filterEstadoCamas=''; renderApp();" style="height:32px; padding:0 12px; font-size:12px; font-weight:700;">
+              Limpiar Filtros
+            </button>
+          ` : ''}
         </div>
       </div>
 
