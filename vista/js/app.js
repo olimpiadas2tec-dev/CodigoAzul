@@ -141,42 +141,42 @@ function renderLayout(content, activeRoute) {
         </div>
 
         <nav class="sidebar-nav">
-          <a href="#/dashboard" class="${activeRoute === 'dashboard' ? 'active' : ''}" onclick="closeSidebar()">
+          <a href="#/dashboard" class="${activeRoute === 'dashboard' ? 'active' : ''}" title="Dashboard" onclick="closeSidebar()">
             ${SVG.dashboard}
             <span class="nav-label">Dashboard</span>
           </a>
-          <a href="#/historial" class="${activeRoute === 'historial' ? 'active' : ''}" onclick="closeSidebar()">
+          <a href="#/historial" class="${activeRoute === 'historial' ? 'active' : ''}" title="Historial Clínico" onclick="closeSidebar()">
             ${SVG.historial}
             <span class="nav-label">Historial</span>
           </a>
           ${isConsultaRole() ? '' : `
-            <a href="#/nuevo" class="${activeRoute === 'nuevo' ? 'active' : ''}" onclick="closeSidebar()">
+            <a href="#/nuevo" class="${activeRoute === 'nuevo' ? 'active' : ''}" title="Nuevo Código Azul" onclick="closeSidebar()">
               ${SVG.nuevo}
               <span class="nav-label">Nuevo Código</span>
             </a>
           `}
-          <a href="#/pacientes" class="${activeRoute === 'pacientes' ? 'active' : ''}" onclick="closeSidebar()">
+          <a href="#/pacientes" class="${activeRoute === 'pacientes' ? 'active' : ''}" title="Pacientes Internados" onclick="closeSidebar()">
             ${SVG.pacientes}
             <span class="nav-label">Pacientes</span>
           </a>
-          <a href="#/areas" class="${activeRoute === 'areas' ? 'active' : ''}" onclick="closeSidebar()">
+          <a href="#/areas" class="${activeRoute === 'areas' ? 'active' : ''}" title="Áreas y Mapa de Camas" onclick="closeSidebar()">
             ${SVG.areas}
             <span class="nav-label">Áreas y Camas</span>
           </a>
-          <a href="#/personal" class="${activeRoute === 'personal' ? 'active' : ''}" onclick="closeSidebar()">
+          <a href="#/personal" class="${activeRoute === 'personal' ? 'active' : ''}" title="Personal, Roles y Equipos" onclick="closeSidebar()">
             ${SVG.personal}
             <span class="nav-label">Personal y Equipos</span>
           </a>
-          <a href="#/materiales" class="${activeRoute === 'materiales' ? 'active' : ''}" onclick="closeSidebar()">
+          <a href="#/materiales" class="${activeRoute === 'materiales' ? 'active' : ''}" title="Carro de Paro y Materiales" onclick="closeSidebar()">
             ${SVG.materiales}
             <span class="nav-label">Carro de Paro</span>
           </a>
-          <a href="#/reportes" class="${activeRoute === 'reportes' ? 'active' : ''}" onclick="closeSidebar()">
+          <a href="#/reportes" class="${activeRoute === 'reportes' ? 'active' : ''}" title="Reportes y Estadísticas" onclick="closeSidebar()">
             ${SVG.reportes}
             <span class="nav-label">Reportes</span>
           </a>
           ${isConsultaRole() ? '' : `
-            <a href="#/papelera" class="${activeRoute === 'papelera' ? 'active' : ''}" style="position:relative;" onclick="closeSidebar()">
+            <a href="#/papelera" class="${activeRoute === 'papelera' ? 'active' : ''}" title="Papelera de Reciclaje" style="position:relative;" onclick="closeSidebar()">
               ${icon('trash2', 20)}
               <span class="nav-label">Papelera</span>
               ${(typeof getTrashCount === 'function' && getTrashCount() > 0) ? '<span class="trash-badge">' + getTrashCount() + '</span>' : ''}
