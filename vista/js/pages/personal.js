@@ -39,17 +39,17 @@ function renderPersonal() {
 
     <div class="page-body">
       <!-- Tabs Navigation -->
-      <div style="display:flex; gap:10px; margin-bottom:20px; border-bottom:2px solid var(--gray-200); padding-bottom:8px;">
-        <button class="btn ${tab === 'personal' ? 'btn-primary' : 'btn-outline'} btn-sm" onclick="setPersonalTab('personal')">
+      <div class="sub-nav-tabs" style="display:flex; gap:8px; margin-bottom:20px; border-bottom:2px solid var(--gray-200); padding-bottom:8px; overflow-x:auto; -webkit-overflow-scrolling:touch; width:100%;">
+        <button class="btn ${tab === 'personal' ? 'btn-primary' : 'btn-outline'} btn-sm" onclick="setPersonalTab('personal')" style="white-space:nowrap; flex-shrink:0;">
           ${icon('user')} Personal de Salud
         </button>
-        <button class="btn ${tab === 'roles' ? 'btn-primary' : 'btn-outline'} btn-sm" onclick="setPersonalTab('roles')">
+        <button class="btn ${tab === 'roles' ? 'btn-primary' : 'btn-outline'} btn-sm" onclick="setPersonalTab('roles')" style="white-space:nowrap; flex-shrink:0;">
           ${icon('tag')} Roles de Salud
         </button>
-        <button class="btn ${tab === 'equipos' ? 'btn-primary' : 'btn-outline'} btn-sm" onclick="setPersonalTab('equipos')">
-          ${icon('truck')} Equipos de Emergencia (${equiposCount}/3)
+        <button class="btn ${tab === 'equipos' ? 'btn-primary' : 'btn-outline'} btn-sm" onclick="setPersonalTab('equipos')" style="white-space:nowrap; flex-shrink:0;">
+          ${icon('truck')} Equipos (${equiposCount}/3)
         </button>
-        <button class="btn ${tab === 'turnos' ? 'btn-primary' : 'btn-outline'} btn-sm" onclick="setPersonalTab('turnos')">
+        <button class="btn ${tab === 'turnos' ? 'btn-primary' : 'btn-outline'} btn-sm" onclick="setPersonalTab('turnos')" style="white-space:nowrap; flex-shrink:0;">
           ${icon('clock')} Turnos y Asignaciones
         </button>
       </div>
@@ -106,25 +106,34 @@ function renderPersonalTab() {
 
   return `
     <div class="card scale-in">
-      <div class="card-body" style="padding-bottom:12px;">
-        <div class="filters-bar" style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
-          <div class="filter-group search-input-wrapper" style="flex:1; min-width:240px;">
+      <div class="card-body" style="padding:14px 16px;">
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <!-- Buscador -->
+          <div class="search-input-wrapper" style="width:100%; position:relative;">
             <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" id="personal-search" placeholder="Filtrar personal por nombre, apellido, DNI o área..." value="${escapeHtml(personalTabState.searchPersonal)}" />
+            <input type="text" id="personal-search" placeholder="Filtrar personal por nombre, apellido, DNI o área..." value="${escapeHtml(personalTabState.searchPersonal)}" style="width:100%; height:40px; border-radius:8px; border:1.5px solid var(--gray-300); padding:8px 12px 8px 36px; font-size:13px; box-sizing:border-box;" />
           </div>
-          <div class="filter-group">
-            <select id="personal-rol-filter">
+
+          <!-- Select de Roles -->
+          <div style="width:100%;">
+            <select id="personal-rol-filter" style="width:100%; height:40px; border-radius:8px; border:1.5px solid var(--gray-300); padding:8px 12px; font-size:13px; box-sizing:border-box; background:#fff;">
               <option value="">Todos los roles de salud</option>
               <option value="Sin Designar" ${personalTabState.filterRol === 'Sin Designar' ? 'selected' : ''}>Sin Designar</option>
               ${rolesList.map(r => `<option value="${r.id}" ${String(personalTabState.filterRol) === String(r.id) ? 'selected' : ''}>${escapeHtml(r.nombre_rol)}</option>`).join('')}
             </select>
           </div>
-          <button class="btn btn-secondary btn-sm" onclick="personalTabState.searchPersonal=''; personalTabState.filterRol=''; renderApp();">Limpiar</button>
-          <div style="font-size:12px; color:var(--gray-600); font-weight:600; margin-left:auto;">
-            <span class="badge" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; font-weight:600; padding:4px 10px; font-size:11px;">
-              Mostrando ${filtered.length} de ${personalList.length} profesionales
-            </span>
+        </div>
+
+        <!-- Sub-barra integrada con contador y botón limpiar -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:8px; border-top:1px solid var(--gray-100); flex-wrap:wrap; gap:8px;">
+          <div style="font-size:12.5px; color:var(--gray-500); font-weight:600;">
+            Mostrando <strong style="color:var(--gray-900); font-weight:800;">${filtered.length}</strong> de <strong style="color:var(--gray-700); font-weight:800;">${personalList.length}</strong> profesionales de la salud
           </div>
+          ${(personalTabState.searchPersonal || personalTabState.filterRol) ? `
+            <button class="btn btn-secondary btn-sm" onclick="personalTabState.searchPersonal=''; personalTabState.filterRol=''; renderApp();" style="height:32px; padding:0 12px; font-size:12px; font-weight:700;">
+              Limpiar Filtros
+            </button>
+          ` : ''}
         </div>
       </div>
 
