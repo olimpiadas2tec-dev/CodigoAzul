@@ -824,12 +824,14 @@ tbody tr:last-child td {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 12px;
+  padding: 4px 10px;
   border-radius: var(--radius-full);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   border: 1px solid transparent;
   text-shadow: 0 0.5px 0 rgba(0,0,0,0.05);
+  white-space: nowrap !important;
+  line-height: 1.2;
 }
 
 .badge-success { background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #065f46; border-color: #6ee7b7; }

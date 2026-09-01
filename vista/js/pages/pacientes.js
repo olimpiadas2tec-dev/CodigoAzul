@@ -956,32 +956,32 @@ function openPacienteDetailModal(pacienteId) {
     <div class="modal scale-in" style="background:var(--white); border-radius:var(--radius-xl); width:95%; max-width:760px; max-height:90vh; display:flex; flex-direction:column; box-shadow:var(--shadow-lg); overflow:hidden;">
       
       <!-- Header -->
-      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; padding:20px 24px; border-bottom:1px solid var(--gray-200); background:#f8fafc;">
-        <div style="display:flex; align-items:center; gap:12px;">
-          <div style="width:44px; height:44px; border-radius:12px; background:var(--celeste-100, #e0f2fe); color:var(--celeste-dark, #0369a1); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:18px;">
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:flex-start; padding:16px 20px; border-bottom:1px solid var(--gray-200); background:#f8fafc; gap:12px;">
+        <div style="display:flex; align-items:center; gap:12px; min-width:0; flex:1;">
+          <div style="width:42px; height:42px; border-radius:12px; background:var(--celeste-100, #e0f2fe); color:var(--celeste-dark, #0369a1); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:18px; flex-shrink:0;">
             ${icon('user', 22)}
           </div>
-          <div>
-            <div style="display:flex; align-items:center; gap:10px;">
-              <h2 style="font-size:20px; font-weight:800; color:var(--gray-900); margin:0;">
+          <div style="min-width:0; flex:1;">
+            <div style="display:flex; align-items:center; flex-wrap:wrap; gap:6px 8px;">
+              <h2 style="font-size:18px; font-weight:800; color:var(--gray-900); margin:0; line-height:1.2;">
                 ${escapeHtml(paciente.apellido)}, ${escapeHtml(paciente.nombre)}
               </h2>
               ${isFallecido ? `
-                <span class="badge" style="background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; font-size:11px; padding:4px 10px; font-weight:700;">
-                  Fallecido (Obituario)
+                <span class="badge" style="background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; font-size:11px; padding:2px 8px; font-weight:700; white-space:nowrap; border-radius:6px; display:inline-block;">
+                  Fallecido
                 </span>
               ` : `
-                <span class="badge ${paciente.activo !== false ? 'badge-success' : 'badge-warning'}" style="font-size:11px; padding:4px 10px; font-weight:700;">
+                <span class="badge ${paciente.activo !== false ? 'badge-success' : 'badge-warning'}" style="font-size:11px; padding:2px 8px; font-weight:700; white-space:nowrap; border-radius:6px; display:inline-block;">
                   ${paciente.activo !== false ? 'Internado Activo' : 'Dado de Alta'}
                 </span>
               `}
             </div>
-            <div style="font-size:12.5px; color:var(--gray-500); margin-top:2px;">
+            <div style="font-size:12px; color:var(--gray-500); margin-top:3px;">
               Ficha Clínica Hospitalaria · ID Paciente #${paciente.id}
             </div>
           </div>
         </div>
-        <button class="modal-close" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--gray-400);" onclick="this.closest('.paciente-detail-overlay').remove()">&times;</button>
+        <button class="modal-close" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--gray-400); padding:0; line-height:1; flex-shrink:0;" onclick="this.closest('.paciente-detail-overlay').remove()">&times;</button>
       </div>
 
       <!-- Body -->
