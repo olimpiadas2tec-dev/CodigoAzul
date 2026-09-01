@@ -1035,7 +1035,16 @@ function getMonthlyStats() {
 // --- Trash Storage Helpers ---
 function getTrashPacientes() {
   const stored = localStorage.getItem('codigoAzulTrashPacientes');
-  return stored ? JSON.parse(stored) : [];
+  const list = stored ? JSON.parse(stored) : [];
+  let modified = false;
+  list.forEach((item, index) => {
+    if (!item._trashId) {
+      item._trashId = 'trash_pac_' + (item.id || index) + '_' + Date.now() + '_' + index;
+      modified = true;
+    }
+  });
+  if (modified) saveTrashPacientes(list);
+  return list;
 }
 function saveTrashPacientes(list) {
   localStorage.setItem('codigoAzulTrashPacientes', JSON.stringify(list));
@@ -1043,7 +1052,16 @@ function saveTrashPacientes(list) {
 
 function getTrashPersonal() {
   const stored = localStorage.getItem('codigoAzulTrashPersonal');
-  return stored ? JSON.parse(stored) : [];
+  const list = stored ? JSON.parse(stored) : [];
+  let modified = false;
+  list.forEach((item, index) => {
+    if (!item._trashId) {
+      item._trashId = 'trash_pers_' + (item.id || index) + '_' + Date.now() + '_' + index;
+      modified = true;
+    }
+  });
+  if (modified) saveTrashPersonal(list);
+  return list;
 }
 function saveTrashPersonal(list) {
   localStorage.setItem('codigoAzulTrashPersonal', JSON.stringify(list));
@@ -1051,7 +1069,16 @@ function saveTrashPersonal(list) {
 
 function getTrashCodigos() {
   const stored = localStorage.getItem('codigoAzulTrashCodigos');
-  return stored ? JSON.parse(stored) : [];
+  const list = stored ? JSON.parse(stored) : [];
+  let modified = false;
+  list.forEach((item, index) => {
+    if (!item._trashId) {
+      item._trashId = 'trash_cod_' + (item.id || index) + '_' + Date.now() + '_' + index;
+      modified = true;
+    }
+  });
+  if (modified) saveTrashCodigos(list);
+  return list;
 }
 function saveTrashCodigos(list) {
   localStorage.setItem('codigoAzulTrashCodigos', JSON.stringify(list));
@@ -1080,9 +1107,10 @@ function softDeletePaciente(id) {
     }
   }
 
-  // Marcar y mover a papelera
+  // Marcar y mover a papelera con ID único
   p.deleted_at = new Date().toISOString();
   p.deleted_by = (typeof getUser === 'function' && getUser()) ? getUser().user : 'Sistema';
+  p._trashId = 'trash_pac_' + (p.id || Date.now()) + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
   const trash = getTrashPacientes();
   trash.push(p);
   saveTrashPacientes(trash);
@@ -1101,9 +1129,10 @@ function softDeletePersonal(id) {
   if (idx === -1) return;
   const persona = all[idx];
 
-  // Marcar y mover a papelera
+  // Marcar y mover a papelera con ID único
   persona.deleted_at = new Date().toISOString();
   persona.deleted_by = (typeof getUser === 'function' && getUser()) ? getUser().user : 'Sistema';
+  persona._trashId = 'trash_pers_' + (persona.id || Date.now()) + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
   const trash = getTrashPersonal();
   trash.push(persona);
   saveTrashPersonal(trash);
@@ -1150,25 +1179,26 @@ function softDeleteCodigo(id) {
     }
   }
 
-  // Marcar y mover a papelera
+  // Marcar y mover a papelera con ID único
   codigo.deleted_at = new Date().toISOString();
   codigo.deleted_by = (typeof getUser === 'function' && getUser()) ? getUser().user : 'Sistema';
+  codigo._trashId = 'trash_cod_' + (codigo.id || Date.now()) + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
   const trash = getTrashCodigos();
   trash.push(codigo);
   saveTrashCodigos(trash);
 
   // Remover del array principal
-  const rest = data.filter(function(d) { return String(d.id) !== String(id); });
-  saveData(rest);
+  data.splice(idx, 1);
+  saveData(data);
 
   logAuditoria(id, 'Código Azul movido a papelera',
     'Paciente: ' + (codigo.paciente || 'N/D') + ', Área: ' + (codigo.area || 'N/D'));
 }
 
 // --- Restore Functions ---
-function restorePaciente(id) {
+function restorePaciente(idKey) {
   const trash = getTrashPacientes();
-  const idx = trash.findIndex(function(p) { return String(p.id) === String(id); });
+  const idx = trash.findIndex(function(p) { return (p._trashId && String(p._trashId) === String(idKey)) || String(p.id) === String(idKey); });
   if (idx === -1) return false;
   const p = trash[idx];
 
@@ -1190,13 +1220,14 @@ function restorePaciente(id) {
   // Limpiar marcas de eliminación
   delete p.deleted_at;
   delete p.deleted_by;
+  delete p._trashId;
 
   // Devolver al array principal
   const all = getPacientes();
   all.push(p);
   savePacientes(all);
 
-  // Remover de papelera
+  // Remover estrictamente 1 elemento de la papelera
   trash.splice(idx, 1);
   saveTrashPacientes(trash);
 
@@ -1205,22 +1236,23 @@ function restorePaciente(id) {
   return true;
 }
 
-function restorePersonal(id) {
+function restorePersonal(idKey) {
   const trash = getTrashPersonal();
-  const idx = trash.findIndex(function(p) { return String(p.id) === String(id); });
+  const idx = trash.findIndex(function(p) { return (p._trashId && String(p._trashId) === String(idKey)) || String(p.id) === String(idKey); });
   if (idx === -1) return false;
   const persona = trash[idx];
 
   // Limpiar marcas de eliminación
   delete persona.deleted_at;
   delete persona.deleted_by;
+  delete persona._trashId;
 
   // Devolver al array principal
   const all = getPersonalSalud();
   all.push(persona);
   savePersonalSalud(all);
 
-  // Remover de papelera
+  // Remover estrictamente 1 elemento de la papelera
   trash.splice(idx, 1);
   saveTrashPersonal(trash);
 
@@ -1229,9 +1261,9 @@ function restorePersonal(id) {
   return true;
 }
 
-function restoreCodigo(id) {
+function restoreCodigo(idKey) {
   const trash = getTrashCodigos();
-  const idx = trash.findIndex(function(d) { return String(d.id) === String(id); });
+  const idx = trash.findIndex(function(d) { return (d._trashId && String(d._trashId) === String(idKey)) || String(d.id) === String(idKey); });
   if (idx === -1) return false;
   const codigo = trash[idx];
 
@@ -1250,46 +1282,63 @@ function restoreCodigo(id) {
   // Limpiar marcas de eliminación
   delete codigo.deleted_at;
   delete codigo.deleted_by;
+  delete codigo._trashId;
 
   // Devolver al array principal
   const data = getData();
   data.push(codigo);
   saveData(data);
 
-  // Remover de papelera
+  // Remover estrictamente 1 elemento de la papelera
   trash.splice(idx, 1);
   saveTrashCodigos(trash);
 
-  logAuditoria(id, 'Código Azul restaurado desde papelera',
+  logAuditoria(codigo.id, 'Código Azul restaurado desde papelera',
     'Paciente: ' + (codigo.paciente || 'N/D'));
   return true;
 }
 
 // --- Permanent Delete Functions ---
-function permanentDeletePaciente(id) {
+function permanentDeletePaciente(idKey) {
   const trash = getTrashPacientes();
-  const p = trash.find(function(item) { return String(item.id) === String(id); });
-  const rest = trash.filter(function(item) { return String(item.id) !== String(id); });
-  saveTrashPacientes(rest);
-  logAuditoria(null, 'Paciente eliminado permanentemente',
-    'ID: ' + id + (p ? ' (' + p.apellido + ', ' + p.nombre + ')' : '') + ' — Eliminación irreversible');
+  const idx = trash.findIndex(function(item) {
+    return (item._trashId && String(item._trashId) === String(idKey)) || String(item.id) === String(idKey);
+  });
+  if (idx !== -1) {
+    const p = trash[idx];
+    trash.splice(idx, 1); // REMOVES STRICTLY ONLY 1 ITEM!
+    saveTrashPacientes(trash);
+    logAuditoria(null, 'Paciente eliminado permanentemente',
+      'ID: ' + (p.id || idKey) + (p ? ' (' + p.apellido + ', ' + p.nombre + ')' : '') + ' — Eliminación irreversible');
+  }
 }
 
-function permanentDeletePersonal(id) {
+function permanentDeletePersonal(idKey) {
   const trash = getTrashPersonal();
-  const p = trash.find(function(item) { return String(item.id) === String(id); });
-  const rest = trash.filter(function(item) { return String(item.id) !== String(id); });
-  saveTrashPersonal(rest);
-  logAuditoria(null, 'Personal eliminado permanentemente',
-    'ID: ' + id + (p ? ' (' + p.apellido + ', ' + p.nombre + ')' : '') + ' — Eliminación irreversible');
+  const idx = trash.findIndex(function(item) {
+    return (item._trashId && String(item._trashId) === String(idKey)) || String(item.id) === String(idKey);
+  });
+  if (idx !== -1) {
+    const p = trash[idx];
+    trash.splice(idx, 1); // REMOVES STRICTLY ONLY 1 ITEM!
+    saveTrashPersonal(trash);
+    logAuditoria(null, 'Personal eliminado permanentemente',
+      'ID: ' + (p.id || idKey) + (p ? ' (' + p.apellido + ', ' + p.nombre + ')' : '') + ' — Eliminación irreversible');
+  }
 }
 
-function permanentDeleteCodigo(id) {
+function permanentDeleteCodigo(idKey) {
   const trash = getTrashCodigos();
-  const rest = trash.filter(function(item) { return String(item.id) !== String(id); });
-  saveTrashCodigos(rest);
-  logAuditoria(id, 'Código Azul eliminado permanentemente',
-    'ID: ' + id + ' — Eliminación irreversible');
+  const idx = trash.findIndex(function(item) {
+    return (item._trashId && String(item._trashId) === String(idKey)) || String(item.id) === String(idKey);
+  });
+  if (idx !== -1) {
+    const d = trash[idx];
+    trash.splice(idx, 1); // REMOVES STRICTLY ONLY 1 ITEM!
+    saveTrashCodigos(trash);
+    logAuditoria(d.id || idKey, 'Código Azul eliminado permanentemente',
+      'ID: ' + (d.id || idKey) + ' — Eliminación irreversible');
+  }
 }
 
 // --- Auto-cleanup (30 day retention) ---

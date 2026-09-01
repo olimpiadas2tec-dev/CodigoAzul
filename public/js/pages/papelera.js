@@ -95,7 +95,7 @@ function renderPapelera() {
     let itemName = '';
     let restoreFn = '';
     let deleteFn = '';
-    let id = item.id;
+    let id = item._trashId || item.id;
 
     if (papeleraState.activeTab === 'pacientes') {
       itemName = safeEscape(`${item.nombre} ${item.apellido}`);

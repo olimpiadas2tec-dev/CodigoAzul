@@ -479,12 +479,15 @@ function openPacienteModal(editId = null) {
       }
     }
 
+    const validIds = currentList.map(p => Number(p.id)).filter(id => !isNaN(id) && id > 0);
+    const newId = isEdit ? editId : (validIds.length > 0 ? Math.max(...validIds) + 1 : 11);
+
     // 2. Si asignó una nueva cama, ocuparla
     if (finalCama) {
       const newCamaObj = camasList.find(c => (c.area_nombre === finalArea && c.numero === finalCama) || c.numero === finalCama);
       if (newCamaObj) {
         newCamaObj.estado = 'Ocupada';
-        newCamaObj.id_paciente = isEdit ? editId : (currentList.length > 0 ? Math.max(...currentList.map(p => p.id)) + 1 : 11);
+        newCamaObj.id_paciente = newId;
         newCamaObj.paciente_nombre = `${apellido}, ${nombre}`;
       }
     }
@@ -495,7 +498,7 @@ function openPacienteModal(editId = null) {
     const personal_a_cargo = persObj ? `${persObj.apellido}, ${persObj.nombre} (${persObj.nombre_rol || 'Médico'})` : 'Médico de Guardia';
 
     if (isEdit) {
-      const idx = currentList.findIndex(p => p.id === editId);
+      const idx = currentList.findIndex(p => String(p.id) === String(editId));
       if (idx !== -1) {
         currentList[idx] = {
           ...currentList[idx],
@@ -505,7 +508,6 @@ function openPacienteModal(editId = null) {
         showToast('Datos del paciente actualizados con éxito', 'success');
       }
     } else {
-      const newId = currentList.length > 0 ? Math.max(...currentList.map(p => p.id)) + 1 : 11;
       currentList.push({
         id: newId,
         apellido, nombre, dni, edad, causa, area: finalArea, cama: finalCama, activo: finalActivo, id_personal, personal_a_cargo, grupo, alergias
