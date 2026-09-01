@@ -292,7 +292,6 @@ function renderHistorial() {
                       </div>
                     </td>
                   </tr>
-                `;</tr>
                 `;
               }).join('')}
             </tbody>
