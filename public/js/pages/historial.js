@@ -282,7 +282,7 @@ function renderHistorial() {
                         <span style="font-size:11px; color:var(--gray-400); font-style:italic;">Solo lectura</span>
                       ` : `
                         <div style="display:inline-flex; gap:6px; justify-content:center; align-items:center;">
-                          <a href="#/editar/${d.id}" onclick="event.stopPropagation();" class="btn btn-outline btn-xs" style="padding:6px 8px; color:var(--gray-700); border-color:var(--gray-300); background:#fff; border-radius:6px; display:inline-flex; align-items:center;" title="Editar Registro de Código Azul">
+                          <a href="#/editar/${d.id}" onclick="event.stopPropagation();" class="btn btn-outline btn-xs" style="padding:6px 8px; color:#1d4ed8; border-color:#93c5fd; background:#eff6ff; border-radius:6px; display:inline-flex; align-items:center;" title="Editar Registro de Código Azul">
                             ${icon('edit', 14)}
                           </a>
                           <button class="btn btn-outline btn-xs" style="padding:6px 8px; color:#b91c1c; border-color:#fca5a5; background:#fef2f2; border-radius:6px; display:inline-flex; align-items:center; cursor:pointer;" onclick="event.stopPropagation(); confirmDeleteCodigo(${d.id});" title="Eliminar Registro de Auditoría">
