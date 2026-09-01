@@ -135,7 +135,7 @@ function renderReportes() {
           <div class="kpi-label">Eventos este mes</div>
         </div>
         <div class="kpi-card fade-in">
-          <div class="kpi-icon yellow">${icon('target')}</div>
+          <div class="kpi-icon green">${icon('check')}</div>
           <div class="kpi-value">${data.length > 0 ? Math.round(data.filter(d => d.estado && d.estado.value === 'resuelto').length / data.length * 100) : 0}%</div>
           <div class="kpi-label">Tasa éxito global (ROSC)</div>
         </div>
