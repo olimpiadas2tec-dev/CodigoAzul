@@ -540,7 +540,7 @@ function openCamaModal(editId = null) {
 
   const activePacientes = (typeof getPacientes === 'function' ? getPacientes() : []).filter(p => p.activo !== false);
   const isOcupada = cama ? cama.estado === 'Ocupada' : false;
-  const currentPacId = cama ? (cama.id_paciente || (activePacientes.find(p => p.cama === cama.numero)?.id)) : null;
+  let selectedCamaPacId = cama ? (cama.id_paciente || (activePacientes.find(p => p.cama === cama.numero)?.id)) : null;
 
   document.querySelector('.cama-modal-overlay')?.remove();
 
@@ -556,31 +556,31 @@ function openCamaModal(editId = null) {
   const previewCode = isEdit ? cama.numero : generarNumeroCama(previewAreaNombre, camasEnAreaPreview + 1);
 
   overlay.innerHTML = `
-    <div class="modal scale-in" style="background:var(--white); border-radius:var(--radius-xl); width:90%; max-width:480px; box-shadow:var(--shadow-lg); overflow:hidden;">
-      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; padding:18px 24px; border-bottom:1px solid var(--gray-200); background:var(--gray-50);">
+    <div class="modal scale-in" style="background:var(--white); border-radius:var(--radius-xl); width:95%; max-width:620px; max-height:90vh; display:flex; flex-direction:column; box-shadow:var(--shadow-lg); overflow:hidden;">
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; padding:18px 24px; border-bottom:1px solid var(--gray-200); background:var(--gray-50); flex-shrink:0;">
         <h2 style="font-size:18px; font-weight:700; color:var(--gray-900); margin:0;">
           ${icon('bed')} ${isEdit ? 'Editar Cama Clínica' : 'Registrar Nueva Cama'}
         </h2>
         <button class="modal-close" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--gray-400);" onclick="this.closest('.cama-modal-overlay').remove()">&times;</button>
       </div>
 
-      <form id="cama-form">
-        <div class="modal-body" style="padding:20px 24px;">
-          <div class="form-group" style="margin-bottom:14px;">
-            <label>Área Hospitalaria *</label>
-            <select id="cm-area" required>
-              ${areasList.map(a => `<option value="${a.id}" ${cama && cama.id_area === a.id ? 'selected' : ''}>${escapeHtml(a.nombre)}</option>`).join('')}
-            </select>
-          </div>
-
-          <div class="form-group" style="margin-bottom:14px;">
-            <label>Código de Cama</label>
-            <div id="cm-code-preview" style="background:var(--gray-100); border:1px solid var(--gray-200); border-radius:var(--radius-md); padding:10px 14px; font-size:16px; font-weight:700; color:var(--celeste-dark); letter-spacing:1px;">
-              ${escapeHtml(previewCode)}
+      <form id="cama-form" style="display:flex; flex-direction:column; flex:1; min-height:0; overflow:hidden;">
+        <div class="modal-body" style="padding:20px 24px; overflow-y:auto; flex:1; min-height:0; display:flex; flex-direction:column; gap:14px;">
+          
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
+            <div class="form-group">
+              <label>Área Hospitalaria *</label>
+              <select id="cm-area" required>
+                ${areasList.map(a => `<option value="${a.id}" ${cama && cama.id_area === a.id ? 'selected' : ''}>${escapeHtml(a.nombre)}</option>`).join('')}
+              </select>
             </div>
-            <span style="font-size:11px; color:var(--gray-500); margin-top:4px; display:block;">
-              ${icon('zap')} El código se genera automáticamente según el área seleccionada.
-            </span>
+
+            <div class="form-group">
+              <label>Código de Cama</label>
+              <div id="cm-code-preview" style="background:var(--gray-100); border:1px solid var(--gray-200); border-radius:var(--radius-md); padding:8px 12px; font-size:15px; font-weight:700; color:var(--celeste-dark); letter-spacing:1px;">
+                ${escapeHtml(previewCode)}
+              </div>
+            </div>
           </div>
 
           <div class="form-group">
@@ -591,23 +591,26 @@ function openCamaModal(editId = null) {
             </select>
           </div>
 
-          <div id="cm-paciente-group" class="form-group" style="margin-top:14px; display:${isOcupada ? 'block' : 'none'};">
-            <label style="color:var(--celeste-dark); font-weight:700;">Paciente Ocupante *</label>
-            <select id="cm-paciente-id" style="font-weight:600;" ${isOcupada ? 'required' : ''}>
-              <option value="">-- Seleccionar Paciente a Internar --</option>
-              ${activePacientes.map(p => `
-                <option value="${p.id}" ${currentPacId && String(currentPacId) === String(p.id) ? 'selected' : ''}>
-                  ${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)} (DNI: ${escapeHtml(p.dni || 'S/D')}) ${p.cama ? '· [Cama Actual: ' + escapeHtml(p.cama) + ']' : ''}
-                </option>
-              `).join('')}
-            </select>
-            <span style="font-size:11px; color:var(--gray-500); margin-top:4px; display:block;">
-              Seleccione el paciente que ocupará esta cama.
-            </span>
+          <!-- Selector de Pacientes con Buscador y Tarjetas (Igual a Ocupar Cama) -->
+          <div id="cm-paciente-group" style="display:${isOcupada ? 'flex' : 'none'}; flex-direction:column; gap:10px; border-top:1px solid var(--gray-200); padding-top:14px;">
+            <input type="hidden" id="cm-paciente-id" value="${selectedCamaPacId || ''}" />
+
+            <div style="font-size:11.5px; font-weight:700; color:var(--gray-500); text-transform:uppercase; letter-spacing:0.5px;">
+              Seleccione el paciente a internar en esta cama:
+            </div>
+
+            <div class="search-input-wrapper" style="position:relative; display:flex; align-items:center;">
+              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute; left:12px; width:16px; height:16px; color:var(--gray-400);"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="cm-paciente-search" placeholder="Filtrar por nombre, DNI, causa o cama actual..." style="width:100%; padding:9px 12px 9px 36px; border:1.5px solid var(--gray-300); border-radius:var(--radius); font-size:12.5px; outline:none;" />
+            </div>
+
+            <div id="cm-pacientes-cards-container" style="max-height:220px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; padding:6px; background:#f8fafc; border:1px solid var(--gray-200); border-radius:10px;">
+            </div>
           </div>
+
         </div>
 
-        <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:10px; padding:14px 24px; border-top:1px solid var(--gray-200); background:var(--gray-50);">
+        <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:10px; padding:14px 24px; border-top:1px solid var(--gray-200); background:var(--gray-50); flex-shrink:0;">
           <button type="button" class="btn btn-secondary btn-sm" onclick="this.closest('.cama-modal-overlay').remove()">Cancelar</button>
           <button type="submit" class="btn btn-primary btn-sm">Guardar Cama</button>
         </div>
@@ -620,7 +623,80 @@ function openCamaModal(editId = null) {
   const areaSelect = document.getElementById('cm-area');
   const estadoSelect = document.getElementById('cm-estado');
   const pacienteGroup = document.getElementById('cm-paciente-group');
-  const pacienteSelect = document.getElementById('cm-paciente-id');
+  const searchInput = document.getElementById('cm-paciente-search');
+
+  function renderCamaPacientesList(query = '') {
+    const container = document.getElementById('cm-pacientes-cards-container');
+    if (!container) return;
+
+    const q = normalizeText(query);
+    const filtered = activePacientes.filter(p => {
+      if (!q) return true;
+      const fullText = normalizeText(`${p.nombre} ${p.apellido} ${p.dni} ${p.causa} ${p.area} ${p.cama}`);
+      return fullText.includes(q);
+    });
+
+    if (filtered.length === 0) {
+      container.innerHTML = `
+        <div style="padding:20px; text-align:center; color:var(--gray-500); font-size:12px; background:var(--white); border-radius:8px; border:1px dashed var(--gray-300);">
+          ${icon('search', 20)}
+          <div style="margin-top:4px; font-weight:600;">No se encontraron pacientes para "${escapeHtml(query)}"</div>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = filtered.map(p => {
+      const isSelected = selectedCamaPacId === p.id;
+      const hasCama = Boolean(p.cama && p.cama !== 'Sin Cama');
+
+      return `
+        <div class="cama-paciente-card" data-id="${p.id}" style="padding:11px 14px; border:1.5px solid ${isSelected ? 'var(--celeste)' : 'var(--gray-200)'}; background:${isSelected ? '#eff6ff' : 'var(--white)'}; border-radius:10px; cursor:pointer; transition:all 0.15s ease; display:flex; justify-content:space-between; align-items:center; gap:12px;">
+          <div style="flex:1; min-width:0;">
+            <div style="font-weight:700; color:var(--gray-900); font-size:13.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+              ${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}
+            </div>
+            <div style="font-size:11.5px; color:var(--gray-500); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+              DNI: ${escapeHtml(p.dni ? formatDNI(p.dni) : 'S/D')} &middot; <span style="color:var(--gray-700);">${escapeHtml(p.causa || 'Sin causa')}</span>
+            </div>
+            <div style="font-size:11px; color:var(--gray-600); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+               Área actual: <strong>${escapeHtml(p.area)}</strong>
+            </div>
+          </div>
+          <div style="flex-shrink:0; text-align:right;">
+            ${hasCama ? `
+              <span class="badge" style="background:#fff7ed; color:#c2410c; border:1px solid #ffedd5; font-weight:700; font-size:11.5px; padding:4px 9px; border-radius:6px; white-space:nowrap;" title="Al asignar esta nueva cama, la cama ${escapeHtml(p.cama)} quedará libre automáticamente">
+                 Cama actual: ${escapeHtml(p.cama)}
+              </span>
+            ` : `
+              <span class="badge" style="background:#ecfdf5; color:#047857; border:1px solid #a7f3d0; font-weight:700; font-size:11.5px; padding:4px 9px; border-radius:6px; white-space:nowrap;">
+                 Sin cama asignada
+              </span>
+            `}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    container.querySelectorAll('.cama-paciente-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const id = parseInt(card.getAttribute('data-id'));
+        selectedCamaPacId = id;
+        const hiddenInput = document.getElementById('cm-paciente-id');
+        if (hiddenInput) hiddenInput.value = id;
+        renderCamaPacientesList(searchInput ? searchInput.value : '');
+      });
+    });
+  }
+
+  // Render inicial de lista de tarjetas
+  renderCamaPacientesList();
+
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      renderCamaPacientesList(searchInput.value);
+    });
+  }
 
   // Actualizar preview al cambiar área
   areaSelect.addEventListener('change', () => {
@@ -636,12 +712,13 @@ function openCamaModal(editId = null) {
   // Mostrar / ocultar selector de paciente según estado
   estadoSelect.addEventListener('change', () => {
     if (estadoSelect.value === 'Ocupada') {
-      pacienteGroup.style.display = 'block';
-      pacienteSelect.required = true;
+      pacienteGroup.style.display = 'flex';
     } else {
       pacienteGroup.style.display = 'none';
-      pacienteSelect.required = false;
-      pacienteSelect.value = '';
+      selectedCamaPacId = null;
+      const hiddenInput = document.getElementById('cm-paciente-id');
+      if (hiddenInput) hiddenInput.value = '';
+      renderCamaPacientesList();
     }
   });
 
@@ -649,12 +726,12 @@ function openCamaModal(editId = null) {
     e.preventDefault();
     const id_area = parseInt(areaSelect.value);
     const estado = estadoSelect.value;
-    const selectedPacId = pacienteSelect ? pacienteSelect.value : '';
+    const selectedPacId = selectedCamaPacId || (document.getElementById('cm-paciente-id')?.value);
 
     if (!id_area) return;
 
     if (estado === 'Ocupada' && !selectedPacId) {
-      showToast('Por favor seleccione qué paciente ocupará la cama', 'error');
+      showToast('Por favor seleccione qué paciente ocupará la cama haciendo clic sobre su tarjeta', 'error');
       return;
     }
 
