@@ -80,7 +80,7 @@ function renderPacientes() {
         </div>
 
         <div class="table-container table-stagger" style="overflow-x:auto;">
-          <table style="width:100%; border-collapse:collapse;">
+          <table style="width:100%; min-width:1050px; border-collapse:collapse;">
             <thead>
               <tr style="background:var(--gray-50); border-bottom:1px solid var(--gray-200);">
                 <th style="padding:12px 10px; vertical-align:middle; text-align:left;">#</th>
@@ -90,7 +90,7 @@ function renderPacientes() {
                 <th style="padding:12px 10px; vertical-align:middle; text-align:left;">Causa / Diagnóstico</th>
                 <th style="padding:12px 10px; vertical-align:middle; text-align:left;">Médico Responsable</th>
                 <th style="padding:12px 10px; vertical-align:middle; text-align:left;">Grupo & Alergias</th>
-                <th style="padding:12px 16px; vertical-align:middle; text-align:center; white-space:nowrap;">Estado</th>
+                <th style="padding:12px 14px; vertical-align:middle; text-align:center; white-space:nowrap; min-width:100px;">ESTADO</th>
                 <th style="padding:8px 10px; vertical-align:middle; text-align:center; position:sticky; right:0; background:var(--gray-50); z-index:5; box-shadow:-6px 0 10px -4px rgba(0,0,0,0.08); white-space:nowrap;">Acciones</th>
               </tr>
             </thead>
@@ -151,8 +151,8 @@ function renderPacientes() {
                         `}
                       </div>
                     </td>
-                    <td style="padding:10px 16px; vertical-align:middle; text-align:center; white-space:nowrap;">
-                      <span class="badge ${p.activo ? 'badge-success' : 'badge-warning'}" style="font-size:11px; padding:3px 8px;">
+                    <td style="padding:10px 14px; vertical-align:middle; text-align:center; white-space:nowrap; min-width:100px;">
+                      <span class="badge ${p.activo ? 'badge-success' : 'badge-warning'}" style="font-size:11px; padding:4px 10px;">
                         ${p.activo ? 'Internado' : 'Alta'}
                       </span>
                     </td>
