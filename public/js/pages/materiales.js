@@ -236,12 +236,13 @@ function openMaterialModal(editId = null) {
 
           <div class="form-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:14px;">
             <div class="form-group">
-              <label>Stock Actual en Carro</label>
-              <input type="number" id="m-stock" min="0" max="500" value="${mat ? (mat.stock !== undefined ? mat.stock : 20) : 20}" />
+              <label>Capacidad Máxima del Carro *</label>
+              <input type="number" id="m-stockmax" min="1" max="500" required value="${mat ? (mat.stockMax || 50) : 50}" />
             </div>
             <div class="form-group">
-              <label>Capacidad Máxima del Carro</label>
-              <input type="number" id="m-stockmax" min="1" max="500" value="${mat ? (mat.stockMax || 50) : 50}" />
+              <label>Stock Actual en Carro *</label>
+              <input type="number" id="m-stock" min="0" max="${mat ? (mat.stockMax || 50) : 50}" required value="${mat ? (mat.stock !== undefined ? mat.stock : 20) : 20}" />
+              <small id="stock-error-msg" style="color:var(--danger); font-size:11px; display:none; margin-top:3px; font-weight:600;">El stock actual no puede superar la capacidad máxima.</small>
             </div>
           </div>
 
@@ -261,17 +262,49 @@ function openMaterialModal(editId = null) {
 
   document.body.appendChild(overlay);
 
+  const stockInput = document.getElementById('m-stock');
+  const stockMaxInput = document.getElementById('m-stockmax');
+  const errorMsg = document.getElementById('stock-error-msg');
+
+  function validateStockLimits() {
+    const s = parseInt(stockInput.value) || 0;
+    const max = parseInt(stockMaxInput.value) || 1;
+    stockInput.max = max;
+
+    if (s > max) {
+      stockInput.style.borderColor = 'var(--danger)';
+      stockInput.style.backgroundColor = '#fef2f2';
+      if (errorMsg) errorMsg.style.display = 'block';
+      return false;
+    } else {
+      stockInput.style.borderColor = '';
+      stockInput.style.backgroundColor = '';
+      if (errorMsg) errorMsg.style.display = 'none';
+      return true;
+    }
+  }
+
+  stockInput.addEventListener('input', validateStockLimits);
+  stockMaxInput.addEventListener('input', validateStockLimits);
+
   document.getElementById('mat-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const nombre = document.getElementById('m-nom').value.trim();
     const tipo = document.getElementById('m-tip').value;
     const unidad = document.getElementById('m-uni').value.trim();
-    const stock = parseInt(document.getElementById('m-stock').value) || 0;
-    const stockMax = parseInt(document.getElementById('m-stockmax').value) || 50;
+    const stock = parseInt(stockInput.value) || 0;
+    const stockMax = parseInt(stockMaxInput.value) || 50;
     const descripcion = document.getElementById('m-desc').value.trim();
 
     if (!nombre || !unidad) {
       showToast('Complete los campos obligatorios (*)', 'error');
+      return;
+    }
+
+    if (stock > stockMax) {
+      showToast(`El Stock Actual (${stock}) no puede superar la Capacidad Máxima del Carro (${stockMax})`, 'error');
+      stockInput.focus();
+      validateStockLimits();
       return;
     }
 
