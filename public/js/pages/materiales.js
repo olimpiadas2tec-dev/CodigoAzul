@@ -20,6 +20,10 @@ function renderMateriales() {
     filtered = filtered.filter(m => m.tipo === materialesState.tipo);
   }
 
+  const lowStockItems = materialesList.filter(m => (m.stock !== undefined ? m.stock : 20) <= 15);
+  const medCount = materialesList.filter(m => m.tipo === 'Medicamento').length;
+  const insCount = materialesList.filter(m => m.tipo === 'Insumo').length;
+
   return `
     <div class="page-header page-header-row page-transition">
       <div>
@@ -33,77 +37,128 @@ function renderMateriales() {
     </div>
 
     <div class="page-body">
+      ${lowStockItems.length > 0 ? `
+        <div style="background:#fffbebf7; border:1px solid #fde68a; border-left:4px solid #f59e0b; padding:12px 16px; border-radius:10px; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; gap:12px; animation:fadeIn 0.2s ease;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:22px;">⚠️</span>
+            <div>
+              <strong style="color:#92400e; font-size:13.5px;">Alerta de Reposición en Carro de Paro:</strong>
+              <span style="color:#b45309; font-size:12.5px;"> Se detectaron <strong>${lowStockItems.length} fármacos e insumos</strong> en punto de reposición (≤ 15 unidades).</span>
+            </div>
+          </div>
+          <span class="badge" style="background:#fef3c7; color:#92400e; font-size:11px; font-weight:700; border:1px solid #fde68a;">Atención Requerida</span>
+        </div>
+      ` : ''}
+
       <div class="card scale-in">
         <div class="card-body" style="padding-bottom:0;">
-          <div class="filters-bar" style="display:flex; flex-wrap:wrap; gap:10px;">
-            <div class="filter-group search-input-wrapper" style="flex:1; min-width:240px;">
-              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input type="text" id="mat-search" placeholder="Buscar por nombre, droga o descripción..." value="${escapeHtml(materialesState.search)}" />
+          <div class="filters-bar" style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between;">
+            <div class="search-input-wrapper" style="flex:1; min-width:240px; position:relative;">
+              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); width:15px; height:15px; color:var(--gray-400);"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="mat-search" placeholder="Buscar por nombre, droga o descripción..." value="${escapeHtml(materialesState.search)}" style="padding:8px 12px 8px 36px; border:1.5px solid #e2e8f0; border-radius:10px; font-size:12.5px; width:100%; outline:none;" />
             </div>
-            <div class="filter-group">
-              <select id="mat-tipo-filter">
-                <option value="">Todos los tipos</option>
-                <option value="Medicamento" ${materialesState.tipo === 'Medicamento' ? 'selected' : ''}>Medicamentos / Drogas</option>
-                <option value="Insumo" ${materialesState.tipo === 'Insumo' ? 'selected' : ''}>Insumos / Equipamiento</option>
-              </select>
+
+            <!-- Filtro Segmentado de Categorías -->
+            <div style="display:flex; gap:4px; background:#f1f5f9; padding:4px; border-radius:10px; border:1px solid #e2e8f0;">
+              <button onclick="setMaterialTypeFilter('')" class="btn btn-sm" style="padding:6px 14px; font-size:12px; font-weight:700; border-radius:8px; border:none; cursor:pointer; transition:all 0.15s ease; ${materialesState.tipo === '' ? 'background:#ffffff; color:var(--gray-900); box-shadow:0 1px 3px rgba(0,0,0,0.1);' : 'background:transparent; color:var(--gray-600);'}">
+                Todos (${materialesList.length})
+              </button>
+              <button onclick="setMaterialTypeFilter('Medicamento')" class="btn btn-sm" style="padding:6px 14px; font-size:12px; font-weight:700; border-radius:8px; border:none; cursor:pointer; transition:all 0.15s ease; ${materialesState.tipo === 'Medicamento' ? 'background:var(--celeste-dark); color:#ffffff; box-shadow:0 1px 3px rgba(0,0,0,0.1);' : 'background:transparent; color:var(--gray-600);'}">
+                💊 Medicamentos (${medCount})
+              </button>
+              <button onclick="setMaterialTypeFilter('Insumo')" class="btn btn-sm" style="padding:6px 14px; font-size:12px; font-weight:700; border-radius:8px; border:none; cursor:pointer; transition:all 0.15s ease; ${materialesState.tipo === 'Insumo' ? 'background:#059669; color:#ffffff; box-shadow:0 1px 3px rgba(0,0,0,0.1);' : 'background:transparent; color:var(--gray-600);'}">
+                🩺 Insumos (${insCount})
+              </button>
             </div>
-            <button class="btn btn-secondary btn-sm" onclick="materialesState.search=''; materialesState.tipo=''; renderApp();">Limpiar</button>
+
+            <button class="btn btn-secondary btn-sm" onclick="materialesState.search=''; materialesState.tipo=''; renderApp();" style="padding:6px 14px; border-radius:10px; font-size:12px; font-weight:600;">Limpiar</button>
           </div>
         </div>
 
-        <div class="table-container table-stagger">
-          <table>
+        <div class="table-container table-stagger" style="overflow-x:auto;">
+          <table style="width:100%; border-collapse:collapse; font-size:12.5px;">
             <thead>
-              <tr>
-                <th>#</th>
-                <th>Nombre / Presentación</th>
-                <th>Tipo</th>
-                <th>Stock en Carro</th>
-                <th>Unidad de Medida</th>
-                <th>Descripción / Indicación</th>
-                <th>Acciones</th>
+              <tr style="background:var(--gray-50); border-bottom:1px solid var(--gray-200);">
+                <th style="padding:10px 12px; text-align:left;">#</th>
+                <th style="padding:10px 12px; text-align:left;">NOMBRE / PRESENTACIÓN</th>
+                <th style="padding:10px 12px; text-align:left;">TIPO</th>
+                <th style="padding:10px 12px; text-align:left;">STOCK EN CARRO</th>
+                <th style="padding:10px 12px; text-align:left;">UNIDAD</th>
+                <th style="padding:10px 12px; text-align:left;">INDICACIÓN CLÍNICA</th>
+                <th style="padding:10px 12px; text-align:center;">ACCIONES</th>
               </tr>
             </thead>
             <tbody>
               ${filtered.length === 0 ? `
                 <tr>
-                  <td colspan="7">
+                  <td colspan="7" style="padding:30px; text-align:center;">
                     <div class="empty-state">
                       <h3>No se encontraron materiales</h3>
-                      <p>Intente con otro término o agregue un nuevo material al carro</p>
+                      <p style="color:var(--gray-500); font-size:13px;">Intente con otro término o agregue un nuevo material al carro</p>
                     </div>
                   </td>
                 </tr>
-              ` : filtered.map(m => `
-                <tr>
-                  <td style="font-weight:600; color:var(--gray-400);">${m.id}</td>
-                  <td style="font-weight:700; color:var(--gray-800); font-size:13px;">
-                    <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:${m.tipo === 'Medicamento' ? 'var(--celeste)' : '#10b981'}; margin-right:6px;"></span>
-                    ${escapeHtml(m.nombre)}
-                  </td>
-                  <td>
-                    <span class="badge ${m.tipo === 'Medicamento' ? 'badge-info' : 'badge-success'}">
-                      ${escapeHtml(m.tipo)}
-                    </span>
-                  </td>
-                  <td>
-                    <span style="font-weight:700; font-size:13px; color:${(m.stock || 20) < 10 ? 'var(--danger)' : 'var(--gray-800)'};">
-                      ${m.stock || 20}
-                    </span>
-                    ${(m.stock || 20) < 10 ? '<span style="font-size:10px; color:var(--danger); margin-left:4px;">(Bajo)</span>' : ''}
-                  </td>
-                  <td style="color:var(--gray-600); font-weight:500;">${escapeHtml(m.unidad)}</td>
-                  <td style="font-size:12px; color:var(--gray-500); max-width:280px; line-height:1.4;">
-                    ${escapeHtml(m.descripcion || '')}
-                  </td>
-                  <td>
-                    <div style="display:flex; gap:6px;">
-                      <button class="action-link" onclick="openMaterialModal(${m.id})">Editar</button>
-                      <button class="action-link danger" onclick="confirmDeleteMaterial(${m.id})">Eliminar</button>
-                    </div>
-                  </td>
-                </tr>
-              `).join('')}
+              ` : filtered.map(m => {
+                const stock = m.stock !== undefined ? m.stock : 20;
+                const stockMax = m.stockMax || (stock <= 15 ? 30 : 50);
+                const pct = Math.min(Math.round((stock / stockMax) * 100), 100);
+
+                let stockStatusBadge = '';
+                let barColor = '#10b981';
+                let textColor = '#065f46';
+
+                if (stock <= 10) {
+                  stockStatusBadge = `<span class="badge badge-danger" style="font-size:10px; font-weight:700; background:#fee2e2; color:#991b1b; border:1px solid #fca5a5;">🚨 Crítico</span>`;
+                  barColor = '#ef4444';
+                  textColor = '#991b1b';
+                } else if (stock <= 15) {
+                  stockStatusBadge = `<span class="badge badge-warning" style="font-size:10px; font-weight:700; background:#fef3c7; color:#92400e; border:1px solid #fde68a;">⚠️ Stock Bajo</span>`;
+                  barColor = '#f59e0b';
+                  textColor = '#92400e';
+                } else {
+                  stockStatusBadge = `<span class="badge badge-success" style="font-size:10px; font-weight:700; background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0;">✓ Óptimo</span>`;
+                  barColor = '#10b981';
+                  textColor = '#065f46';
+                }
+
+                return `
+                  <tr style="border-bottom:1px solid var(--gray-100);">
+                    <td style="font-weight:600; color:var(--gray-400); vertical-align:middle; padding:10px 12px;">${m.id}</td>
+                    <td style="font-weight:700; color:var(--gray-900); font-size:13px; vertical-align:middle; padding:10px 12px;">
+                      ${escapeHtml(m.nombre)}
+                    </td>
+                    <td style="vertical-align:middle; padding:10px 12px;">
+                      <span class="badge ${m.tipo === 'Medicamento' ? 'badge-info' : 'badge-success'}" style="font-weight:700;">
+                        ${m.tipo === 'Medicamento' ? '💊 Medicamento' : '🩺 Insumo'}
+                      </span>
+                    </td>
+                    <td style="vertical-align:middle; padding:10px 12px;">
+                      <div style="display:flex; align-items:center; gap:8px;">
+                        <div style="min-width:65px;">
+                          <span style="font-weight:800; font-size:13.5px; color:${textColor};">${stock} / ${stockMax}</span>
+                          <div style="font-size:10.5px; color:var(--gray-500);">${pct}% capacidad</div>
+                        </div>
+                        <div style="width:45px; height:6px; background:#e2e8f0; border-radius:3px; overflow:hidden; flex-shrink:0;">
+                          <div style="width:${pct}%; height:100%; background:${barColor}; border-radius:3px;"></div>
+                        </div>
+                        ${stockStatusBadge}
+                      </div>
+                    </td>
+                    <td style="color:var(--gray-600); font-weight:500; vertical-align:middle; padding:10px 12px;">${escapeHtml(m.unidad)}</td>
+                    <td style="font-size:12px; color:var(--gray-600); max-width:210px; vertical-align:middle; padding:10px 12px;">
+                      <span title="${escapeHtml(m.descripcion || '')}" style="display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; line-height:1.3; cursor:help;">
+                        ℹ️ ${escapeHtml(m.descripcion || 'Sin indicación especificada')}
+                      </span>
+                    </td>
+                    <td style="vertical-align:middle; padding:10px 12px; text-align:center;">
+                      <div style="display:flex; gap:6px; justify-content:center; align-items:center;">
+                        <button class="btn btn-secondary btn-sm" onclick="openMaterialModal(${m.id})" style="padding:4px 10px; font-size:12px; font-weight:600; border-radius:8px;">Editar</button>
+                        <button class="btn btn-outline btn-sm" onclick="confirmDeleteMaterial(${m.id})" title="Eliminar Material" style="padding:4px 8px; font-size:12px; border-radius:8px; color:var(--gray-500); border-color:#cbd5e1;">${icon('trash', 14)}</button>
+                      </div>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
             </tbody>
           </table>
         </div>
@@ -112,9 +167,13 @@ function renderMateriales() {
   `;
 }
 
+function setMaterialTypeFilter(tipo) {
+  materialesState.tipo = tipo;
+  renderApp();
+}
+
 function setupMateriales() {
   const search = document.getElementById('mat-search');
-  const tipoFilter = document.getElementById('mat-tipo-filter');
 
   if (search) {
     search.addEventListener('input', (e) => {
@@ -128,13 +187,6 @@ function setupMateriales() {
           reSearch.setSelectionRange(cursorPosition, cursorPosition);
         }
       });
-    });
-  }
-
-  if (tipoFilter) {
-    tipoFilter.addEventListener('change', () => {
-      materialesState.tipo = tipoFilter.value;
-      renderApp();
     });
   }
 }
@@ -180,9 +232,15 @@ function openMaterialModal(editId = null) {
             </div>
           </div>
 
-          <div class="form-group" style="margin-bottom:14px;">
-            <label>Stock Disponible en Carro de Paro</label>
-            <input type="number" id="m-stock" min="0" max="500" value="${mat ? (mat.stock !== undefined ? mat.stock : 20) : 20}" />
+          <div class="form-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:14px;">
+            <div class="form-group">
+              <label>Stock Actual en Carro</label>
+              <input type="number" id="m-stock" min="0" max="500" value="${mat ? (mat.stock !== undefined ? mat.stock : 20) : 20}" />
+            </div>
+            <div class="form-group">
+              <label>Capacidad Máxima del Carro</label>
+              <input type="number" id="m-stockmax" min="1" max="500" value="${mat ? (mat.stockMax || 50) : 50}" />
+            </div>
           </div>
 
           <div class="form-group">
@@ -207,6 +265,7 @@ function openMaterialModal(editId = null) {
     const tipo = document.getElementById('m-tip').value;
     const unidad = document.getElementById('m-uni').value.trim();
     const stock = parseInt(document.getElementById('m-stock').value) || 0;
+    const stockMax = parseInt(document.getElementById('m-stockmax').value) || 50;
     const descripcion = document.getElementById('m-desc').value.trim();
 
     if (!nombre || !unidad) {
@@ -219,13 +278,13 @@ function openMaterialModal(editId = null) {
     if (isEdit) {
       const idx = currentList.findIndex(m => m.id === editId);
       if (idx !== -1) {
-        currentList[idx] = { ...currentList[idx], nombre, tipo, unidad, stock, descripcion };
+        currentList[idx] = { ...currentList[idx], nombre, tipo, unidad, stock, stockMax, descripcion };
         saveMateriales(currentList);
         showToast('Material actualizado con éxito', 'success');
       }
     } else {
       const newId = currentList.length > 0 ? Math.max(...currentList.map(m => m.id)) + 1 : 1;
-      currentList.push({ id: newId, nombre, tipo, unidad, stock, descripcion });
+      currentList.push({ id: newId, nombre, tipo, unidad, stock, stockMax, descripcion });
       saveMateriales(currentList);
       showToast('Material registrado exitosamente', 'success');
     }
@@ -259,6 +318,7 @@ function confirmDeleteMaterial(id) {
   }
 }
 
+window.setMaterialTypeFilter = setMaterialTypeFilter;
 window.openMaterialModal = openMaterialModal;
 window.confirmDeleteMaterial = confirmDeleteMaterial;
 
