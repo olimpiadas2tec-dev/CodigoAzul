@@ -68,6 +68,9 @@ function renderPacientes() {
                 <option value="" ${pacientesState.activo === '' ? 'selected' : ''}>Todos los registros</option>
               </select>
             </div>
+            <button class="btn btn-sm" onclick="toggleSinCamaFilter()" style="flex:0 0 auto; padding:6px 12px; border-radius:10px; font-size:12px; font-weight:700; white-space:nowrap; cursor:pointer; ${pacientesState.sinCama ? 'background:#fef3c7; color:#92400e; border:1.5px solid #fde68a;' : 'background:var(--gray-100); color:var(--gray-700); border:1.5px solid var(--gray-200);'}">
+              ${icon('alertTriangle', 13)} Sin Cama ${pacientesState.sinCama ? '✓' : ''}
+            </button>
             <button class="btn btn-secondary btn-sm" onclick="clearPacienteFilters()" style="flex:0 0 auto; padding:6px 14px; border-radius:10px; font-size:12px; font-weight:600; white-space:nowrap;">Limpiar</button>
           </div>
         </div>
@@ -205,6 +208,11 @@ function setupPacientes() {
   });
 }
 
+function toggleSinCamaFilter() {
+  pacientesState.sinCama = !pacientesState.sinCama;
+  renderApp();
+}
+
 function clearPacienteFilters() {
   pacientesState = { search: '', area: '', activo: 'true', sinCama: false };
   renderApp();
@@ -299,10 +307,6 @@ function openPacienteModal(editId = null) {
               <select id="m-grupo">
                 ${['S/D', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map(g => `<option value="${g}" ${paciente && paciente.grupo === g ? 'selected' : (!paciente && g === 'S/D' ? 'selected' : '')}>${g === 'S/D' ? 'S/D (Desconocido)' : g}</option>`).join('')}
               </select>
-            </div>
-            <div class="form-group">
-              <label>Alergias Conocidas</label>
-              <input type="text" id="m-alergias" placeholder="Ej: Penicilina, Látex, Ninguna" value="${paciente ? escapeHtml(paciente.alergias || 'Ninguna') : 'Ninguna'}" />
             </div>
             <div class="form-group">
               <label>Alergias Conocidas</label>
@@ -428,13 +432,11 @@ function openPacienteModal(editId = null) {
     const alergias = document.getElementById('m-alergias') ? document.getElementById('m-alergias').value.trim() : 'Ninguna';
 
     let finalCama = cama;
-    let finalArea = area;
-    let finalActivo = true;
+    let finalArea = area || 'Sin Designar';
+    let finalActivo = isEdit ? (currentList.find(p => p.id === editId)?.activo !== false) : true;
 
-    if (!cama || cama === 'Sin Cama' || area === 'Sin Designar' || !area) {
+    if (!cama || cama === 'Sin Cama') {
       finalCama = '';
-      finalArea = 'Sin Designar';
-      finalActivo = false;
     }
 
     if (!apellido || !nombre) {
@@ -827,4 +829,5 @@ window.openReingresoCamaModal = openReingresoCamaModal;
 window.showReingresoFallecidoModal = showReingresoFallecidoModal;
 window.handleReingresoEditarCodigo = handleReingresoEditarCodigo;
 window.handleReingresoEliminarCodigo = handleReingresoEliminarCodigo;
+window.toggleSinCamaFilter = toggleSinCamaFilter;
 
