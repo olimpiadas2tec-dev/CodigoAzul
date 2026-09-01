@@ -68,14 +68,7 @@ function renderPacientes() {
                 <option value="" ${pacientesState.activo === '' ? 'selected' : ''}>Todos los registros</option>
               </select>
             </div>
-            <!-- Filtro Checkbox Compacto curvo y gris -->
-            <div style="flex:0 0 auto; display:flex; align-items:center;">
-              <label for="paciente-sincama-filter" style="display:inline-flex; align-items:center; gap:5px; background:#ffffff; border:1.5px solid ${pacientesState.sinCama ? 'var(--celeste)' : '#e2e8f0'}; padding:6px 10px; border-radius:10px; cursor:pointer; font-size:12px; font-weight:700; color:${pacientesState.sinCama ? 'var(--celeste-dark)' : 'var(--gray-700)'}; user-select:none; white-space:nowrap; width:fit-content; margin:0; transition:all 0.15s ease;">
-                <input type="checkbox" id="paciente-sincama-filter" ${pacientesState.sinCama ? 'checked' : ''} style="accent-color:var(--celeste); width:14px !important; height:14px !important; min-width:14px !important; max-width:14px !important; margin:0; cursor:pointer;" />
-                <span>🛏️ Sin Cama Asignada</span>
-              </label>
-            </div>
-            <button class="btn btn-secondary btn-sm" onclick="clearPacienteFilters()" style="flex:0 0 auto; padding:6px 12px; border-radius:10px; font-size:12px; font-weight:600; white-space:nowrap;">Limpiar</button>
+            <button class="btn btn-secondary btn-sm" onclick="clearPacienteFilters()" style="flex:0 0 auto; padding:6px 14px; border-radius:10px; font-size:12px; font-weight:600; white-space:nowrap;">Limpiar</button>
           </div>
         </div>
 
@@ -185,7 +178,6 @@ function setupPacientes() {
   const search = document.getElementById('paciente-search');
   const area = document.getElementById('paciente-area-filter');
   const activo = document.getElementById('paciente-activo-filter');
-  const sinCama = document.getElementById('paciente-sincama-filter');
 
   if (search) {
     search.addEventListener('input', (e) => {
@@ -211,13 +203,6 @@ function setupPacientes() {
       });
     }
   });
-
-  if (sinCama) {
-    sinCama.addEventListener('change', (e) => {
-      pacientesState.sinCama = e.target.checked;
-      renderApp();
-    });
-  }
 }
 
 function clearPacienteFilters() {
