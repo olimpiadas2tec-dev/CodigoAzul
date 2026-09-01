@@ -613,7 +613,23 @@ function openCamaModal(editId = null) {
     if (isEdit) {
       const idx = currentCamas.findIndex(c => c.id === editId);
       if (idx !== -1) {
+        const oldState = currentCamas[idx].estado;
+        const oldNum = currentCamas[idx].numero;
+        const oldArea = currentCamas[idx].area_nombre;
+
         currentCamas[idx] = { ...currentCamas[idx], id_area, area_nombre, estado };
+
+        if (oldState === 'Ocupada' && estado === 'Libre') {
+          const pacientes = getPacientes();
+          const pIdx = pacientes.findIndex(p => p.activo && (p.cama === oldNum || (p.area === oldArea && p.cama === oldNum)));
+          if (pIdx !== -1) {
+            pacientes[pIdx].cama = '';
+            savePacientes(pacientes);
+          }
+          currentCamas[idx].id_paciente = null;
+          currentCamas[idx].paciente_nombre = null;
+        }
+
         // Renumerar todas las camas del área de destino
         let seqIdx = 1;
         currentCamas.forEach(c => {
@@ -652,9 +668,33 @@ function toggleCamaEstado(id) {
   const currentCamas = getCamas();
   const idx = currentCamas.findIndex(c => c.id === id);
   if (idx !== -1) {
-    currentCamas[idx].estado = currentCamas[idx].estado === 'Libre' ? 'Ocupada' : 'Libre';
+    const cama = currentCamas[idx];
+    const prevEstado = cama.estado;
+    const newEstado = prevEstado === 'Libre' ? 'Ocupada' : 'Libre';
+    cama.estado = newEstado;
+
+    let pacNombre = '';
+    if (prevEstado === 'Ocupada' && newEstado === 'Libre') {
+      // Al liberar la cama, el paciente que la ocupaba queda sin cama asignada
+      const pacientes = getPacientes();
+      const pIdx = pacientes.findIndex(p => p.activo && (p.cama === cama.numero || (p.area === cama.area_nombre && p.cama === cama.numero)));
+      if (pIdx !== -1) {
+        pacNombre = `${pacientes[pIdx].apellido}, ${pacientes[pIdx].nombre}`;
+        pacientes[pIdx].cama = ''; // Queda sin cama asignada
+        savePacientes(pacientes);
+      }
+      cama.id_paciente = null;
+      cama.paciente_nombre = null;
+    }
+
     saveCamas(currentCamas);
-    showToast(`Cama ${currentCamas[idx].numero} marcada como ${currentCamas[idx].estado}`, 'success');
+
+    if (newEstado === 'Libre') {
+      showToast(`Cama ${cama.numero} liberada.${pacNombre ? ' El paciente (' + pacNombre + ') quedó sin cama asignada.' : ''}`, 'success');
+    } else {
+      showToast(`Cama ${cama.numero} marcada como Ocupada`, 'success');
+    }
+
     renderApp();
   }
 }
