@@ -51,30 +51,30 @@ function renderPacientes() {
 
     <div class="page-body">
       <div class="card scale-in">
-        <div class="card-body" style="padding-bottom:0;">
-          <div class="filters-bar" style="display:flex; flex-wrap:wrap; gap:6px; align-items:center; width:100%;">
-            <div class="search-input-wrapper" style="flex:1; min-width:160px;">
+        <div class="card-body" style="padding-bottom:12px;">
+          <div class="filters-bar">
+            <div class="filter-group search-input-wrapper" style="flex:1; min-width:200px;">
               <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px; height:14px; left:10px;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input type="text" id="paciente-search" placeholder="Filtrar por nombre, DNI o causa..." value="${escapeHtml(pacientesState.search)}" style="padding:6px 10px 6px 30px; border:1.5px solid #e2e8f0; border-radius:10px; font-size:12px; outline:none; background:#ffffff; width:100%; transition:all 0.15s ease;" />
+              <input type="text" id="paciente-search" placeholder="Filtrar por nombre, DNI o causa..." value="${escapeHtml(pacientesState.search)}" style="padding:6px 10px 6px 30px; border:1.5px solid #e2e8f0; border-radius:10px; font-size:12.5px; outline:none; background:#ffffff;" />
             </div>
-            <div style="flex:0 0 auto;">
-              <select id="paciente-area-filter" class="filter-select-curved" style="padding:6px 26px 6px 10px; border:1.5px solid #e2e8f0; border-radius:10px; font-size:12px; outline:none; background:#ffffff; width:auto; min-width:125px; cursor:pointer; transition:all 0.15s ease;">
+            <div class="filter-group">
+              <select id="paciente-area-filter" class="filter-select-curved" style="padding:6px 26px 6px 10px; border:1.5px solid #e2e8f0; border-radius:10px; font-size:12.5px; outline:none; background:#ffffff; cursor:pointer;">
                 <option value="">Todas las áreas</option>
                 ${AREAS.map(a => `<option value="${a}" ${pacientesState.area === a ? 'selected' : ''}>${a}</option>`).join('')}
               </select>
             </div>
-            <div style="flex:0 0 auto;">
-              <select id="paciente-activo-filter" class="filter-select-curved" style="padding:6px 26px 6px 10px; border:1.5px solid #e2e8f0; border-radius:10px; font-size:12px; outline:none; background:#ffffff; width:auto; min-width:145px; cursor:pointer; transition:all 0.15s ease;">
+            <div class="filter-group">
+              <select id="paciente-activo-filter" class="filter-select-curved" style="padding:6px 26px 6px 10px; border:1.5px solid #e2e8f0; border-radius:10px; font-size:12.5px; outline:none; background:#ffffff; cursor:pointer;">
                 <option value="true" ${pacientesState.activo === 'true' ? 'selected' : ''}>Pacientes Internados (Activos)</option>
                 <option value="false" ${pacientesState.activo === 'false' ? 'selected' : ''}>Pacientes Dados de Alta</option>
                 <option value="" ${pacientesState.activo === '' ? 'selected' : ''}>Todos los registros</option>
               </select>
             </div>
-            <label style="flex:0 0 auto; font-size:12.5px; color:var(--gray-700); font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px; user-select:none; padding:0 4px;">
+            <label class="filter-checkbox-label" style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:13px; font-weight:600; color:var(--gray-700); user-select:none;">
               <input type="checkbox" ${pacientesState.sinCama ? 'checked' : ''} onchange="toggleSinCamaFilter()" style="cursor:pointer;" />
               <span>Sin Cama</span>
             </label>
-            <button class="btn btn-secondary btn-sm" onclick="clearPacienteFilters()" style="flex:0 0 auto; padding:6px 14px; border-radius:10px; font-size:12px; font-weight:600; white-space:nowrap;">Limpiar</button>
+            <button class="btn btn-secondary btn-sm" onclick="clearPacienteFilters()" style="padding:6px 14px; border-radius:10px; font-size:12px; font-weight:600; white-space:nowrap;">Limpiar</button>
           </div>
         </div>
 

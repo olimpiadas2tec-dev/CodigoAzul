@@ -1837,28 +1837,114 @@ tbody tr:last-child td {
     margin-top: 4px !important;
   }
 
-  .filters-bar {
+  .top-user-info {
+    display: none !important;
+  }
+
+  .app-top-header {
+    padding: 0 12px !important;
+  }
+
+  .page-header {
+    padding: 16px 16px 0 !important;
+  }
+
+  .page-header h1 {
+    font-size: 20px !important;
+  }
+
+  .page-header p {
+    font-size: 12.5px !important;
+  }
+
+  .page-header-row {
     flex-direction: column !important;
     align-items: stretch !important;
-    gap: 8px !important;
+    gap: 12px !important;
+  }
+
+  .page-header-row .btn,
+  .page-header-row a.btn {
     width: 100% !important;
-    margin-bottom: 14px !important;
+    justify-content: center !important;
+    min-height: 40px !important;
+  }
+
+  .page-body {
+    padding: 14px 16px 24px !important;
+  }
+
+  .filters-bar {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    width: 100% !important;
+    margin-bottom: 12px !important;
   }
 
   .filter-group,
   .search-input-wrapper {
     width: 100% !important;
     min-width: 0 !important;
+    flex: 1 1 100% !important;
   }
 
-  .filter-group input,
+  .filter-group input:not([type="checkbox"]):not([type="radio"]),
   .filter-group select,
-  .filters-bar input,
-  .filters-bar select {
+  .filters-bar input:not([type="checkbox"]):not([type="radio"]),
+  .filters-bar select,
+  .filter-select-curved {
     width: 100% !important;
     min-width: 0 !important;
-    font-size: 13.5px !important;
+    font-size: 13px !important;
     min-height: 40px !important;
+    box-sizing: border-box !important;
+  }
+
+  input[type="checkbox"],
+  input[type="radio"],
+  .filters-bar input[type="checkbox"],
+  .filters-bar input[type="radio"] {
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    min-height: 18px !important;
+    max-width: 18px !important;
+    max-height: 18px !important;
+    margin: 0 !important;
+    display: inline-block !important;
+    cursor: pointer !important;
+    flex-shrink: 0 !important;
+    accent-color: #1e40af !important;
+  }
+
+  .filters-bar label,
+  .filter-checkbox-label {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 4px 0 !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: var(--gray-700) !important;
+    width: auto !important;
+    align-self: flex-start !important;
+    cursor: pointer !important;
+  }
+
+  .filters-bar label span,
+  .filter-checkbox-label span {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: var(--gray-800) !important;
+    white-space: nowrap !important;
+  }
+
+  .filters-bar .btn {
+    width: 100% !important;
+    justify-content: center !important;
+    min-height: 38px !important;
   }
 
   .table-container {
@@ -1870,12 +1956,12 @@ tbody tr:last-child td {
   }
 
   .table-container table {
-    min-width: 600px !important;
+    min-width: 650px !important;
   }
 
   thead th {
     padding: 10px 12px !important;
-    font-size: 10.5px !important;
+    font-size: 11px !important;
   }
 
   tbody td {
