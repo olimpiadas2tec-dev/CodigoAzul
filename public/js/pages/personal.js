@@ -163,7 +163,10 @@ function renderPersonalTab() {
                     ${escapeHtml(p.nombre_rol || 'Sin Designar')}
                   </span>
                 </td>
-                <td style="padding:10px 14px; color:var(--gray-600); font-size:12px; vertical-align:middle; white-space:nowrap;">${escapeHtml(p.telefono || '-')}</td>
+                <td style="padding:10px 14px; color:var(--gray-600); font-size:12px; vertical-align:middle; white-space:nowrap;">
+                  <div>${escapeHtml(p.telefono || '-')}</div>
+                  ${p.email ? `<div style="font-size:11px; color:var(--gray-500); font-weight:600;">${escapeHtml(p.email)}</div>` : ''}
+                </td>
                 <td style="padding:10px 14px; vertical-align:middle;">
                   <span style="font-weight:600; color:${p.area === 'Sin Designar' ? 'var(--gray-400)' : 'var(--gray-700)'}; font-size:12.5px;">
                     ${escapeHtml(p.area || 'Sin Designar')}
@@ -599,9 +602,14 @@ function openPersonalModal(editId = null) {
               <input type="text" id="p-dni" required placeholder="Ej: 28.345.678" value="${pers ? escapeHtml(pers.dni) : ''}" />
             </div>
             <div class="form-group">
-              <label>Teléfono / Interno</label>
-              <input type="text" id="p-tel" placeholder="Ej: 11-4567-8901" value="${pers ? escapeHtml(pers.telefono || '') : ''}" />
+              <label>Teléfono / Interno (Opcional)</label>
+              <input type="text" id="p-tel" placeholder="Ej: 11-4567-8901 (con guiones)" value="${pers ? escapeHtml(pers.telefono || '') : ''}" />
             </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom:12px;">
+            <label style="color:var(--celeste-dark); font-weight:700;">Correo Electrónico Institucional *</label>
+            <input type="email" id="p-email" required placeholder="Ej: c.mendez@hospital.gob.ar" value="${pers ? escapeHtml(pers.email || '') : ''}" style="font-weight:600;" />
           </div>
 
           <!-- ROL DE SALUD (CON OPCIÓN SIN DESIGNAR) -->
@@ -664,6 +672,7 @@ function openPersonalModal(editId = null) {
     const nombre = document.getElementById('p-nombre').value.trim();
     const dni = document.getElementById('p-dni').value.trim();
     const telefono = document.getElementById('p-tel').value.trim();
+    const email = document.getElementById('p-email') ? document.getElementById('p-email').value.trim() : '';
     const rolSelect = document.getElementById('p-rol');
     
     let id_rol_profesional = null;
@@ -675,8 +684,13 @@ function openPersonalModal(editId = null) {
 
     const area = document.getElementById('p-area').value;
 
-    if (!apellido || !nombre || !dni) {
+    if (!apellido || !nombre || !dni || !email) {
       showToast('Complete todos los campos obligatorios (*)', 'error');
+      return;
+    }
+
+    if (!email.includes('@') || !email.includes('.')) {
+      showToast('Por favor ingrese un correo electrónico institucional válido', 'error');
       return;
     }
 
@@ -685,13 +699,13 @@ function openPersonalModal(editId = null) {
     if (isEdit) {
       const idx = currentList.findIndex(p => p.id === editId);
       if (idx !== -1) {
-        currentList[idx] = { ...currentList[idx], apellido, nombre, dni, telefono, id_rol_profesional, nombre_rol, area };
+        currentList[idx] = { ...currentList[idx], apellido, nombre, dni, telefono, email, id_rol_profesional, nombre_rol, area };
         savePersonalSalud(currentList);
         showToast('Personal actualizado con éxito', 'success');
       }
     } else {
       const newId = currentList.length > 0 ? Math.max(...currentList.map(p => p.id)) + 1 : 1;
-      currentList.push({ id: newId, apellido, nombre, dni, telefono, id_rol_profesional, nombre_rol, area });
+      currentList.push({ id: newId, apellido, nombre, dni, telefono, email, id_rol_profesional, nombre_rol, area });
       savePersonalSalud(currentList);
       showToast('Personal de salud registrado exitosamente', 'success');
     }

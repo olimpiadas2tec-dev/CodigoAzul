@@ -129,6 +129,8 @@ function renderPacientes() {
                     <td style="padding:10px 12px; vertical-align:middle; white-space:nowrap;">
                       <span style="font-size:12px; font-weight:600; color:var(--gray-800);">${escapeHtml(formattedDNI)}</span>
                       ${p.edad ? `<span style="font-size:12px; color:var(--gray-500);"> · ${p.edad} años</span>` : ''}
+                      ${p.telefono ? `<div style="font-size:11px; color:var(--gray-600); margin-top:2px;">${icon('phone', 11)} ${escapeHtml(p.telefono)}</div>` : ''}
+                      ${p.email ? `<div style="font-size:11px; color:var(--gray-600);">${icon('fileText', 11)} ${escapeHtml(p.email)}</div>` : ''}
                     </td>
                     <td style="padding:10px 12px; vertical-align:middle;">
                       <div style="font-weight:600; color:var(--gray-700);">${escapeHtml(p.area)}</div>
@@ -273,6 +275,14 @@ function openPacienteModal(editId = null) {
             <div class="form-group">
               <label>Edad / Fecha Nacimiento (Opcional)</label>
               <input type="number" id="m-edad" min="1" max="120" placeholder="Años (o dejar vacío)" value="${paciente && paciente.edad ? paciente.edad : ''}" />
+            </div>
+            <div class="form-group">
+              <label>Teléfono de Contacto (Opcional)</label>
+              <input type="text" id="m-telefono" placeholder="Ej: 11-4567-8901 (con guiones)" value="${paciente ? escapeHtml(paciente.telefono || '') : ''}" />
+            </div>
+            <div class="form-group">
+              <label>Correo Electrónico (Opcional)</label>
+              <input type="email" id="m-email" placeholder="Ej: paciente@correo.com (o dejar vacío)" value="${paciente ? escapeHtml(paciente.email || '') : ''}" />
             </div>
             <div class="form-group full-width" style="grid-column: 1 / -1;">
               <label style="color:var(--celeste-dark); font-weight:700;">Diagnóstico / Causa Principal (Opcional)</label>
@@ -435,6 +445,8 @@ function openPacienteModal(editId = null) {
     const dni = document.getElementById('m-dni').value.trim() || 'S/D';
     const edadVal = document.getElementById('m-edad').value.trim();
     const edad = edadVal ? parseInt(edadVal) : 'S/D';
+    const telefono = document.getElementById('m-telefono') ? document.getElementById('m-telefono').value.trim() : '';
+    const email = document.getElementById('m-email') ? document.getElementById('m-email').value.trim() : '';
     const causa = document.getElementById('m-causa').value.trim() || 'Sin Diagnóstico / En Evaluación';
     const area = document.getElementById('m-area') ? document.getElementById('m-area').value : '';
     const cama = document.getElementById('m-cama') ? document.getElementById('m-cama').value.trim() : '';
@@ -502,7 +514,7 @@ function openPacienteModal(editId = null) {
       if (idx !== -1) {
         currentList[idx] = {
           ...currentList[idx],
-          apellido, nombre, dni, edad, causa, area: finalArea, cama: finalCama, activo: finalActivo, id_personal, personal_a_cargo, grupo, alergias
+          apellido, nombre, dni, edad, telefono, email, causa, area: finalArea, cama: finalCama, activo: finalActivo, id_personal, personal_a_cargo, grupo, alergias
         };
         savePacientes(currentList);
         showToast('Datos del paciente actualizados con éxito', 'success');
@@ -510,7 +522,7 @@ function openPacienteModal(editId = null) {
     } else {
       currentList.push({
         id: newId,
-        apellido, nombre, dni, edad, causa, area: finalArea, cama: finalCama, activo: finalActivo, id_personal, personal_a_cargo, grupo, alergias
+        apellido, nombre, dni, edad, telefono, email, causa, area: finalArea, cama: finalCama, activo: finalActivo, id_personal, personal_a_cargo, grupo, alergias
       });
       savePacientes(currentList);
       showToast('Paciente registrado exitosamente', 'success');

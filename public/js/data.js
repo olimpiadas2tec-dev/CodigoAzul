@@ -111,16 +111,16 @@ let ROLES_SALUD = [
 ];
 
 let PERSONAL_SALUD = [
-  { id: 1, apellido: 'Méndez', nombre: 'Carlos', dni: '28345678', telefono: '11-4567-8901', id_rol_profesional: 1, nombre_rol: 'Médico Especialista en Terapia Intensiva', area: 'Unidad de Terapia Intensiva (UTI)' },
-  { id: 2, apellido: 'Gutiérrez', nombre: 'Laura', dni: '31234567', telefono: '11-5678-1234', id_rol_profesional: 2, nombre_rol: 'Médico Cardiólogo', area: 'Cardiología' },
-  { id: 3, apellido: 'Sánchez', nombre: 'Roberto', dni: '26789012', telefono: '11-6789-2345', id_rol_profesional: 3, nombre_rol: 'Médico Emergentólogo', area: 'Urgencias / Shock Room' },
-  { id: 4, apellido: 'Torres', nombre: 'María', dni: '33456789', telefono: '11-7890-3456', id_rol_profesional: 1, nombre_rol: 'Médico Especialista en Terapia Intensiva', area: 'Unidad de Terapia Intensiva (UTI)' },
-  { id: 5, apellido: 'López', nombre: 'Fernando', dni: '29876543', telefono: '11-8901-4567', id_rol_profesional: 2, nombre_rol: 'Médico Cardiólogo', area: 'Cardiología' },
-  { id: 6, apellido: 'Ramírez', nombre: 'Ana', dni: '35678901', telefono: '11-9012-5678', id_rol_profesional: 4, nombre_rol: 'Lic. en Enfermería - Cuidados Críticos', area: 'Piso 4A' },
-  { id: 7, apellido: 'Luna', nombre: 'Patricia', dni: '30123456', telefono: '11-2345-6789', id_rol_profesional: 4, nombre_rol: 'Lic. en Enfermería - Cuidados Críticos', area: 'Urgencias / Shock Room' },
-  { id: 8, apellido: 'López', nombre: 'María Elena', dni: '32145678', telefono: '11-4589-1234', id_rol_profesional: 4, nombre_rol: 'Lic. en Enfermería - Cuidados Críticos', area: 'Cardiología' },
-  { id: 9, apellido: 'Gómez', nombre: 'Juan Roberto', dni: '29876544', telefono: '11-5678-9012', id_rol_profesional: 5, nombre_rol: 'Enfermero/a de Guardia', area: 'Urgencias / Shock Room' },
-  { id: 10, apellido: 'Fernández', nombre: 'Ana Clara', dni: '35123987', telefono: '11-3456-7890', id_rol_profesional: 5, nombre_rol: 'Enfermero/a de Guardia', area: 'Centro Quirúrgico' }
+  { id: 1, apellido: 'Méndez', nombre: 'Carlos', dni: '28345678', telefono: '11-4567-8901', email: 'c.mendez@hospital.gob.ar', id_rol_profesional: 1, nombre_rol: 'Médico Especialista en Terapia Intensiva', area: 'Unidad de Terapia Intensiva (UTI)' },
+  { id: 2, apellido: 'Gutiérrez', nombre: 'Laura', dni: '31234567', telefono: '11-5678-1234', email: 'l.gutierrez@hospital.gob.ar', id_rol_profesional: 2, nombre_rol: 'Médico Cardiólogo', area: 'Cardiología' },
+  { id: 3, apellido: 'Sánchez', nombre: 'Roberto', dni: '26789012', telefono: '11-6789-2345', email: 'r.sanchez@hospital.gob.ar', id_rol_profesional: 3, nombre_rol: 'Médico Emergentólogo', area: 'Urgencias / Shock Room' },
+  { id: 4, apellido: 'Torres', nombre: 'María', dni: '33456789', telefono: '11-7890-3456', email: 'm.torres@hospital.gob.ar', id_rol_profesional: 1, nombre_rol: 'Médico Especialista en Terapia Intensiva', area: 'Unidad de Terapia Intensiva (UTI)' },
+  { id: 5, apellido: 'López', nombre: 'Fernando', dni: '29876543', telefono: '11-8901-4567', email: 'f.lopez@hospital.gob.ar', id_rol_profesional: 2, nombre_rol: 'Médico Cardiólogo', area: 'Cardiología' },
+  { id: 6, apellido: 'Ramírez', nombre: 'Ana', dni: '35678901', telefono: '11-9012-5678', email: 'a.ramirez@hospital.gob.ar', id_rol_profesional: 4, nombre_rol: 'Lic. en Enfermería - Cuidados Críticos', area: 'Piso 4A' },
+  { id: 7, apellido: 'Luna', nombre: 'Patricia', dni: '30123456', telefono: '11-2345-6789', email: 'p.luna@hospital.gob.ar', id_rol_profesional: 4, nombre_rol: 'Lic. en Enfermería - Cuidados Críticos', area: 'Urgencias / Shock Room' },
+  { id: 8, apellido: 'López', nombre: 'María Elena', dni: '32145678', telefono: '11-4589-1234', email: 'me.lopez@hospital.gob.ar', id_rol_profesional: 4, nombre_rol: 'Lic. en Enfermería - Cuidados Críticos', area: 'Cardiología' },
+  { id: 9, apellido: 'Gómez', nombre: 'Juan Roberto', dni: '29876544', telefono: '11-5678-9012', email: 'j.gomez@hospital.gob.ar', id_rol_profesional: 5, nombre_rol: 'Enfermero/a de Guardia', area: 'Urgencias / Shock Room' },
+  { id: 10, apellido: 'Fernández', nombre: 'Ana Clara', dni: '35123987', telefono: '11-3456-7890', email: 'ac.fernandez@hospital.gob.ar', id_rol_profesional: 5, nombre_rol: 'Enfermero/a de Guardia', area: 'Centro Quirúrgico' }
 ];
 
 let PACIENTES = [
