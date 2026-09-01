@@ -100,7 +100,7 @@ function renderMateriales() {
                 </tr>
               ` : filtered.map(m => {
                 const stock = m.stock !== undefined ? m.stock : 20;
-                const stockMax = m.stockMax || (stock <= 15 ? 30 : 50);
+                const stockMax = Math.max(m.stockMax || 50, stock);
                 const pct = Math.min(Math.round((stock / stockMax) * 100), 100);
 
                 let stockStatusBadge = '';

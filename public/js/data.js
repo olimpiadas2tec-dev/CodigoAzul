@@ -184,16 +184,16 @@ let ASIGNACIONES_TURNOS = [
 ];
 
 let MATERIALES_CATALOGO = [
-  { id: 1, nombre: 'Adrenalina 1mg/ml Ampolla', tipo: 'Medicamento', unidad: 'Ampollas', stock: 45, descripcion: 'Vasopresor de primera línea para soporte vital avanzado (ACLS).' },
-  { id: 2, nombre: 'Amiodarona 150mg Ampolla', tipo: 'Medicamento', unidad: 'Ampollas', stock: 30, descripcion: 'Antiarrítmico clase III para FV y TV sin pulso refractaria.' },
-  { id: 3, nombre: 'Atropina 1mg Ampolla', tipo: 'Medicamento', unidad: 'Ampollas', stock: 25, descripcion: 'Anticolinérgico para tratamiento de bradicardia sintomática.' },
-  { id: 4, nombre: 'Bicarbonato de Sodio 1M', tipo: 'Medicamento', unidad: 'Frascos', stock: 15, descripcion: 'Agente alcalinizante para acidosis metabólica e hiperpotasemia.' },
-  { id: 5, nombre: 'Lidocaína 2% Ampolla', tipo: 'Medicamento', unidad: 'Ampollas', stock: 20, descripcion: 'Antiarrítmico alternativo para taquiarritmias ventriculares.' },
-  { id: 6, nombre: 'Tubo Endotraqueal N° 7.5', tipo: 'Insumo', unidad: 'Unidades', stock: 18, descripcion: 'Dispositivo para intubación y aislamiento definitivo de vía aérea.' },
-  { id: 7, nombre: 'Tubo Endotraqueal N° 8.0', tipo: 'Insumo', unidad: 'Unidades', stock: 15, descripcion: 'Tubo orotraqueal para adultos de contextura grande.' },
-  { id: 8, nombre: 'Parches Desfibrilador Bifásico', tipo: 'Insumo', unidad: 'Pares', stock: 12, descripcion: 'Electrodos adhesivos para cardioversión y desfibrilación externa.' },
-  { id: 9, nombre: 'Bolsa de Reanimación (Ambu)', tipo: 'Insumo', unidad: 'Unidades', stock: 10, descripcion: 'Resucitador manual con reservorio de oxígeno y válvula PEEP.' },
-  { id: 10, nombre: 'Solución Fisiológica 0.9% 500ml', tipo: 'Insumo', unidad: 'Sachets', stock: 60, descripcion: 'Cristaloide isotónico para expansión de volumen y dilución de fármacos.' }
+  { id: 1, nombre: 'Adrenalina 1mg/ml Ampolla', tipo: 'Medicamento', unidad: 'Ampollas', stock: 45, stockMax: 50, descripcion: 'Vasopresor de primera línea para soporte vital avanzado (ACLS).' },
+  { id: 2, nombre: 'Amiodarona 150mg Ampolla', tipo: 'Medicamento', unidad: 'Ampollas', stock: 30, stockMax: 40, descripcion: 'Antiarrítmico clase III para FV y TV sin pulso refractaria.' },
+  { id: 3, nombre: 'Atropina 1mg Ampolla', tipo: 'Medicamento', unidad: 'Ampollas', stock: 25, stockMax: 30, descripcion: 'Anticolinérgico para tratamiento de bradicardia sintomática.' },
+  { id: 4, nombre: 'Bicarbonato de Sodio 1M', tipo: 'Medicamento', unidad: 'Frascos', stock: 15, stockMax: 30, descripcion: 'Agente alcalinizante para acidosis metabólica e hiperpotasemia.' },
+  { id: 5, nombre: 'Lidocaína 2% Ampolla', tipo: 'Medicamento', unidad: 'Ampollas', stock: 20, stockMax: 30, descripcion: 'Antiarrítmico alternativo para taquiarritmias ventriculares.' },
+  { id: 6, nombre: 'Tubo Endotraqueal N° 7.5', tipo: 'Insumo', unidad: 'Unidades', stock: 18, stockMax: 25, descripcion: 'Dispositivo para intubación y aislamiento definitivo de vía aérea.' },
+  { id: 7, nombre: 'Tubo Endotraqueal N° 8.0', tipo: 'Insumo', unidad: 'Unidades', stock: 15, stockMax: 25, descripcion: 'Tubo orotraqueal para adultos de contextura grande.' },
+  { id: 8, nombre: 'Parches Desfibrilador Bifásico', tipo: 'Insumo', unidad: 'Pares', stock: 12, stockMax: 20, descripcion: 'Electrodos adhesivos para cardioversión y desfibrilación externa.' },
+  { id: 9, nombre: 'Bolsa de Reanimación (Ambu)', tipo: 'Insumo', unidad: 'Unidades', stock: 10, stockMax: 15, descripcion: 'Resucitador manual con reservorio de oxígeno y válvula PEEP.' },
+  { id: 10, nombre: 'Solución Fisiológica 0.9% 500ml', tipo: 'Insumo', unidad: 'Sachets', stock: 60, stockMax: 80, descripcion: 'Cristaloide isotónico para expansión de volumen y dilución de fármacos.' }
 ];
 
 let ORIGENES = [
