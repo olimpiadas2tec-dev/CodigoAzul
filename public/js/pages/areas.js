@@ -34,12 +34,12 @@ function renderAreas() {
 
     <div class="page-body">
       <!-- Tabs Navigation -->
-      <div style="display:flex; gap:10px; margin-bottom:20px; border-bottom:2px solid var(--gray-200); padding-bottom:8px; flex-wrap:wrap;">
-        <button class="btn ${tab === 'areas' ? 'btn-primary' : 'btn-outline'} btn-sm" onclick="setAreasTab('areas')">
-          ${icon('building')} Áreas del Hospital
+      <div class="sub-nav-tabs" style="display:flex; gap:8px; margin-bottom:18px; border-bottom:2px solid var(--gray-200); padding-bottom:8px; width:100%;">
+        <button class="btn ${tab === 'areas' ? 'btn-primary' : 'btn-outline'} btn-sm" onclick="setAreasTab('areas')" style="flex:1; justify-content:center; text-align:center; padding:8px 12px; font-size:12.5px; font-weight:700; white-space:nowrap;">
+          ${icon('building')} Áreas
         </button>
-        <button class="btn ${tab === 'camas' ? 'btn-primary' : 'btn-outline'} btn-sm" onclick="setAreasTab('camas')">
-          ${icon('bed')} Mapa y Estado de Camas
+        <button class="btn ${tab === 'camas' ? 'btn-primary' : 'btn-outline'} btn-sm" onclick="setAreasTab('camas')" style="flex:1; justify-content:center; text-align:center; padding:8px 12px; font-size:12.5px; font-weight:700; white-space:nowrap;">
+          ${icon('bed')} Mapa de Camas
         </button>
       </div>
 
