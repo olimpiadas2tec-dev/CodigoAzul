@@ -1064,7 +1064,7 @@ function getTrashCount() {
 // --- Soft Delete Functions ---
 function softDeletePaciente(id) {
   const all = getPacientes();
-  const idx = all.findIndex(p => p.id === id);
+  const idx = all.findIndex(p => String(p.id) === String(id));
   if (idx === -1) return;
   const p = all[idx];
 
@@ -1097,7 +1097,7 @@ function softDeletePaciente(id) {
 
 function softDeletePersonal(id) {
   const all = getPersonalSalud();
-  const idx = all.findIndex(p => p.id === id);
+  const idx = all.findIndex(p => String(p.id) === String(id));
   if (idx === -1) return;
   const persona = all[idx];
 
@@ -1118,7 +1118,7 @@ function softDeletePersonal(id) {
 
 function softDeleteCodigo(id) {
   const data = getData();
-  const idx = data.findIndex(d => d.id === id);
+  const idx = data.findIndex(d => String(d.id) === String(id));
   if (idx === -1) return;
   const codigo = data[idx];
 
@@ -1126,7 +1126,7 @@ function softDeleteCodigo(id) {
   if (Array.isArray(codigo.materiales) && codigo.materiales.length > 0) {
     const matList = getMateriales();
     codigo.materiales.forEach(function(used) {
-      const m = matList.find(function(item) { return item.id === used.id_material || item.nombre === used.nombre; });
+      const m = matList.find(function(item) { return String(item.id) === String(used.id_material) || item.nombre === used.nombre; });
       if (m) {
         m.stock = (m.stock !== undefined ? m.stock : 20) + (used.cantidad || 1);
       }
@@ -1137,7 +1137,7 @@ function softDeleteCodigo(id) {
   // Si fue fatal, reactivar paciente
   if (codigo.estado && codigo.estado.value === 'fatal') {
     const pacientes = getPacientes();
-    const pIdx = pacientes.findIndex(function(p) { return p.id === codigo.id_paciente || (codigo.paciente && codigo.paciente.includes(p.apellido)); });
+    const pIdx = pacientes.findIndex(function(p) { return String(p.id) === String(codigo.id_paciente) || (codigo.paciente && codigo.paciente.includes(p.apellido)); });
     if (pIdx !== -1) {
       pacientes[pIdx].activo = true;
       savePacientes(pacientes);
@@ -1158,7 +1158,7 @@ function softDeleteCodigo(id) {
   saveTrashCodigos(trash);
 
   // Remover del array principal
-  const rest = data.filter(function(d) { return d.id !== id; });
+  const rest = data.filter(function(d) { return String(d.id) !== String(id); });
   saveData(rest);
 
   logAuditoria(id, 'Código Azul movido a papelera',
@@ -1168,7 +1168,7 @@ function softDeleteCodigo(id) {
 // --- Restore Functions ---
 function restorePaciente(id) {
   const trash = getTrashPacientes();
-  const idx = trash.findIndex(function(p) { return p.id === id; });
+  const idx = trash.findIndex(function(p) { return String(p.id) === String(id); });
   if (idx === -1) return false;
   const p = trash[idx];
 
@@ -1207,7 +1207,7 @@ function restorePaciente(id) {
 
 function restorePersonal(id) {
   const trash = getTrashPersonal();
-  const idx = trash.findIndex(function(p) { return p.id === id; });
+  const idx = trash.findIndex(function(p) { return String(p.id) === String(id); });
   if (idx === -1) return false;
   const persona = trash[idx];
 
@@ -1231,7 +1231,7 @@ function restorePersonal(id) {
 
 function restoreCodigo(id) {
   const trash = getTrashCodigos();
-  const idx = trash.findIndex(function(d) { return d.id === id; });
+  const idx = trash.findIndex(function(d) { return String(d.id) === String(id); });
   if (idx === -1) return false;
   const codigo = trash[idx];
 
@@ -1239,7 +1239,7 @@ function restoreCodigo(id) {
   if (Array.isArray(codigo.materiales) && codigo.materiales.length > 0) {
     const matList = getMateriales();
     codigo.materiales.forEach(function(used) {
-      const m = matList.find(function(item) { return item.id === used.id_material || item.nombre === used.nombre; });
+      const m = matList.find(function(item) { return String(item.id) === String(used.id_material) || item.nombre === used.nombre; });
       if (m) {
         m.stock = Math.max(0, (m.stock !== undefined ? m.stock : 20) - (used.cantidad || 1));
       }
@@ -1268,8 +1268,8 @@ function restoreCodigo(id) {
 // --- Permanent Delete Functions ---
 function permanentDeletePaciente(id) {
   const trash = getTrashPacientes();
-  const p = trash.find(function(item) { return item.id === id; });
-  const rest = trash.filter(function(item) { return item.id !== id; });
+  const p = trash.find(function(item) { return String(item.id) === String(id); });
+  const rest = trash.filter(function(item) { return String(item.id) !== String(id); });
   saveTrashPacientes(rest);
   logAuditoria(null, 'Paciente eliminado permanentemente',
     'ID: ' + id + (p ? ' (' + p.apellido + ', ' + p.nombre + ')' : '') + ' — Eliminación irreversible');
@@ -1277,8 +1277,8 @@ function permanentDeletePaciente(id) {
 
 function permanentDeletePersonal(id) {
   const trash = getTrashPersonal();
-  const p = trash.find(function(item) { return item.id === id; });
-  const rest = trash.filter(function(item) { return item.id !== id; });
+  const p = trash.find(function(item) { return String(item.id) === String(id); });
+  const rest = trash.filter(function(item) { return String(item.id) !== String(id); });
   saveTrashPersonal(rest);
   logAuditoria(null, 'Personal eliminado permanentemente',
     'ID: ' + id + (p ? ' (' + p.apellido + ', ' + p.nombre + ')' : '') + ' — Eliminación irreversible');
@@ -1286,7 +1286,7 @@ function permanentDeletePersonal(id) {
 
 function permanentDeleteCodigo(id) {
   const trash = getTrashCodigos();
-  const rest = trash.filter(function(item) { return item.id !== id; });
+  const rest = trash.filter(function(item) { return String(item.id) !== String(id); });
   saveTrashCodigos(rest);
   logAuditoria(id, 'Código Azul eliminado permanentemente',
     'ID: ' + id + ' — Eliminación irreversible');
