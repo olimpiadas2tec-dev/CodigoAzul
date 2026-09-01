@@ -253,7 +253,7 @@ function renderCodigoForm(editId = null) {
 
               <div class="form-group">
                 <label>Fecha y Hora del Evento *</label>
-                <input type="datetime-local" id="form-fecha" value="${codigo ? codigo.fecha.slice(0, 16) : localDate}" />
+                <input type="datetime-local" id="form-fecha" value="${codigo ? codigo.fecha.slice(0, 16) : localDate}" max="${localDate}" />
               </div>
 
               <div class="form-group">
@@ -335,7 +335,7 @@ function renderCodigoForm(editId = null) {
                 <div class="form-grid" style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:12px;">
                   <div class="form-group">
                     <label>Hora de ROSC</label>
-                    <input type="datetime-local" id="rosc-hora" value="${datosCierre.horaRosc || (codigo ? codigo.fecha.slice(0, 16) : localDate)}" />
+                    <input type="datetime-local" id="rosc-hora" value="${datosCierre.horaRosc || (codigo ? codigo.fecha.slice(0, 16) : localDate)}" max="${localDate}" />
                   </div>
                   <div class="form-group">
                     <label>Ritmo Cardíaco de Salida</label>
@@ -364,7 +364,7 @@ function renderCodigoForm(editId = null) {
                 <div class="form-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px;">
                   <div class="form-group">
                     <label style="color:#991b1b; font-weight:700;">Hora de Defunción / Cese de RCP</label>
-                    <input type="datetime-local" id="fatal-hora" value="${datosCierre.horaDefuncion || (codigo ? codigo.fecha.slice(0, 16) : localDate)}" />
+                    <input type="datetime-local" id="fatal-hora" value="${datosCierre.horaDefuncion || (codigo ? codigo.fecha.slice(0, 16) : localDate)}" max="${localDate}" />
                   </div>
                   <div class="form-group">
                     <label style="color:#991b1b; font-weight:700;">Médico Certificante de Defunción</label>
@@ -731,6 +731,25 @@ function setupCodigoForm(editId = null) {
       }
     });
   }
+
+  // Validación en tiempo real para no permitir fechas futuras a la hora actual de la computadora
+  const enforceMaxDate = (inputEl, labelName) => {
+    if (!inputEl) return;
+    const updateMax = () => {
+      const nowStr = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+      inputEl.setAttribute('max', nowStr);
+      if (inputEl.value > nowStr) {
+        showToast(`${icon('alertTriangle')} La ${labelName} no puede ser posterior a la fecha y hora actual`, 'error');
+        inputEl.value = nowStr;
+      }
+    };
+    inputEl.addEventListener('change', updateMax);
+    inputEl.addEventListener('input', updateMax);
+  };
+
+  enforceMaxDate(document.getElementById('form-fecha'), 'Fecha y Hora del Evento');
+  enforceMaxDate(document.getElementById('rosc-hora'), 'Hora de ROSC');
+  enforceMaxDate(document.getElementById('fatal-hora'), 'Hora de Defunción');
 }
 
 // Función de Submit con anti-duplicados y validación visual
@@ -761,6 +780,14 @@ function submitCodigoForm(editId = null) {
     }
     showToast(`${icon('alertTriangle')} ${msg}`, 'error');
   };
+
+  // Validar Fecha del Evento (No puede ser futura)
+  const nowLocalDate = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  if (fechaInput && fechaInput.value > nowLocalDate) {
+    markError(fechaInput, 'La fecha y hora del evento no puede ser posterior al momento actual');
+    fechaInput.value = nowLocalDate;
+    return;
+  }
 
   // Validar Paciente
   const pacienteId = pacienteInput ? parseInt(pacienteInput.value) : selectedPacienteId;
