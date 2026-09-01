@@ -568,26 +568,143 @@ function doAltaPaciente(id) {
 function reingresarPaciente(id) {
   const currentList = getPacientes();
   const idx = currentList.findIndex(p => p.id === id);
+  if (idx === -1) return;
+
+  const p = currentList[idx];
+
+  // Buscar si el paciente posee un Código Azul registrado como Fallecido (Defunción)
+  const codigos = getData();
+  const fatalCodigo = codigos.find(c => (c.id_paciente === p.id || (p.apellido && c.paciente.includes(p.apellido))) && c.estado && c.estado.value === 'fatal');
+
+  if (fatalCodigo) {
+    showReingresoFallecidoModal(p, fatalCodigo);
+    return;
+  }
+
+  doReingresarPaciente(id);
+}
+
+function doReingresarPaciente(id) {
+  const currentList = getPacientes();
+  const idx = currentList.findIndex(p => p.id === id);
   if (idx !== -1) {
     const p = currentList[idx];
     p.activo = true;
     savePacientes(currentList);
 
-    // Marcar cama como Ocupada
-    const camasList = getCamas();
-    const camaObj = camasList.find(c => c.area_nombre === p.area && c.numero === p.cama);
-    if (camaObj) {
-      camaObj.estado = 'Ocupada';
-      saveCamas(camasList);
+    // Marcar cama como Ocupada si aplica
+    if (p.cama && p.area && p.area !== 'Sin Designar') {
+      const camasList = getCamas();
+      const camaObj = camasList.find(c => (c.area_nombre === p.area && c.numero === p.cama) || c.numero === p.cama);
+      if (camaObj) {
+        camaObj.estado = 'Ocupada';
+        camaObj.id_paciente = p.id;
+        camaObj.paciente_nombre = `${p.apellido}, ${p.nombre}`;
+        saveCamas(camasList);
+      }
     }
 
-    showToast('Paciente reingresado a internación activa.', 'success');
+    showToast(`Paciente ${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)} reingresado a internación activa.`, 'success');
     renderApp();
   }
+}
+
+function showReingresoFallecidoModal(p, fatalCodigo) {
+  document.querySelector('.reingreso-fatal-modal-overlay')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay active reingreso-fatal-modal-overlay';
+  overlay.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(17,24,39,0.75); z-index:10000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px); padding:20px;';
+
+  overlay.innerHTML = `
+    <div class="modal scale-in" style="background:var(--white); border-radius:var(--radius-xl); width:92%; max-width:540px; box-shadow:var(--shadow-lg); overflow:hidden;">
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; padding:18px 24px; border-bottom:1px solid #fca5a5; background:#fef2f2;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:24px; color:#dc2626;">${icon('xOctagon')}</span>
+          <div>
+            <h3 style="font-size:16px; font-weight:800; color:#991b1b; margin:0;">
+              Advertencia: Reingreso de Paciente Fallecido
+            </h3>
+            <span style="font-size:11.5px; color:#7f1d1d;">Acta de Defunción Previa Detectada</span>
+          </div>
+        </div>
+        <button class="modal-close" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--gray-400);" onclick="this.closest('.reingreso-fatal-modal-overlay').remove()">&times;</button>
+      </div>
+
+      <div class="modal-body" style="padding:20px 24px; font-size:13.5px; color:var(--gray-700); line-height:1.5;">
+        <p style="margin:0 0 12px 0; font-size:14px;">
+          ¿Está seguro de reingresar al paciente <strong>${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}</strong> (DNI: ${p.dni ? formatDNI(p.dni) : 'S/D'}) a la internación activa?
+        </p>
+
+        <div style="background:#fff5f5; border:1.5px solid #feb2b2; border-radius:8px; padding:12px 16px; margin-bottom:16px;">
+          <div style="font-weight:700; color:#991b1b; font-size:13px; margin-bottom:4px;">
+            ⚠️ Registro de Código Azul #${fatalCodigo.id} asentado como FALLECIDO:
+          </div>
+          <div style="font-size:12px; color:#7f1d1d; line-height:1.4;">
+            <div>&middot; <strong>Fecha del evento:</strong> ${formatDateTime(fatalCodigo.fecha)}</div>
+            <div>&middot; <strong>Causa / Diagnóstico:</strong> ${escapeHtml(fatalCodigo.causa || 'Paro Cardiorrespiratorio')}</div>
+            <div>&middot; <strong>Médico Certificante:</strong> ${escapeHtml(fatalCodigo.datosCierre?.medicoCertificante || fatalCodigo.responsable)}</div>
+          </div>
+        </div>
+
+        <p style="margin:0 0 10px 0; font-weight:700; color:var(--gray-900); font-size:13px;">
+          Para completar el reingreso, indique qué desea hacer con el Código Azul fatal previo:
+        </p>
+
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <!-- Opción 1: Editar Código Azul -->
+          <button type="button" class="btn btn-outline" style="text-align:left; padding:12px 14px; border:1.5px solid var(--celeste-dark); background:#f0f9ff; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:space-between;" onclick="handleReingresoEditarCodigo(${p.id}, ${fatalCodigo.id})">
+            <div>
+              <strong style="color:var(--celeste-dark); font-size:13px; display:block;">✏️ Editar / Corregir el Código Azul #${fatalCodigo.id}</strong>
+              <span style="font-size:11.5px; color:var(--gray-600);">Reingresa al paciente y abre la edición para corregir el resultado clínico (ROSC / En Curso).</span>
+            </div>
+            <span style="font-size:18px; color:var(--celeste-dark); font-weight:800;">&rarr;</span>
+          </button>
+
+          <!-- Opción 2: Eliminar Código Azul Fatal -->
+          <button type="button" class="btn btn-outline" style="text-align:left; padding:12px 14px; border:1.5px solid #fca5a5; background:#fff5f5; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:space-between;" onclick="handleReingresoEliminarCodigo(${p.id}, ${fatalCodigo.id})">
+            <div>
+              <strong style="color:#dc2626; font-size:13px; display:block;">🗑️ Eliminar el Código Azul Fatal #${fatalCodigo.id}</strong>
+              <span style="font-size:11.5px; color:var(--gray-600);">Elimina el registro de defunción por error de carga y activa al paciente en el sistema.</span>
+            </div>
+            <span style="font-size:18px; color:#dc2626; font-weight:800;">&rarr;</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="display:flex; justify-content:flex-end; padding:14px 24px; border-top:1px solid var(--gray-200); background:var(--gray-50);">
+        <button class="btn btn-secondary btn-sm" onclick="this.closest('.reingreso-fatal-modal-overlay').remove()">Cancelar Reingreso</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+}
+
+function handleReingresoEditarCodigo(pacienteId, codigoId) {
+  document.querySelector('.reingreso-fatal-modal-overlay')?.remove();
+  doReingresarPaciente(pacienteId);
+  showToast('Paciente reingresado a la lista activa. Redirigiendo a edición de Código Azul...', 'info');
+  window.location.hash = `#/editar/${codigoId}`;
+}
+
+function handleReingresoEliminarCodigo(pacienteId, codigoId) {
+  document.querySelector('.reingreso-fatal-modal-overlay')?.remove();
+  
+  const currentCodigos = getData();
+  const rest = currentCodigos.filter(c => c.id !== codigoId);
+  saveData(rest);
+
+  doReingresarPaciente(pacienteId);
+  showToast(`Código Azul #${codigoId} eliminado y paciente reingresado con éxito.`, 'success');
 }
 
 window.openPacienteModal = openPacienteModal;
 window.confirmAltaPaciente = confirmAltaPaciente;
 window.doAltaPaciente = doAltaPaciente;
 window.reingresarPaciente = reingresarPaciente;
+window.doReingresarPaciente = doReingresarPaciente;
+window.showReingresoFallecidoModal = showReingresoFallecidoModal;
+window.handleReingresoEditarCodigo = handleReingresoEditarCodigo;
+window.handleReingresoEliminarCodigo = handleReingresoEliminarCodigo;
 
