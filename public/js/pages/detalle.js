@@ -193,7 +193,7 @@ function renderDetalle(id) {
                       <div><strong>Sector habitual:</strong> ${escapeHtml(activador.area || codigo.area)} &middot; <strong>Origen:</strong> ${escapeHtml(codigo.origenLlamada || 'Consola')}</div>
                     </div>
                   </div>
-                  <button class="btn btn-sm" style="background:#d97706; color:#fff; font-size:12px; font-weight:700; padding:6px 14px; border-radius:8px; border:none; cursor:pointer; flex-shrink:0;" onclick="showPersonalModalDirect('${escapeHtml(activador.nombre_completo || codigo.quienHizoLlamada)}')">
+                  <button class="btn btn-sm" type="button" style="background:#d97706; color:#fff; font-size:12px; font-weight:700; padding:6px 14px; border-radius:8px; border:none; cursor:pointer; flex-shrink:0;" onclick="showPersonalModalDirect('${escapeHtml(activador.nombre_completo || codigo.quienHizoLlamada)}')">
                     ${icon('search')} Ver Ficha
                   </button>
                 </div>
@@ -211,7 +211,7 @@ function renderDetalle(id) {
                       Médico Líder ACLS: <strong>${escapeHtml(codigo.responsable)}</strong>
                     </div>
                   </div>
-                  <button class="btn btn-sm" style="background:var(--celeste); color:#fff; font-size:12px; font-weight:700; padding:6px 14px; border-radius:8px; border:none; cursor:pointer; flex-shrink:0; display:inline-flex; align-items:center; gap:6px;" onclick="goToEquiposPage()">
+                  <button class="btn btn-sm" type="button" style="background:var(--celeste); color:#fff; font-size:12px; font-weight:700; padding:8px 16px; border-radius:8px; border:none; cursor:pointer; flex-shrink:0; display:inline-flex; align-items:center; gap:6px; box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);" onclick="showIntegrantesEquipoModal('${escapeHtml(codigo.equipoEncargado || 'Equipo A')}', '${escapeHtml(codigo.turno || 'Turno Mañana')}', '${escapeHtml(codigo.responsable)}')">
                     ${icon('users')} Ver Integrantes de Equipos
                   </button>
                 </div>
@@ -242,7 +242,7 @@ function renderDetalle(id) {
         
         <!-- Tarjeta 3: Materiales e Insumos Consumidos -->
         <div class="card scale-in">
-          <div class="card-header">
+          <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
             <div style="display:flex;align-items:center;gap:8px;">
               <span style="font-size:20px;">${icon('pill')}</span>
               <h2>Materiales e Insumos Utilizados</h2>
