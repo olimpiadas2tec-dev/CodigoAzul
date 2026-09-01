@@ -872,9 +872,6 @@ function submitCodigoForm(editId = null) {
   // Intervenciones
   const intervencionesCheckboxes = document.querySelectorAll('#form-intervenciones input[type="checkbox"]:checked');
   let intervenciones = Array.from(intervencionesCheckboxes).map(cb => cb.value);
-  if (intervenciones.length === 0) {
-    intervenciones = ['RCP de Alta Calidad', 'Desfibrilación Precoz'];
-  }
 
   // Materiales
   const materiales = [];
