@@ -21,7 +21,14 @@ function renderReportes() {
 
   const maxArea = sortedAreas.length > 0 ? sortedAreas[0][1].total : 1;
 
-  // Estadísticas de Equipos
+  // Mapa de colores institucional fijo para equipos de respuesta
+  const TEAM_COLORS = {
+    'Equipo A': '#0284c7', // Celeste
+    'Equipo B': '#8b5cf6', // Violeta/Púrpura
+    'Equipo C': '#14b8a6'  // Turquesa/Teal
+  };
+
+  // Estadísticas de Equipos (orden alfabético consistente)
   const equipoStats = {};
   getEquiposList().forEach(eq => { equipoStats[eq] = { total: 0, exitosos: 0 }; });
   data.forEach(d => {
@@ -31,8 +38,16 @@ function renderReportes() {
     if (d.estado && d.estado.value === 'resuelto') equipoStats[eq].exitosos++;
   });
 
+  // Orden consistente alfabético (Equipo A, Equipo B, Equipo C) para emparejar con el Donut
   const sortedEquipos = Object.entries(equipoStats)
-    .sort((a, b) => b[1].total - a[1].total);
+    .sort((a, b) => a[0].localeCompare(b[0]));
+
+  // Donut data de equipos ordenados de la misma manera
+  const donutEquiposData = sortedEquipos.map(([name, stats]) => ({
+    label: name,
+    value: stats.total,
+    color: TEAM_COLORS[name] || '#0284c7'
+  }));
 
   // Estadísticas de Materiales más consumidos
   const materialStats = {};
@@ -105,28 +120,24 @@ function renderReportes() {
       <div class="two-col-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:20px;">
         <div class="card scale-in">
           <div class="card-header">
-            <h2> Distribución de Resultados Clínicos</h2>
+            <h2>Distribución de Resultados Clínicos</h2>
           </div>
           <div class="card-body">
             ${renderPieChart([
-    { label: 'Resuelto (ROSC)', value: data.filter(d => d.estado && d.estado.value === 'resuelto').length, color: '#10b981' },
-    { label: 'En Curso', value: data.filter(d => d.estado && d.estado.value === 'pendiente').length, color: '#f59e0b' },
-    { label: 'Fallecido', value: data.filter(d => d.estado && d.estado.value === 'fatal').length, color: '#ef4444' },
-    { label: 'Derivado', value: data.filter(d => d.estado && d.estado.value === 'derivado').length, color: '#3b82f6' }
-  ], { size: 160, centerLabel: 'Códigos' })}
+              { label: 'Resuelto (ROSC)', value: data.filter(d => d.estado && d.estado.value === 'resuelto').length, color: '#10b981' },
+              { label: 'En Curso', value: data.filter(d => d.estado && d.estado.value === 'pendiente').length, color: '#f59e0b' },
+              { label: 'Fallecido', value: data.filter(d => d.estado && d.estado.value === 'fatal').length, color: '#ef4444' },
+              { label: 'Derivado', value: data.filter(d => d.estado && d.estado.value === 'derivado').length, color: '#3b82f6' }
+            ], { size: 160, centerLabel: 'Códigos' })}
           </div>
         </div>
 
         <div class="card scale-in">
           <div class="card-header">
-            <h2> Participación por Equipo de Respuesta</h2>
+            <h2>Participación por Equipo de Respuesta</h2>
           </div>
           <div class="card-body">
-            ${renderPieChart([
-    { label: 'Equipo A', value: data.filter(d => (d.equipoEncargado || '').includes('Equipo A')).length, color: '#3b8fcc' },
-    { label: 'Equipo B', value: data.filter(d => (d.equipoEncargado || '').includes('Equipo B')).length, color: '#6366f1' },
-    { label: 'Equipo C', value: data.filter(d => (d.equipoEncargado || '').includes('Equipo C')).length, color: '#06b6d4' }
-  ], { size: 160, centerLabel: 'Equipos' })}
+            ${renderPieChart(donutEquiposData, { size: 160, centerLabel: 'Equipos' })}
           </div>
         </div>
       </div>
@@ -134,27 +145,54 @@ function renderReportes() {
       <!-- Fila 1: Áreas + Equipos -->
       <div class="two-col-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:20px;">
         <div class="card scale-in">
-          <div class="card-header">
-            <h2>${icon('alertTriangle')} Códigos Azules por Área Hospitalaria</h2>
+          <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:20px; color:var(--celeste-dark);">${icon('building')}</span>
+              <h2>Códigos Azules por Área Hospitalaria</h2>
+            </div>
+            <span style="font-size:11px; color:var(--gray-500);">Barra = Volumen de casos</span>
           </div>
           <div class="card-body">
-            ${sortedAreas.map(([area, stats]) => `
-              <div style="margin-bottom:14px;">
-                <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-                  <span style="font-size:13px;font-weight:600;color:var(--gray-700);">${area}</span>
-                  <span style="font-size:12px;color:var(--gray-500);">${stats.total} total &middot; <strong style="color:var(--success);">${stats.total > 0 ? Math.round(stats.exitosos / stats.total * 100) : 0}% ROSC</strong></span>
+            ${sortedAreas.map(([area, stats]) => {
+              const roscPct = stats.total > 0 ? Math.round((stats.exitosos / stats.total) * 100) : 0;
+              const isSmallSample = stats.total < 3;
+              const casosText = `${stats.total} ${stats.total === 1 ? 'caso' : 'casos'}`;
+              
+              let roscBadge = '';
+              if (isSmallSample) {
+                roscBadge = `<span class="badge" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; font-weight:600; font-size:11px;" title="Muestra reducida (n<3)">${roscPct}% ROSC (${stats.total === 1 ? '1 caso' : stats.total + ' casos'})</span>`;
+              } else if (roscPct >= 80) {
+                roscBadge = `<span class="badge badge-success" style="font-weight:700;">${roscPct}% ROSC</span>`;
+              } else if (roscPct >= 60) {
+                roscBadge = `<span class="badge badge-warning" style="font-weight:700;">${roscPct}% ROSC</span>`;
+              } else {
+                roscBadge = `<span class="badge badge-danger" style="font-weight:700; background:#fee2e2; color:#991b1b; border:1px solid #fca5a5;">${roscPct}% ROSC</span>`;
+              }
+
+              return `
+                <div style="margin-bottom:16px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <span style="font-size:13px; font-weight:700; color:var(--gray-800);">${escapeHtml(area)}</span>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <span style="font-size:12px; color:var(--gray-500); font-weight:500;">Volumen: <strong>${casosText}</strong></span>
+                      ${roscBadge}
+                    </div>
+                  </div>
+                  <div style="height:8px; background:var(--gray-100); border-radius:var(--radius-full); overflow:hidden;" title="Volumen de intervenciones: ${stats.total}">
+                    <div style="height:100%; width:${(stats.total / maxArea) * 100}%; background:var(--celeste); border-radius:var(--radius-full);"></div>
+                  </div>
                 </div>
-                <div style="height:8px;background:var(--gray-100);border-radius:var(--radius-full);overflow:hidden;">
-                  <div style="height:100%;width:${(stats.total / maxArea) * 100}%;background:var(--celeste);border-radius:var(--radius-full);"></div>
-                </div>
-              </div>
-            `).join('')}
+              `;
+            }).join('')}
           </div>
         </div>
 
         <div class="card scale-in">
           <div class="card-header">
-            <h2>${icon('truck')} Rendimiento por Equipo de Respuesta</h2>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:20px; color:var(--celeste-dark);">${icon('truck')}</span>
+              <h2>Rendimiento por Equipo de Respuesta</h2>
+            </div>
           </div>
           <div class="card-body">
             <div class="table-container">
@@ -162,22 +200,39 @@ function renderReportes() {
                 <thead>
                   <tr>
                     <th>Equipo de Código Azul</th>
-                    <th>Intervenciones</th>
-                    <th>Efectividad</th>
+                    <th style="text-align:center;">Intervenciones</th>
+                    <th>Efectividad ROSC</th>
                   </tr>
                 </thead>
                 <tbody>
-                  ${sortedEquipos.map(([name, stats]) => `
-                    <tr>
-                      <td style="font-weight:600;color:var(--gray-800); font-size:13px;">${escapeHtml(name)}</td>
-                      <td style="text-align:center; font-weight:700;">${stats.total}</td>
-                      <td>
-                        <span class="badge badge-success">
-                          ${stats.total > 0 ? Math.round(stats.exitosos / stats.total * 100) : 100}% ROSC
-                        </span>
-                      </td>
-                    </tr>
-                  `).join('')}
+                  ${sortedEquipos.map(([name, stats]) => {
+                    const roscPct = stats.total > 0 ? Math.round((stats.exitosos / stats.total) * 100) : 0;
+                    const isSmallSample = stats.total < 3;
+                    const casosText = `${stats.total} ${stats.total === 1 ? 'caso' : 'casos'}`;
+                    const teamColor = TEAM_COLORS[name] || 'var(--celeste)';
+
+                    let roscBadge = '';
+                    if (isSmallSample) {
+                      roscBadge = `<span class="badge" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; font-weight:600; font-size:11px;" title="Muestra reducida (n<3): evaluar con cautela en desempeño">${roscPct}% ROSC <small style="color:var(--gray-500); font-weight:400;">(Muestra reducida: n=${stats.total})</small></span>`;
+                    } else if (roscPct >= 80) {
+                      roscBadge = `<span class="badge badge-success" style="font-weight:700; background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0;">✓ Excelente (${roscPct}% ROSC)</span>`;
+                    } else if (roscPct >= 60) {
+                      roscBadge = `<span class="badge badge-warning" style="font-weight:700; background:#fef3c7; color:#92400e; border:1px solid #fde68a;">⚠️ Aceptable (${roscPct}% ROSC)</span>`;
+                    } else {
+                      roscBadge = `<span class="badge badge-danger" style="font-weight:700; background:#fee2e2; color:#991b1b; border:1px solid #fca5a5;">🚨 Refuerzo (${roscPct}% ROSC)</span>`;
+                    }
+
+                    return `
+                      <tr>
+                        <td style="font-weight:700; color:var(--gray-900); font-size:13px;">
+                          <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:${teamColor}; margin-right:8px;"></span>
+                          ${escapeHtml(name)}
+                        </td>
+                        <td style="text-align:center; font-weight:700; color:var(--gray-700);">${casosText}</td>
+                        <td>${roscBadge}</td>
+                      </tr>
+                    `;
+                  }).join('')}
                 </tbody>
               </table>
             </div>
@@ -189,7 +244,10 @@ function renderReportes() {
       <div class="two-col-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
         <div class="card scale-in">
           <div class="card-header">
-            <h2>${icon('pill')} Medicamentos e Insumos Más Utilizados</h2>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:20px; color:var(--celeste-dark);">${icon('pill')}</span>
+              <h2>Medicamentos e Insumos Más Utilizados</h2>
+            </div>
           </div>
           <div class="card-body">
             <table style="width:100%; border-collapse:collapse; font-size:13px;">
@@ -219,14 +277,17 @@ function renderReportes() {
 
         <div class="card scale-in">
           <div class="card-header">
-            <h2>${icon('clipboard')} Principales Causas de Intervención</h2>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:20px; color:var(--celeste-dark);">${icon('clipboard')}</span>
+              <h2>Principales Causas de Intervención</h2>
+            </div>
           </div>
           <div class="card-body">
             <ul style="list-style:none; padding:0;">
               ${sortedCausas.map(([causa, count]) => `
                 <li style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--gray-100);">
                   <span style="font-size:13px; font-weight:600; color:var(--gray-800);">${escapeHtml(causa)}</span>
-                  <span class="badge badge-warning" style="font-weight:700;">${count} casos</span>
+                  <span class="badge badge-warning" style="font-weight:700;">${count} ${count === 1 ? 'caso' : 'casos'}</span>
                 </li>
               `).join('')}
             </ul>
@@ -249,3 +310,5 @@ function setupReportes() {
     }
   });
 }
+
+window.setupReportes = setupReportes;
