@@ -469,7 +469,7 @@ function renderTurnosTab() {
             <p style="font-size:12px; color:var(--gray-500); margin:0;">Regla 1 a 1: 1 equipo por turno</p>
           </div>
           ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? '' : `
-            <button class="btn btn-primary btn-sm" onclick="openAsignacionTurnoModal()" style="background:var(--celeste); border:none;">
+            <button class="btn btn-primary btn-sm" onclick="openAsignacionTurnoModal()">
               ${icon('calendar', 16)} Asignar Turno a Equipo
             </button>
           `}
