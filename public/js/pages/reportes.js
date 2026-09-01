@@ -276,7 +276,7 @@ function renderReportes() {
           <div class="card-header">
             <div style="display:flex; align-items:center; gap:8px;">
               <span style="font-size:20px; color:var(--celeste-dark);">${icon('pill')}</span>
-              <h2>s e Insumos Más Utilizados</h2>
+              <h2>Materiales e Insumos Más Utilizados</h2>
             </div>
           </div>
           <div class="card-body">
@@ -294,7 +294,7 @@ function renderReportes() {
                       ${escapeHtml(nombre)}
                     </td>
                     <td style="padding:10px 4px; text-align:right;">
-                      <span class="badge" style="background:var(--celeste-light); color:var(--celeste-dark); font-weight:700;">
+                      <span class="badge" style="background:var(--celeste-light); color:var(--celeste-dark); font-weight:700; flex-shrink:0;">
                         ${item.total} ${item.unidad}
                       </span>
                     </td>
@@ -313,11 +313,11 @@ function renderReportes() {
             </div>
           </div>
           <div class="card-body">
-            <ul style="list-style:none; padding:0;">
+            <ul style="list-style:none; padding:0; margin:0;">
               ${sortedCausas.map(([causa, count]) => `
-                <li style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--gray-100);">
-                  <span style="font-size:13px; font-weight:600; color:var(--gray-800);">${escapeHtml(causa)}</span>
-                  <span class="badge badge-warning" style="font-weight:700;">${count} ${count === 1 ? 'caso' : 'casos'}</span>
+                <li style="display:flex; justify-content:space-between; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--gray-100);">
+                  <span style="font-size:13px; font-weight:600; color:var(--gray-800); min-width:0; flex:1;">${escapeHtml(causa)}</span>
+                  <span class="badge badge-warning" style="font-weight:700; white-space:nowrap; flex-shrink:0; padding:4px 10px;">${count} ${count === 1 ? 'caso' : 'casos'}</span>
                 </li>
               `).join('')}
             </ul>

@@ -831,6 +831,7 @@ tbody tr:last-child td {
   border: 1px solid transparent;
   text-shadow: 0 0.5px 0 rgba(0,0,0,0.05);
   white-space: nowrap !important;
+  flex-shrink: 0 !important;
   line-height: 1.2;
 }
 
