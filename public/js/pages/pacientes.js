@@ -117,8 +117,15 @@ function renderPacientes() {
                   </td>
                 </tr>
               ` : filtered.map(p => {
-                const doc = personalList.find(d => d.id === p.id_personal);
-                const docName = doc ? `${doc.apellido}, ${doc.nombre}` : 'Médico de Guardia';
+                const codigosList = typeof getData === 'function' ? getData() : [];
+                const isFallecido = p.fallecido === true || !!codigosList.find(c => 
+                  (c.id_paciente === p.id || (p.apellido && c.paciente && c.paciente.toLowerCase().includes(p.apellido.toLowerCase()))) && 
+                  c.estado && c.estado.value === 'fatal'
+                );
+                const isDischarged = !p.activo;
+                const doc = (isDischarged || isFallecido) ? null : personalList.find(d => d.id === p.id_personal);
+                const docName = (isDischarged || isFallecido) ? 'Sin Designar' : (doc ? `${doc.apellido}, ${doc.nombre}` : 'Médico de Guardia');
+                const causaDisplay = (isDischarged || isFallecido) ? 'Sin Causa Activa' : (p.causa || 'Paro Cardiorrespiratorio');
                 const hasAlergia = p.alergias && p.alergias.trim().toLowerCase() !== 'ninguna' && p.alergias.trim() !== '-';
                 const formattedDNI = p.dni ? formatDNI(p.dni) : 'S/D';
 
@@ -137,11 +144,11 @@ function renderPacientes() {
                       <div style="font-size:11px; color:var(--gray-700); font-weight:700;">${icon('bed')} ${escapeHtml(p.cama || 'Sin Cama')}</div>
                     </td>
                     <td style="padding:10px 12px; vertical-align:middle;">
-                      <span style="font-size:12px; font-weight:600; color:var(--gray-800); background:var(--gray-100); border:1px solid var(--gray-200); padding:4px 8px; border-radius:6px; display:inline-block;">
-                        ${escapeHtml(p.causa || 'Paro Cardiorrespiratorio')}
+                      <span style="font-size:12px; font-weight:600; color:${(isDischarged || isFallecido) ? 'var(--gray-400)' : 'var(--gray-800)'}; background:${(isDischarged || isFallecido) ? '#f1f5f9' : 'var(--gray-100)'}; border:1px solid var(--gray-200); padding:4px 8px; border-radius:6px; display:inline-block;">
+                        ${escapeHtml(causaDisplay)}
                       </span>
                     </td>
-                    <td style="padding:10px 12px; vertical-align:middle; font-size:12px; color:var(--gray-700); white-space:nowrap;">${escapeHtml(docName)}</td>
+                    <td style="padding:10px 12px; vertical-align:middle; font-size:12px; color:${(isDischarged || isFallecido) ? 'var(--gray-400)' : 'var(--gray-700)'}; white-space:nowrap;">${escapeHtml(docName)}</td>
                     <td style="padding:10px 12px; vertical-align:middle;">
                       <div style="display:flex; flex-direction:column; gap:3px; align-items:flex-start;">
                         <span class="badge" style="background:var(--gray-100); color:var(--gray-700); border:1px solid var(--gray-300); font-weight:700; font-size:10px;">${escapeHtml(p.grupo || 'S/D')}</span>
@@ -155,9 +162,15 @@ function renderPacientes() {
                       </div>
                     </td>
                     <td style="padding:10px 14px; vertical-align:middle; text-align:center; white-space:nowrap;">
-                      <span class="badge ${p.activo ? 'badge-success' : 'badge-warning'}" style="font-size:11px; padding:4px 10px;">
-                        ${p.activo ? 'Internado' : 'Alta'}
-                      </span>
+                      ${isFallecido ? `
+                        <span class="badge" style="background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; font-size:11px; padding:4px 10px; font-weight:700;">
+                          Fallecido
+                        </span>
+                      ` : `
+                        <span class="badge ${p.activo ? 'badge-success' : 'badge-warning'}" style="font-size:11px; padding:4px 10px;">
+                          ${p.activo ? 'Internado' : 'Alta'}
+                        </span>
+                      `}
                     </td>
                     <td style="padding:10px 14px; vertical-align:middle; text-align:center; white-space:nowrap;">
                       <div style="display:flex; gap:6px; align-items:center; justify-content:center;">
@@ -508,14 +521,16 @@ function openPacienteModal(editId = null) {
     saveCamas(camasList);
 
     const persObj = personalList.find(p => p.id === id_personal);
-    const personal_a_cargo = persObj ? `${persObj.apellido}, ${persObj.nombre} (${persObj.nombre_rol || 'Médico'})` : 'Médico de Guardia';
+    const personal_a_cargo = (finalActivo && persObj) ? `${persObj.apellido}, ${persObj.nombre} (${persObj.nombre_rol || 'Médico'})` : 'Sin Designar';
+    const finalCausaSave = finalActivo ? causa : '-';
+    const finalIdPersonalSave = finalActivo ? id_personal : null;
 
     if (isEdit) {
       const idx = currentList.findIndex(p => String(p.id) === String(editId));
       if (idx !== -1) {
         currentList[idx] = {
           ...currentList[idx],
-          apellido, nombre, dni, edad, telefono, email, causa, area: finalArea, cama: finalCama, activo: finalActivo, id_personal, personal_a_cargo, grupo, alergias
+          apellido, nombre, dni, edad, telefono, email, causa: finalCausaSave, area: finalArea, cama: finalCama, activo: finalActivo, id_personal: finalIdPersonalSave, personal_a_cargo, grupo, alergias
         };
         savePacientes(currentList);
         showToast('Datos del paciente actualizados con éxito', 'success');
@@ -523,7 +538,7 @@ function openPacienteModal(editId = null) {
     } else {
       const newPac = {
         id: newId,
-        apellido, nombre, dni, edad, telefono, email, causa, area: finalArea, cama: finalCama, activo: finalActivo, id_personal, personal_a_cargo, grupo, alergias
+        apellido, nombre, dni, edad, telefono, email, causa: finalCausaSave, area: finalArea, cama: finalCama, activo: finalActivo, id_personal: finalIdPersonalSave, personal_a_cargo, grupo, alergias
       };
       currentList.push(newPac);
       savePacientes(currentList);
@@ -598,6 +613,10 @@ function doAltaPaciente(id) {
       cerrarIngresoHistorialClinico(id, resultado);
     }
 
+    if (resultado === 'Fallecido') {
+      p.fallecido = true;
+    }
+
     // Liberar la cama de las áreas
     const camasList = getCamas();
     const camaObj = camasList.find(c => (c.area_nombre === p.area && c.numero === p.cama) || c.numero === p.cama);
@@ -611,6 +630,9 @@ function doAltaPaciente(id) {
     p.activo = false;
     p.cama = '';
     p.area = 'Sin Designar';
+    p.id_personal = null;
+    p.personal_a_cargo = 'Sin Designar';
+    p.causa = '-';
     savePacientes(currentList);
 
     showToast('Alta médica registrada con éxito. Cama liberada e historial clínico actualizado.', 'success');
@@ -918,6 +940,9 @@ function openPacienteDetailModal(pacienteId) {
     (c.paciente && paciente.apellido && c.paciente.toLowerCase().includes(paciente.apellido.toLowerCase()))
   );
 
+  const isFallecido = paciente.fallecido === true || !!pacienteCodigos.find(c => c.estado?.value === 'fatal');
+  const isDischarged = !paciente.activo;
+
   const formattedDNI = paciente.dni ? formatDNI(paciente.dni) : 'S/D (Sin Documento)';
   const hasAlergia = paciente.alergias && paciente.alergias.trim().toLowerCase() !== 'ninguna' && paciente.alergias.trim() !== '-';
 
@@ -941,9 +966,15 @@ function openPacienteDetailModal(pacienteId) {
               <h2 style="font-size:20px; font-weight:800; color:var(--gray-900); margin:0;">
                 ${escapeHtml(paciente.apellido)}, ${escapeHtml(paciente.nombre)}
               </h2>
-              <span class="badge ${paciente.activo !== false ? 'badge-success' : 'badge-warning'}" style="font-size:11px; padding:4px 10px; font-weight:700;">
-                ${paciente.activo !== false ? 'Internado Activo' : 'Dado de Alta'}
-              </span>
+              ${isFallecido ? `
+                <span class="badge" style="background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; font-size:11px; padding:4px 10px; font-weight:700;">
+                  Fallecido (Obituario)
+                </span>
+              ` : `
+                <span class="badge ${paciente.activo !== false ? 'badge-success' : 'badge-warning'}" style="font-size:11px; padding:4px 10px; font-weight:700;">
+                  ${paciente.activo !== false ? 'Internado Activo' : 'Dado de Alta'}
+                </span>
+              `}
             </div>
             <div style="font-size:12.5px; color:var(--gray-500); margin-top:2px;">
               Ficha Clínica Hospitalaria · ID Paciente #${paciente.id}
@@ -1002,8 +1033,8 @@ function openPacienteDetailModal(pacienteId) {
               </div>
               <div>
                 <span style="font-size:11px; color:var(--gray-500); display:block;">Médico / Personal a Cargo</span>
-                <span style="font-size:13px; font-weight:700; color:var(--gray-800);">${escapeHtml(docName)}</span>
-                <div style="font-size:11px; color:var(--gray-500);">${escapeHtml(docInfo)}</div>
+                <span style="font-size:13px; font-weight:700; color:${isDischarged || isFallecido ? 'var(--gray-400)' : 'var(--gray-800)'};">${(isDischarged || isFallecido) ? 'Sin Designar' : escapeHtml(docName)}</span>
+                <div style="font-size:11px; color:var(--gray-500);">${(isDischarged || isFallecido) ? 'Paciente Dado de Alta' : escapeHtml(docInfo)}</div>
               </div>
             </div>
           </div>
@@ -1016,8 +1047,8 @@ function openPacienteDetailModal(pacienteId) {
             <div style="display:flex; flex-direction:column; gap:8px;">
               <div>
                 <span style="font-size:11px; color:var(--gray-500); display:block;">Diagnóstico / Causa Principal</span>
-                <span style="font-size:13px; font-weight:700; color:var(--gray-800); background:#fff; border:1px solid #e2e8f0; padding:4px 8px; border-radius:6px; display:inline-block; margin-top:2px;">
-                  ${escapeHtml(paciente.causa || 'En Evaluación')}
+                <span style="font-size:13px; font-weight:700; color:${(isDischarged || isFallecido) ? 'var(--gray-400)' : 'var(--gray-800)'}; background:${(isDischarged || isFallecido) ? '#f1f5f9' : '#fff'}; border:1px solid #e2e8f0; padding:4px 8px; border-radius:6px; display:inline-block; margin-top:2px;">
+                  ${(isDischarged || isFallecido) ? 'Sin Causa Activa' : escapeHtml(paciente.causa || 'En Evaluación')}
                 </span>
               </div>
               <div>
