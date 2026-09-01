@@ -503,8 +503,9 @@ function renderTurnosTab() {
                     ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? `
                       <span style="font-size:11px; color:var(--gray-400); font-style:italic;">Solo lectura</span>
                     ` : `
-                      <div style="display:flex; align-items:center; justify-content:center;">
-                        <button class="action-link danger" onclick="deleteAsignacionTurno(${asig.id})" title="Quitar asignación" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none; margin:0 auto;">
+                      <div style="display:flex; align-items:center; justify-content:center; gap:16px;">
+                        <button class="action-link" onclick="openAsignacionTurnoModal(${asig.id})">Editar</button>
+                        <button class="action-link danger" onclick="deleteAsignacionTurno(${asig.id})" title="Quitar asignación" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">
                           ${icon('trash', 16)}
                         </button>
                       </div>
@@ -1278,10 +1279,12 @@ function confirmDeleteTurno(id) {
 }
 
 // 6. Modal Asignar Equipo a Turno (VALIDACIÓN ESTRICTA 1 a 1: UN EQUIPO POR TURNO)
-function openAsignacionTurnoModal() {
+function openAsignacionTurnoModal(editId = null) {
+  const isEdit = editId !== null;
   const equiposList = getEquipos();
   const turnosList = getTurnos();
   const asignacionesList = getAsignacionesTurnos();
+  const asig = isEdit ? asignacionesList.find(a => a.id === editId) : null;
 
   document.querySelector('.asig-turno-modal-overlay')?.remove();
 
@@ -1295,7 +1298,7 @@ function openAsignacionTurnoModal() {
     <div class="modal scale-in" style="background:var(--white); border-radius:var(--radius-xl); width:90%; max-width:500px; box-shadow:var(--shadow-lg); overflow:hidden;">
       <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; padding:18px 24px; border-bottom:1px solid var(--gray-200); background:var(--celeste-light);">
         <div>
-          <h2 style="font-size:18px; font-weight:700; color:var(--celeste-dark); margin:0;">${icon('calendar')} Asignar Equipo a Turno</h2>
+          <h2 style="font-size:18px; font-weight:700; color:var(--celeste-dark); margin:0;">${icon('calendar')} ${isEdit ? 'Editar Asignación de Turno' : 'Asignar Equipo a Turno'}</h2>
           <p style="font-size:12px; color:var(--gray-600); margin:0;">Regla: 1 equipo por turno y 1 turno por equipo</p>
         </div>
         <button class="modal-close" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--gray-400);" onclick="this.closest('.asig-turno-modal-overlay').remove()">&times;</button>
@@ -1308,10 +1311,11 @@ function openAsignacionTurnoModal() {
             <select id="asig-t-equipo" required>
               <option value="">-- Seleccionar Equipo --</option>
               ${equiposList.map(eq => {
-                const yaAsignado = asignacionesList.find(a => a.id_equipo === eq.id);
+                const yaAsignado = asignacionesList.find(a => a.id_equipo === eq.id && (!isEdit || a.id !== editId));
+                const isCurrent = asig && asig.id_equipo === eq.id;
                 return `
-                  <option value="${eq.id}" data-nombre="${escapeHtml(eq.nombre)}" ${yaAsignado ? 'disabled style="color:#9ca3af;"' : ''}>
-                    ${escapeHtml(eq.nombre)} ${yaAsignado ? `— [Ya asignado a ${escapeHtml(yaAsignado.turno_nombre)}]` : '— [Disponible]'}
+                  <option value="${eq.id}" data-nombre="${escapeHtml(eq.nombre)}" ${isCurrent ? 'selected' : (yaAsignado ? 'disabled style="color:#9ca3af;"' : '')}>
+                    ${escapeHtml(eq.nombre)} ${isCurrent ? '— [Actual]' : (yaAsignado ? `— [Ya asignado a ${escapeHtml(yaAsignado.turno_nombre)}]` : '— [Disponible]')}
                   </option>
                 `;
               }).join('')}
@@ -1323,10 +1327,11 @@ function openAsignacionTurnoModal() {
             <select id="asig-t-turno" required>
               <option value="">-- Seleccionar Turno --</option>
               ${turnosList.map(t => {
-                const turnoOcupado = asignacionesList.find(a => a.id_turno === t.id);
+                const turnoOcupado = asignacionesList.find(a => a.id_turno === t.id && (!isEdit || a.id !== editId));
+                const isCurrent = asig && asig.id_turno === t.id;
                 return `
-                  <option value="${t.id}" data-nombre="${escapeHtml(t.nombre)}" ${turnoOcupado ? 'disabled style="color:#9ca3af;"' : ''}>
-                    ${escapeHtml(t.nombre)} (${t.hora_inicio} - ${t.hora_fin}) ${turnoOcupado ? `— [Cubierto por ${escapeHtml(turnoOcupado.equipo_nombre)}]` : '— [Disponible]'}
+                  <option value="${t.id}" data-nombre="${escapeHtml(t.nombre)}" ${isCurrent ? 'selected' : (turnoOcupado ? 'disabled style="color:#9ca3af;"' : '')}>
+                    ${escapeHtml(t.nombre)} (${t.hora_inicio} - ${t.hora_fin}) ${isCurrent ? '— [Actual]' : (turnoOcupado ? `— [Cubierto por ${escapeHtml(turnoOcupado.equipo_nombre)}]` : '— [Disponible]')}
                   </option>
                 `;
               }).join('')}
@@ -1336,18 +1341,18 @@ function openAsignacionTurnoModal() {
           <div class="form-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
             <div class="form-group">
               <label>Fecha Desde *</label>
-              <input type="date" id="asig-t-desde" required value="${todayStr}" />
+              <input type="date" id="asig-t-desde" required value="${asig ? asig.fecha_desde : todayStr}" />
             </div>
             <div class="form-group">
               <label>Fecha Hasta (Opcional)</label>
-              <input type="date" id="asig-t-hasta" />
+              <input type="date" id="asig-t-hasta" value="${asig ? (asig.fecha_hasta || '') : ''}" />
             </div>
           </div>
         </div>
 
         <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:10px; padding:14px 24px; border-top:1px solid var(--gray-200); background:var(--gray-50);">
           <button type="button" class="btn btn-secondary btn-sm" onclick="this.closest('.asig-turno-modal-overlay').remove()">Cancelar</button>
-          <button type="submit" class="btn btn-primary btn-sm">Guardar Asignación</button>
+          <button type="submit" class="btn btn-primary btn-sm">${isEdit ? 'Guardar Cambios' : 'Guardar Asignación'}</button>
         </div>
       </form>
     </div>
@@ -1376,33 +1381,47 @@ function openAsignacionTurnoModal() {
     const currentAsignaciones = getAsignacionesTurnos();
 
     // VALIDACIÓN ESTRICTA: No duplicar equipo ni turno
-    const equipoOcupado = currentAsignaciones.find(a => a.id_equipo === id_equipo);
+    const equipoOcupado = currentAsignaciones.find(a => a.id_equipo === id_equipo && (!isEdit || a.id !== editId));
     if (equipoOcupado) {
       showToast(`${icon('alertTriangle')} El "${equipo_nombre}" ya está asignado al ${equipoOcupado.turno_nombre}. Un equipo no puede estar en dos turnos.`, 'error');
       return;
     }
 
-    const turnoOcupado = currentAsignaciones.find(a => a.id_turno === id_turno);
+    const turnoOcupado = currentAsignaciones.find(a => a.id_turno === id_turno && (!isEdit || a.id !== editId));
     if (turnoOcupado) {
       showToast(`${icon('alertTriangle')} El "${turno_nombre}" ya está cubierto por ${turnoOcupado.equipo_nombre}. Dos equipos no pueden estar en el mismo turno.`, 'error');
       return;
     }
 
-    const newId = currentAsignaciones.length > 0 ? Math.max(...currentAsignaciones.map(a => a.id)) + 1 : 1;
-
-    currentAsignaciones.push({
-      id: newId,
-      id_equipo,
-      equipo_nombre,
-      id_turno,
-      turno_nombre,
-      fecha_desde,
-      fecha_hasta
-    });
+    if (isEdit) {
+      const idx = currentAsignaciones.findIndex(a => a.id === editId);
+      if (idx !== -1) {
+        currentAsignaciones[idx] = {
+          id: editId,
+          id_equipo,
+          equipo_nombre,
+          id_turno,
+          turno_nombre,
+          fecha_desde,
+          fecha_hasta
+        };
+      }
+      showToast('Asignación de turno actualizada con éxito', 'success');
+    } else {
+      const newId = currentAsignaciones.length > 0 ? Math.max(...currentAsignaciones.map(a => a.id)) + 1 : 1;
+      currentAsignaciones.push({
+        id: newId,
+        id_equipo,
+        equipo_nombre,
+        id_turno,
+        turno_nombre,
+        fecha_desde,
+        fecha_hasta
+      });
+      showToast('Asignación de turno guardada con éxito', 'success');
+    }
 
     saveAsignacionesTurnos(currentAsignaciones);
-    showToast('Asignación de turno guardada con éxito', 'success');
-
     document.querySelector('.asig-turno-modal-overlay')?.remove();
     renderApp();
   });
