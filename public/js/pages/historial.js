@@ -378,11 +378,12 @@ function confirmDeleteCodigo(id) {
   if (!codigo) return;
 
   showConfirmModal({
-    title: 'Eliminar Registro de Código Azul',
-    message: `¿Está seguro de eliminar el registro de <strong>"${escapeHtml(codigo.paciente)}"</strong> (Código #${codigo.id})?<br><br>Esta acción quedará asentada en el Libro de Auditoría Legal.`,
+    title: 'Mover Código Azul a Papelera',
+    message: `¿Está seguro de mover el registro de <strong>"${escapeHtml(codigo.paciente)}"</strong> (Código #${codigo.id}) a la papelera?<br><br><span style="color:#0369a1; font-size:12px;">El registro se podrá restaurar durante los próximos 30 días. Esta acción quedará asentada en el Libro de Auditoría Legal.</span>`,
+    confirmText: 'Mover a Papelera',
     onConfirm: () => {
       deleteCodigo(id);
-      showToast('Registro de Código Azul eliminado', 'success');
+      showToast('Movido a la papelera. Podés restaurarlo durante los próximos 30 días.', 'info');
       renderApp();
     }
   });

@@ -979,41 +979,7 @@ async function updateCodigo(id, updates) {
 }
 
 function deleteCodigo(id) {
-  const data = getData();
-  const target = data.find(d => d.id === id);
-  if (target) {
-    // 1. Restaurar stock de los materiales utilizados
-    if (Array.isArray(target.materiales) && target.materiales.length > 0) {
-      const matList = getMateriales();
-      target.materiales.forEach(used => {
-        const m = matList.find(item => item.id === used.id_material || item.nombre === used.nombre);
-        if (m) {
-          m.stock = (m.stock !== undefined ? m.stock : 20) + (used.cantidad || 1);
-        }
-      });
-      saveMateriales(matList);
-    }
-
-    // 2. Si el evento fue fatal, reactivar al paciente para que vuelva a estar disponible
-    if (target.estado?.value === 'fatal') {
-      const pacientes = getPacientes();
-      const pIdx = pacientes.findIndex(p => p.id === target.id_paciente || target.paciente.includes(p.apellido));
-      if (pIdx !== -1) {
-        pacientes[pIdx].activo = true;
-        savePacientes(pacientes);
-
-        const camasList = getCamas();
-        const cObj = camasList.find(c => c.area_nombre === pacientes[pIdx].area && c.numero === pacientes[pIdx].cama);
-        if (cObj) {
-          cObj.estado = 'Ocupada';
-          saveCamas(camasList);
-        }
-      }
-    }
-  }
-
-  const rest = data.filter(d => d.id !== id);
-  saveData(rest);
+  softDeleteCodigo(id);
 }
 
 function getCodigoById(id) {
@@ -1060,4 +1026,316 @@ function getMonthlyStats() {
   }
 
   return months;
+}
+
+// ==========================================
+// PAPELERA / SOFT DELETE SYSTEM
+// ==========================================
+
+// --- Trash Storage Helpers ---
+function getTrashPacientes() {
+  const stored = localStorage.getItem('codigoAzulTrashPacientes');
+  return stored ? JSON.parse(stored) : [];
+}
+function saveTrashPacientes(list) {
+  localStorage.setItem('codigoAzulTrashPacientes', JSON.stringify(list));
+}
+
+function getTrashPersonal() {
+  const stored = localStorage.getItem('codigoAzulTrashPersonal');
+  return stored ? JSON.parse(stored) : [];
+}
+function saveTrashPersonal(list) {
+  localStorage.setItem('codigoAzulTrashPersonal', JSON.stringify(list));
+}
+
+function getTrashCodigos() {
+  const stored = localStorage.getItem('codigoAzulTrashCodigos');
+  return stored ? JSON.parse(stored) : [];
+}
+function saveTrashCodigos(list) {
+  localStorage.setItem('codigoAzulTrashCodigos', JSON.stringify(list));
+}
+
+function getTrashCount() {
+  return getTrashPacientes().length + getTrashPersonal().length + getTrashCodigos().length;
+}
+
+// --- Soft Delete Functions ---
+function softDeletePaciente(id) {
+  const all = getPacientes();
+  const idx = all.findIndex(p => p.id === id);
+  if (idx === -1) return;
+  const p = all[idx];
+
+  // Liberar cama si tiene una asignada
+  if (p.cama && p.area && p.area !== 'Sin Designar') {
+    const camasList = getCamas();
+    const cObj = camasList.find(c => (c.area_nombre === p.area && c.numero === p.cama) || c.numero === p.cama);
+    if (cObj) {
+      cObj.estado = 'Libre';
+      cObj.id_paciente = null;
+      cObj.paciente_nombre = null;
+      saveCamas(camasList);
+    }
+  }
+
+  // Marcar y mover a papelera
+  p.deleted_at = new Date().toISOString();
+  p.deleted_by = (typeof getUser === 'function' && getUser()) ? getUser().user : 'Sistema';
+  const trash = getTrashPacientes();
+  trash.push(p);
+  saveTrashPacientes(trash);
+
+  // Remover del array principal
+  all.splice(idx, 1);
+  savePacientes(all);
+
+  logAuditoria(null, 'Paciente movido a papelera',
+    'Paciente: ' + p.apellido + ', ' + p.nombre + ' (DNI: ' + (p.dni || 'S/D') + ')');
+}
+
+function softDeletePersonal(id) {
+  const all = getPersonalSalud();
+  const idx = all.findIndex(p => p.id === id);
+  if (idx === -1) return;
+  const persona = all[idx];
+
+  // Marcar y mover a papelera
+  persona.deleted_at = new Date().toISOString();
+  persona.deleted_by = (typeof getUser === 'function' && getUser()) ? getUser().user : 'Sistema';
+  const trash = getTrashPersonal();
+  trash.push(persona);
+  saveTrashPersonal(trash);
+
+  // Remover del array principal
+  all.splice(idx, 1);
+  savePersonalSalud(all);
+
+  logAuditoria(null, 'Personal movido a papelera',
+    'Personal: ' + persona.apellido + ', ' + persona.nombre + ' (DNI: ' + (persona.dni || 'S/D') + ')');
+}
+
+function softDeleteCodigo(id) {
+  const data = getData();
+  const idx = data.findIndex(d => d.id === id);
+  if (idx === -1) return;
+  const codigo = data[idx];
+
+  // Restaurar stock de materiales utilizados
+  if (Array.isArray(codigo.materiales) && codigo.materiales.length > 0) {
+    const matList = getMateriales();
+    codigo.materiales.forEach(function(used) {
+      const m = matList.find(function(item) { return item.id === used.id_material || item.nombre === used.nombre; });
+      if (m) {
+        m.stock = (m.stock !== undefined ? m.stock : 20) + (used.cantidad || 1);
+      }
+    });
+    saveMateriales(matList);
+  }
+
+  // Si fue fatal, reactivar paciente
+  if (codigo.estado && codigo.estado.value === 'fatal') {
+    const pacientes = getPacientes();
+    const pIdx = pacientes.findIndex(function(p) { return p.id === codigo.id_paciente || (codigo.paciente && codigo.paciente.includes(p.apellido)); });
+    if (pIdx !== -1) {
+      pacientes[pIdx].activo = true;
+      savePacientes(pacientes);
+      const camasList = getCamas();
+      const cObj = camasList.find(function(c) { return c.area_nombre === pacientes[pIdx].area && c.numero === pacientes[pIdx].cama; });
+      if (cObj) {
+        cObj.estado = 'Ocupada';
+        saveCamas(camasList);
+      }
+    }
+  }
+
+  // Marcar y mover a papelera
+  codigo.deleted_at = new Date().toISOString();
+  codigo.deleted_by = (typeof getUser === 'function' && getUser()) ? getUser().user : 'Sistema';
+  const trash = getTrashCodigos();
+  trash.push(codigo);
+  saveTrashCodigos(trash);
+
+  // Remover del array principal
+  const rest = data.filter(function(d) { return d.id !== id; });
+  saveData(rest);
+
+  logAuditoria(id, 'Código Azul movido a papelera',
+    'Paciente: ' + (codigo.paciente || 'N/D') + ', Área: ' + (codigo.area || 'N/D'));
+}
+
+// --- Restore Functions ---
+function restorePaciente(id) {
+  const trash = getTrashPacientes();
+  const idx = trash.findIndex(function(p) { return p.id === id; });
+  if (idx === -1) return false;
+  const p = trash[idx];
+
+  // Intentar reasignar cama
+  if (p.cama && p.area && p.area !== 'Sin Designar') {
+    const camasList = getCamas();
+    const cObj = camasList.find(function(c) { return (c.area_nombre === p.area && c.numero === p.cama) || c.numero === p.cama; });
+    if (cObj && cObj.estado === 'Libre') {
+      cObj.estado = 'Ocupada';
+      cObj.id_paciente = p.id;
+      cObj.paciente_nombre = p.apellido + ', ' + p.nombre;
+      saveCamas(camasList);
+    } else {
+      // Cama ya no disponible
+      p.cama = null;
+    }
+  }
+
+  // Limpiar marcas de eliminación
+  delete p.deleted_at;
+  delete p.deleted_by;
+
+  // Devolver al array principal
+  const all = getPacientes();
+  all.push(p);
+  savePacientes(all);
+
+  // Remover de papelera
+  trash.splice(idx, 1);
+  saveTrashPacientes(trash);
+
+  logAuditoria(null, 'Paciente restaurado desde papelera',
+    'Paciente: ' + p.apellido + ', ' + p.nombre);
+  return true;
+}
+
+function restorePersonal(id) {
+  const trash = getTrashPersonal();
+  const idx = trash.findIndex(function(p) { return p.id === id; });
+  if (idx === -1) return false;
+  const persona = trash[idx];
+
+  // Limpiar marcas de eliminación
+  delete persona.deleted_at;
+  delete persona.deleted_by;
+
+  // Devolver al array principal
+  const all = getPersonalSalud();
+  all.push(persona);
+  savePersonalSalud(all);
+
+  // Remover de papelera
+  trash.splice(idx, 1);
+  saveTrashPersonal(trash);
+
+  logAuditoria(null, 'Personal restaurado desde papelera',
+    'Personal: ' + persona.apellido + ', ' + persona.nombre);
+  return true;
+}
+
+function restoreCodigo(id) {
+  const trash = getTrashCodigos();
+  const idx = trash.findIndex(function(d) { return d.id === id; });
+  if (idx === -1) return false;
+  const codigo = trash[idx];
+
+  // Volver a descontar materiales del stock
+  if (Array.isArray(codigo.materiales) && codigo.materiales.length > 0) {
+    const matList = getMateriales();
+    codigo.materiales.forEach(function(used) {
+      const m = matList.find(function(item) { return item.id === used.id_material || item.nombre === used.nombre; });
+      if (m) {
+        m.stock = Math.max(0, (m.stock !== undefined ? m.stock : 20) - (used.cantidad || 1));
+      }
+    });
+    saveMateriales(matList);
+  }
+
+  // Limpiar marcas de eliminación
+  delete codigo.deleted_at;
+  delete codigo.deleted_by;
+
+  // Devolver al array principal
+  const data = getData();
+  data.push(codigo);
+  saveData(data);
+
+  // Remover de papelera
+  trash.splice(idx, 1);
+  saveTrashCodigos(trash);
+
+  logAuditoria(id, 'Código Azul restaurado desde papelera',
+    'Paciente: ' + (codigo.paciente || 'N/D'));
+  return true;
+}
+
+// --- Permanent Delete Functions ---
+function permanentDeletePaciente(id) {
+  const trash = getTrashPacientes();
+  const p = trash.find(function(item) { return item.id === id; });
+  const rest = trash.filter(function(item) { return item.id !== id; });
+  saveTrashPacientes(rest);
+  logAuditoria(null, 'Paciente eliminado permanentemente',
+    'ID: ' + id + (p ? ' (' + p.apellido + ', ' + p.nombre + ')' : '') + ' — Eliminación irreversible');
+}
+
+function permanentDeletePersonal(id) {
+  const trash = getTrashPersonal();
+  const p = trash.find(function(item) { return item.id === id; });
+  const rest = trash.filter(function(item) { return item.id !== id; });
+  saveTrashPersonal(rest);
+  logAuditoria(null, 'Personal eliminado permanentemente',
+    'ID: ' + id + (p ? ' (' + p.apellido + ', ' + p.nombre + ')' : '') + ' — Eliminación irreversible');
+}
+
+function permanentDeleteCodigo(id) {
+  const trash = getTrashCodigos();
+  const rest = trash.filter(function(item) { return item.id !== id; });
+  saveTrashCodigos(rest);
+  logAuditoria(id, 'Código Azul eliminado permanentemente',
+    'ID: ' + id + ' — Eliminación irreversible');
+}
+
+// --- Auto-cleanup (30 day retention) ---
+function cleanupTrash() {
+  var THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+  var now = Date.now();
+  var cleaned = 0;
+
+  // Limpiar pacientes expirados
+  var trashPac = getTrashPacientes();
+  var expPac = trashPac.filter(function(p) { return p.deleted_at && (now - new Date(p.deleted_at).getTime()) > THIRTY_DAYS_MS; });
+  if (expPac.length > 0) {
+    expPac.forEach(function(p) {
+      logAuditoria(null, 'Eliminación automática por retención',
+        'Paciente ' + p.apellido + ', ' + p.nombre + ' — Retención de 30 días cumplida', 'Sistema');
+    });
+    trashPac = trashPac.filter(function(p) { return !p.deleted_at || (now - new Date(p.deleted_at).getTime()) <= THIRTY_DAYS_MS; });
+    saveTrashPacientes(trashPac);
+    cleaned += expPac.length;
+  }
+
+  // Limpiar personal expirado
+  var trashPers = getTrashPersonal();
+  var expPers = trashPers.filter(function(p) { return p.deleted_at && (now - new Date(p.deleted_at).getTime()) > THIRTY_DAYS_MS; });
+  if (expPers.length > 0) {
+    expPers.forEach(function(p) {
+      logAuditoria(null, 'Eliminación automática por retención',
+        'Personal ' + p.apellido + ', ' + p.nombre + ' — Retención de 30 días cumplida', 'Sistema');
+    });
+    trashPers = trashPers.filter(function(p) { return !p.deleted_at || (now - new Date(p.deleted_at).getTime()) <= THIRTY_DAYS_MS; });
+    saveTrashPersonal(trashPers);
+    cleaned += expPers.length;
+  }
+
+  // Limpiar códigos expirados
+  var trashCod = getTrashCodigos();
+  var expCod = trashCod.filter(function(d) { return d.deleted_at && (now - new Date(d.deleted_at).getTime()) > THIRTY_DAYS_MS; });
+  if (expCod.length > 0) {
+    expCod.forEach(function(d) {
+      logAuditoria(d.id, 'Eliminación automática por retención',
+        'Código Azul #' + d.id + ' — Retención de 30 días cumplida', 'Sistema');
+    });
+    trashCod = trashCod.filter(function(d) { return !d.deleted_at || (now - new Date(d.deleted_at).getTime()) <= THIRTY_DAYS_MS; });
+    saveTrashCodigos(trashCod);
+    cleaned += expCod.length;
+  }
+
+  return cleaned;
 }

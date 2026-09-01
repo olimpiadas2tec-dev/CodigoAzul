@@ -707,16 +707,17 @@ function confirmDeletePersonal(id) {
   if (!pers) return;
 
   showConfirmModal({
-    title: 'Eliminar Personal de Salud',
-    message: `¿Está seguro de eliminar a <strong>${escapeHtml(pers.apellido)}, ${escapeHtml(pers.nombre)}</strong> del registro de personal?`,
+    title: 'Mover Personal a Papelera',
+    message: `¿Está seguro de mover a <strong>${escapeHtml(pers.apellido)}, ${escapeHtml(pers.nombre)}</strong> a la papelera?<br/><br/><span style="color:#0369a1; font-size:12px;">El registro se podrá restaurar desde la papelera durante los próximos 30 días.</span>`,
+    confirmText: 'Mover a Papelera',
     onConfirm: () => {
-      const rest = personalList.filter(p => p.id !== id);
-      savePersonalSalud(rest);
-      showToast('Personal eliminado correctamente', 'success');
+      softDeletePersonal(id);
+      showToast('Movido a la papelera. Podés restaurarlo durante los próximos 30 días.', 'info');
       renderApp();
     }
   });
 }
+
 
 // 2. Modal Alta / Edición de Rol de Salud
 function openRolModal(editId = null) {

@@ -126,6 +126,12 @@ function renderLayout(content, activeRoute) {
           <a href="#/reportes" class="${activeRoute === 'reportes' ? 'active' : ''}" data-tooltip="Reportes" title="Reportes y Estadísticas">
             ${SVG.reportes}
           </a>
+          ${isConsultaRole() ? '' : `
+            <a href="#/papelera" class="${activeRoute === 'papelera' ? 'active' : ''}" data-tooltip="Papelera" title="Papelera de Registros Eliminados" style="position:relative;">
+              ${icon('trash2', 20)}
+              ${(typeof getTrashCount === 'function' && getTrashCount() > 0) ? '<span style="position:absolute; top:6px; right:6px; background:#dc2626; color:#fff; font-size:9px; font-weight:800; min-width:16px; height:16px; border-radius:8px; display:flex; align-items:center; justify-content:center; padding:0 4px; line-height:1;">' + getTrashCount() + '</span>' : ''}
+            </a>
+          `}
         </nav>
         <div class="sidebar-footer">
           <button class="sidebar-logout" onclick="handleLogout()" title="Cerrar Sesión">
@@ -215,6 +221,14 @@ function renderApp() {
       case 'reportes':
         content = renderReportes();
         break;
+      case 'papelera':
+        if (isConsultaRole()) {
+          if (typeof showToast === 'function') showToast('Acceso restringido: El rol Consulta no tiene acceso a la Papelera.', 'warning');
+          window.location.hash = '#/dashboard';
+          return;
+        }
+        content = renderPapelera();
+        break;
       default:
         activeRoute = 'dashboard';
         content = renderDashboard();
@@ -250,6 +264,9 @@ function renderApp() {
           case 'reportes':
             setupReportes();
             break;
+          case 'papelera':
+            if (typeof setupPapelera === 'function') setupPapelera();
+            break;
           case 'dashboard':
             setupDashboard();
             break;
@@ -280,6 +297,11 @@ window.addEventListener('hashchange', renderApp);
 // Initial render
 if (!window.location.hash) {
   window.location.hash = isLoggedIn() ? '#/dashboard' : '#/login';
+}
+
+// Auto-cleanup papelera items older than 30 days
+if (typeof cleanupTrash === 'function') {
+  try { cleanupTrash(); } catch(e) { console.warn('Trash cleanup error:', e); }
 }
 
 renderApp();

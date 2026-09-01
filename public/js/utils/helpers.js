@@ -271,6 +271,85 @@ function showConfirmModal({
 
 window.showConfirmModal = showConfirmModal;
 
+/**
+ * Modal de Confirmación Reforzada para Eliminación Permanente
+ * Requiere que el usuario escriba "ELIMINAR" para confirmar
+ */
+function showPermanentDeleteModal({ title, itemName, onConfirm }) {
+  document.querySelector('.perm-delete-overlay')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay active perm-delete-overlay';
+  overlay.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(17,24,39,0.75); z-index:10001; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px); padding:20px;';
+
+  overlay.innerHTML = `
+    <div class="modal scale-in" style="background:var(--white); border-radius:var(--radius-xl); width:90%; max-width:480px; box-shadow:var(--shadow-lg); overflow:hidden;">
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; padding:18px 24px; border-bottom:1px solid var(--gray-200); background:#fee2e2;">
+        <h3 style="font-size:17px; font-weight:800; color:#991b1b; margin:0; display:flex; align-items:center; gap:8px;">
+          ${icon('alertTriangle')} ${escapeHtml(title || 'Eliminar Permanentemente')}
+        </h3>
+        <button class="modal-close" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--gray-400);" onclick="this.closest('.perm-delete-overlay').remove()">&times;</button>
+      </div>
+      <div class="modal-body" style="padding:20px 24px;">
+        <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:8px; padding:14px; margin-bottom:16px;">
+          <p style="font-size:13px; color:#991b1b; font-weight:600; margin:0 0 6px 0;">
+            ${icon('alertTriangle', 14)} Esta acción es IRREVERSIBLE
+          </p>
+          <p style="font-size:12.5px; color:#7f1d1d; margin:0; line-height:1.5;">
+            Se eliminará permanentemente <strong>${escapeHtml(itemName || 'este registro')}</strong> del sistema. No se podrá recuperar de ninguna forma.
+          </p>
+        </div>
+        <label style="font-size:13px; font-weight:600; color:var(--gray-700); display:block; margin-bottom:8px;">
+          Escriba <strong style="color:#dc2626; letter-spacing:1px;">ELIMINAR</strong> para confirmar:
+        </label>
+        <input type="text" id="perm-delete-confirm-input" autocomplete="off" spellcheck="false"
+          style="width:100%; padding:10px 14px; border:2px solid var(--gray-300); border-radius:8px; font-size:14px; font-weight:600; letter-spacing:1px; outline:none; transition:border-color 0.2s; box-sizing:border-box;"
+          placeholder="Escriba ELIMINAR aquí..."
+        />
+      </div>
+      <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:10px; padding:14px 24px; border-top:1px solid var(--gray-200); background:var(--gray-50);">
+        <button class="btn btn-secondary btn-sm" onclick="this.closest('.perm-delete-overlay').remove()">Cancelar</button>
+        <button class="btn btn-sm" id="btn-perm-delete-action" disabled
+          style="background:#9ca3af; color:#fff; font-weight:700; border-radius:8px; padding:8px 16px; border:none; cursor:not-allowed; opacity:0.6; transition:all 0.2s;">
+          ${icon('trash', 14)} Eliminar Permanentemente
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  const input = document.getElementById('perm-delete-confirm-input');
+  const btn = document.getElementById('btn-perm-delete-action');
+
+  if (input && btn) {
+    input.addEventListener('input', function() {
+      const match = input.value.trim().toUpperCase() === 'ELIMINAR';
+      btn.disabled = !match;
+      btn.style.background = match ? '#dc2626' : '#9ca3af';
+      btn.style.cursor = match ? 'pointer' : 'not-allowed';
+      btn.style.opacity = match ? '1' : '0.6';
+      input.style.borderColor = match ? '#16a34a' : (input.value.length > 0 ? '#dc2626' : 'var(--gray-300)');
+    });
+
+    btn.addEventListener('click', function() {
+      if (input.value.trim().toUpperCase() === 'ELIMINAR') {
+        overlay.remove();
+        if (typeof onConfirm === 'function') onConfirm();
+      }
+    });
+
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && input.value.trim().toUpperCase() === 'ELIMINAR') {
+        overlay.remove();
+        if (typeof onConfirm === 'function') onConfirm();
+      }
+    });
+  }
+}
+
+window.showPermanentDeleteModal = showPermanentDeleteModal;
+
 // Modal de acceso rápido a integrantes de la brigada (Global)
 function showEquipoIntegrantesModal(equipoNombre, turnoNombre = 'Guardia') {
   document.querySelector('.equipo-modal-overlay')?.remove();

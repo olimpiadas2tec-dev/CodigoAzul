@@ -838,9 +838,9 @@ function confirmDeletePaciente(id) {
 
   if (typeof showConfirmModal === 'function') {
     showConfirmModal({
-      title: 'Eliminar Registro de Paciente',
-      message: `¿Confirma eliminar definitivamente al paciente <strong>${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}</strong> (DNI: ${p.dni || 'S/D'}) del sistema?<br/><br/><span style="color:#dc2626; font-size:12px;"> una cama asignada, la cama quedará libre automáticamente. Esta acción no se puede deshacer.</span>`,
-      confirmText: 'Eliminar Definitivamente',
+      title: 'Mover Paciente a Papelera',
+      message: `¿Confirma mover al paciente <strong>${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}</strong> (DNI: ${p.dni || 'S/D'}) a la papelera?<br/><br/><span style="color:#0369a1; font-size:12px;">El registro se podrá restaurar desde la papelera durante los próximos 30 días. Si tiene una cama asignada, la cama quedará libre automáticamente.</span>`,
+      confirmText: 'Mover a Papelera',
       confirmBtnStyle: 'background:#dc2626; color:#fff; font-weight:700; border-radius:8px; padding:8px 16px; border:none; cursor:pointer;',
       iconName: 'trash',
       headerBg: '#fee2e2',
@@ -850,36 +850,16 @@ function confirmDeletePaciente(id) {
       }
     });
   } else {
-    if (confirm(`¿Seguro que desea eliminar al paciente ${p.apellido}, ${p.nombre}?`)) {
+    if (confirm(`¿Seguro que desea mover al paciente ${p.apellido}, ${p.nombre} a la papelera?`)) {
       deletePaciente(id);
     }
   }
 }
 
 function deletePaciente(id) {
-  const currentList = getPacientes();
-  const idx = currentList.findIndex(p => p.id === id);
-  if (idx !== -1) {
-    const p = currentList[idx];
-
-    // Liberar la cama si tenía una
-    if (p.cama && p.area && p.area !== 'Sin Designar') {
-      const camasList = getCamas();
-      const cObj = camasList.find(c => (c.area_nombre === p.area && c.numero === p.cama) || c.numero === p.cama);
-      if (cObj) {
-        cObj.estado = 'Libre';
-        cObj.id_paciente = null;
-        cObj.paciente_nombre = null;
-        saveCamas(camasList);
-      }
-    }
-
-    currentList.splice(idx, 1);
-    savePacientes(currentList);
-
-    showToast(`Paciente ${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)} eliminado exitosamente.`, 'success');
-    renderApp();
-  }
+  softDeletePaciente(id);
+  showToast('Movido a la papelera. Podés restaurarlo durante los próximos 30 días.', 'info');
+  renderApp();
 }
 
 window.openPacienteModal = openPacienteModal;
