@@ -27,10 +27,20 @@ function renderPersonal() {
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               Nuevo Personal
             </button>
+          ` : tab === 'roles' ? `
+            <button class="btn btn-primary btn-sm" onclick="openRolModal()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Nuevo Rol
+            </button>
           ` : tab === 'equipos' ? `
             <button class="btn btn-primary btn-sm" onclick="openEquipoModal()" ${equiposCount >= 3 ? 'title="Límite máximo de 3 equipos alcanzado" style="opacity:0.6;"' : ''}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               Nuevo Equipo ${equiposCount >= 3 ? '(Máx 3)' : ''}
+            </button>
+          ` : tab === 'turnos' ? `
+            <button class="btn btn-primary btn-sm" onclick="openTurnoModal()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Nuevo Turno
             </button>
           ` : ''}
         `}
@@ -223,23 +233,17 @@ function renderRolesTab() {
 
   return `
     <div class="card scale-in">
-      <div class="card-body" style="padding-bottom:12px;">
-        <div class="filters-bar" style="display:flex; justify-content:space-between; align-items:center;">
+      <div class="card-body" style="padding:14px 16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
           <div style="font-size:13px; color:var(--gray-600);">
             Gestión de especialidades y funciones clínicas obligatorias en el hospital.
           </div>
-          <div style="display:flex; gap:10px; align-items:center;">
-            <label style="font-size:12.5px; color:var(--gray-700); font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px;">
-              <input type="checkbox" onchange="toggleRolesSinPersonal(this.checked)" ${personalTabState.onlyRolesSinPersonal ? 'checked' : ''} />
-              Filtrar sólo roles vacíos (sin personal)
-            </label>
-            ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? '' : `
-              <button class="btn btn-primary btn-sm" onclick="openRolModal()">
-                ${icon('plus')} Nuevo Rol
-              </button>
-            `}
-          </div>
+          <label style="font-size:12.5px; color:var(--gray-700); font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px; user-select:none;">
+            <input type="checkbox" onchange="toggleRolesSinPersonal(this.checked)" ${personalTabState.onlyRolesSinPersonal ? 'checked' : ''} style="cursor:pointer;" />
+            Filtrar sólo roles vacíos (sin personal)
+          </label>
         </div>
+      </div>
       <div class="table-container table-stagger" style="padding:0; overflow-x:auto; width:100%; border-radius:0;">
         <table style="width:100%; min-width:520px; border-collapse:collapse; font-size:13px;">
           <thead>
