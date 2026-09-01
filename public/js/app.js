@@ -30,6 +30,11 @@ function handleLogout() {
     showConfirmModal({
       title: 'Cerrar Sesión',
       message: '¿Está seguro de que desea salir del sistema Código Azul?',
+      confirmText: 'Cerrar Sesión',
+      confirmBtnStyle: 'background:var(--celeste); color:#fff; font-weight:700; padding:8px 18px; border-radius:8px; border:none; cursor:pointer;',
+      iconName: 'logOut',
+      headerBg: '#e0f2fe',
+      headerColor: '#0369a1',
       onConfirm: () => {
         logout();
       }
