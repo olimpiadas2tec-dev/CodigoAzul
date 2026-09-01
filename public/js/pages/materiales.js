@@ -236,13 +236,13 @@ function openMaterialModal(editId = null) {
 
           <div class="form-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:14px;">
             <div class="form-group">
-              <label>Capacidad Máxima del Carro *</label>
-              <input type="number" id="m-stockmax" min="1" max="500" required value="${mat ? (mat.stockMax || 50) : 50}" />
-            </div>
-            <div class="form-group">
               <label>Stock Actual en Carro *</label>
               <input type="number" id="m-stock" min="0" max="${mat ? (mat.stockMax || 50) : 50}" required value="${mat ? (mat.stock !== undefined ? mat.stock : 20) : 20}" />
               <small id="stock-error-msg" style="color:var(--danger); font-size:11px; display:none; margin-top:3px; font-weight:600;">El stock actual no puede superar la capacidad máxima.</small>
+            </div>
+            <div class="form-group">
+              <label>Capacidad Máxima del Carro *</label>
+              <input type="number" id="m-stockmax" min="1" max="500" required value="${mat ? (mat.stockMax || 50) : 50}" />
             </div>
           </div>
 
