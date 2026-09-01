@@ -161,7 +161,7 @@ function renderPersonalTab() {
               </tr>
             ` : filtered.map((p, idx) => `
               <tr style="border-bottom:1px solid var(--gray-100); background:${idx % 2 === 0 ? 'var(--white)' : '#f8fafc'};">
-                <td style="padding:10px 14px; font-weight:600; color:var(--gray-400); text-align:center; vertical-align:middle;">#${p.id}</td>
+                <td style="padding:10px 14px; font-weight:600; color:var(--gray-400); text-align:center; vertical-align:middle;">${p.id}</td>
                 <td style="padding:10px 14px; font-weight:700; color:var(--gray-800); font-size:13.5px; vertical-align:middle; white-space:nowrap;">
                   ${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}
                 </td>
@@ -229,7 +229,7 @@ function renderRolesTab() {
         <table style="width:100%; border-collapse:collapse; font-size:13px;">
           <thead>
             <tr style="border-bottom:2px solid var(--gray-200); background:var(--gray-50); text-align:left;">
-              <th style="padding:10px 16px; width:60px;">ID</th>
+              <th style="padding:10px 16px; width:60px;">#</th>
               <th style="padding:10px 16px;">Nombre del Rol</th>
               <th style="padding:10px 16px;">Descripción</th>
               <th style="padding:10px 16px;">Personal Asignado</th>
@@ -248,7 +248,7 @@ function renderRolesTab() {
               const textPersonal = personalCount === 1 ? '1 profesional' : `${personalCount} profesionales`;
               return `
                 <tr style="border-bottom:1px solid var(--gray-100);">
-                  <td style="padding:10px 16px; font-weight:600; color:var(--gray-400); vertical-align:middle;">#${rol.id}</td>
+                  <td style="padding:10px 16px; font-weight:600; color:var(--gray-400); vertical-align:middle;">${rol.id}</td>
                   <td style="padding:10px 16px; font-weight:600; color:var(--gray-800); vertical-align:middle;">${escapeHtml(rol.nombre_rol)}</td>
                   <td style="padding:10px 16px; color:var(--gray-600); vertical-align:middle;">${escapeHtml(rol.descripcion || '-')}</td>
                   <td style="padding:10px 16px; vertical-align:middle;">

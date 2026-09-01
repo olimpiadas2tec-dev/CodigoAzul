@@ -146,7 +146,7 @@ function renderAreasTab() {
 
               return `
                 <tr style="border-bottom:1px solid var(--gray-100); background:${idx % 2 === 0 ? 'var(--white)' : '#f8fafc'};">
-                  <td style="padding:10px 14px; font-weight:600; color:var(--gray-400); text-align:center; vertical-align:middle;">#${area.id}</td>
+                  <td style="padding:10px 14px; font-weight:600; color:var(--gray-400); text-align:center; vertical-align:middle;">${area.id}</td>
                   <td style="padding:10px 14px; font-weight:700; color:var(--gray-800); font-size:13.5px; vertical-align:middle; white-space:nowrap;">
                     ${escapeHtml(area.nombre)}
                   </td>

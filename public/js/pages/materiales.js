@@ -55,7 +55,7 @@ function renderMateriales() {
           <table>
             <thead>
               <tr>
-                <th>ID</th>
+                <th>#</th>
                 <th>Nombre / Presentación</th>
                 <th>Tipo</th>
                 <th>Stock en Carro</th>
