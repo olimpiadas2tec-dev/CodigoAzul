@@ -50,31 +50,32 @@ function renderPacientes() {
     <div class="page-body">
       <div class="card scale-in">
         <div class="card-body" style="padding-bottom:0;">
-          <div class="filters-bar" style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
-            <div class="filter-group search-input-wrapper" style="flex:1; min-width:240px;">
+          <div class="filters-bar" style="display:flex; flex-wrap:nowrap; gap:8px; align-items:center; overflow-x:auto; padding-bottom:4px;">
+            <div class="filter-group search-input-wrapper" style="flex:1; min-width:180px;">
               <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input type="text" id="paciente-search" placeholder="Filtrar por nombre, apellido, DNI o causa..." value="${escapeHtml(pacientesState.search)}" />
+              <input type="text" id="paciente-search" placeholder="Filtrar por nombre, DNI o causa..." value="${escapeHtml(pacientesState.search)}" style="padding:7px 10px 7px 34px; font-size:12.5px;" />
             </div>
-            <div class="filter-group">
-              <select id="paciente-area-filter">
+            <div class="filter-group" style="flex-shrink:0;">
+              <select id="paciente-area-filter" style="padding:7px 10px; font-size:12.5px; min-width:130px;">
                 <option value="">Todas las áreas</option>
                 ${AREAS.map(a => `<option value="${a}" ${pacientesState.area === a ? 'selected' : ''}>${a}</option>`).join('')}
               </select>
             </div>
-            <div class="filter-group">
-              <select id="paciente-activo-filter">
+            <div class="filter-group" style="flex-shrink:0;">
+              <select id="paciente-activo-filter" style="padding:7px 10px; font-size:12.5px; min-width:160px;">
                 <option value="true" ${pacientesState.activo === 'true' ? 'selected' : ''}>Pacientes Internados (Activos)</option>
                 <option value="false" ${pacientesState.activo === 'false' ? 'selected' : ''}>Pacientes Dados de Alta</option>
                 <option value="" ${pacientesState.activo === '' ? 'selected' : ''}>Todos los registros</option>
               </select>
             </div>
-            <div class="filter-group" style="display:flex; align-items:center;">
-              <label for="paciente-sincama-filter" style="display:flex; align-items:center; gap:6px; background:var(--white); border:1.5px solid ${pacientesState.sinCama ? 'var(--celeste)' : 'var(--gray-200)'}; padding:8px 12px; border-radius:var(--radius); cursor:pointer; font-size:12.5px; font-weight:700; color:${pacientesState.sinCama ? 'var(--celeste-dark)' : 'var(--gray-700)'}; user-select:none; transition:all 0.15s ease;">
-                <input type="checkbox" id="paciente-sincama-filter" ${pacientesState.sinCama ? 'checked' : ''} style="accent-color:var(--celeste); width:15px; height:15px; cursor:pointer;" />
+            <!-- Filtro Checkbox: Solo Sin Cama Asignada (Alineado en la misma fila) -->
+            <div class="filter-group" style="display:flex; align-items:center; flex-shrink:0;">
+              <label for="paciente-sincama-filter" style="display:inline-flex; align-items:center; gap:5px; background:var(--white); border:1.5px solid ${pacientesState.sinCama ? 'var(--celeste)' : 'var(--gray-200)'}; padding:6px 10px; border-radius:var(--radius); cursor:pointer; font-size:12px; font-weight:700; color:${pacientesState.sinCama ? 'var(--celeste-dark)' : 'var(--gray-700)'}; user-select:none; white-space:nowrap; transition:all 0.15s ease;">
+                <input type="checkbox" id="paciente-sincama-filter" ${pacientesState.sinCama ? 'checked' : ''} style="accent-color:var(--celeste); width:14px; height:14px; cursor:pointer;" />
                 <span>🛏️ Sin Cama Asignada</span>
               </label>
             </div>
-            <button class="btn btn-secondary btn-sm" onclick="clearPacienteFilters()">Limpiar</button>
+            <button class="btn btn-secondary btn-sm" onclick="clearPacienteFilters()" style="flex-shrink:0; padding:6px 12px; font-size:12px;">Limpiar</button>
           </div>
         </div>
 
