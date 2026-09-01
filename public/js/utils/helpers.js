@@ -59,6 +59,22 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+function toggleExportDropdown() {
+  const menu = document.getElementById('export-dropdown-menu');
+  if (menu) {
+    menu.style.display = (menu.style.display === 'none' || !menu.style.display) ? 'block' : 'none';
+  }
+}
+window.toggleExportDropdown = toggleExportDropdown;
+
+document.addEventListener('click', (e) => {
+  const container = document.getElementById('export-dropdown-container');
+  const menu = document.getElementById('export-dropdown-menu');
+  if (container && menu && !container.contains(e.target)) {
+    menu.style.display = 'none';
+  }
+});
+
 function animateCounter(element, target, suffix = '', duration = 800) {
   const start = 0;
   const startTime = performance.now();
