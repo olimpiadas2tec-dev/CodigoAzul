@@ -62,12 +62,25 @@ function handleLogout() {
   }
 }
 
+function toggleSidebar() {
+  const sidebar = document.querySelector('.sidebar');
+  if (sidebar) sidebar.classList.toggle('open');
+}
+
+function closeSidebar() {
+  const sidebar = document.querySelector('.sidebar');
+  if (sidebar) sidebar.classList.remove('open');
+}
+
+window.toggleSidebar = toggleSidebar;
+window.closeSidebar = closeSidebar;
+
 function renderLayout(content, activeRoute) {
   const user = getUser();
   const activeCodes = (typeof getData === 'function' ? getData() : []).filter(d => d.estado && d.estado.value === 'pendiente');
 
   const alertBanner = activeCodes.length > 0 ? `
-    <div style="background:#fef2f2; border-bottom:2px solid #ef4444; padding:10px 24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+    <div class="active-code-banner" style="background:#fef2f2; border-bottom:2px solid #ef4444; padding:10px 16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
       <div style="display:flex; align-items:center; gap:10px;">
         <span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:#dc2626; box-shadow:0 0 0 4px rgba(220,38,38,0.25);"></span>
         <strong style="color:#991b1b; font-size:13px;">${icon('alertTriangle')} CÓDIGO AZUL EN CURSO:</strong>
@@ -81,69 +94,114 @@ function renderLayout(content, activeRoute) {
     </div>
   ` : '';
 
-  const roleBar = `
-    <div style="background:#f8fafc; border-bottom:1px solid #e2e8f0; padding:8px 24px; display:flex; justify-content:flex-end; align-items:center; flex-wrap:wrap; gap:8px;">
-      <div style="font-size:12px; color:var(--gray-600); font-weight:600;">
-        Usuario activo: <strong>${escapeHtml(user?.user || 'Usuario')}</strong> &middot; Rol: <strong>${escapeHtml(user?.role || 'Administrador')}</strong>
-      </div>
-    </div>
-  `;
-
   return `
     <div class="app-layout">
-      <button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">
-        ${SVG.menu}
-      </button>
-      <div class="sidebar-backdrop" onclick="document.querySelector('.sidebar').classList.remove('open')"></div>
+      <!-- Universal Top Navbar -->
+      <header class="app-top-header">
+        <div class="top-header-left">
+          <button class="menu-toggle-btn" onclick="toggleSidebar()" aria-label="Abrir o cerrar menú lateral" title="Menú">
+            ${SVG.menu}
+          </button>
+          <div class="app-brand" onclick="location.hash='#/dashboard'" style="cursor:pointer;">
+            <span class="app-brand-icon">${icon('heart')}</span>
+            <span class="app-brand-title">Código Azul</span>
+          </div>
+        </div>
+
+        <div class="top-header-right">
+          <div class="top-user-info">
+            <span class="top-user-name">${escapeHtml(user?.user || 'Usuario')}</span>
+            <span class="top-user-role">&middot; ${escapeHtml(user?.role || 'Administrador')}</span>
+          </div>
+          <div class="top-user-badge" title="${escapeHtml(user?.user || 'Admin')}">
+            ${escapeHtml(user?.initials || 'AD')}
+          </div>
+          <button class="top-logout-btn" onclick="handleLogout()" title="Cerrar sesión" aria-label="Cerrar sesión">
+            ${SVG.logout}
+          </button>
+        </div>
+      </header>
+
+      <!-- Sidebar Backdrop -->
+      <div class="sidebar-backdrop" onclick="closeSidebar()"></div>
+
+      <!-- Main Sidebar Drawer (Above everything) -->
       <aside class="sidebar">
         <div class="sidebar-header">
-          <div class="sidebar-logo" title="Sistema Código Azul">${icon('heart')}</div>
+          <div class="sidebar-brand-group">
+            <div class="sidebar-logo" title="Sistema Código Azul">${icon('heart')}</div>
+            <div class="sidebar-brand-text">
+              <span class="sidebar-title">Código Azul</span>
+              <span class="sidebar-subtitle">Gestión Hospitalaria</span>
+            </div>
+          </div>
+          <button class="sidebar-close-btn" onclick="closeSidebar()" aria-label="Cerrar menú" title="Cerrar menú">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:20px;height:20px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
         </div>
+
         <nav class="sidebar-nav">
-          <a href="#/dashboard" class="${activeRoute === 'dashboard' ? 'active' : ''}" data-tooltip="Dashboard" title="Dashboard">
+          <a href="#/dashboard" class="${activeRoute === 'dashboard' ? 'active' : ''}" onclick="closeSidebar()">
             ${SVG.dashboard}
+            <span class="nav-label">Dashboard</span>
           </a>
-          <a href="#/historial" class="${activeRoute === 'historial' ? 'active' : ''}" data-tooltip="Historial" title="Historial">
+          <a href="#/historial" class="${activeRoute === 'historial' ? 'active' : ''}" onclick="closeSidebar()">
             ${SVG.historial}
+            <span class="nav-label">Historial</span>
           </a>
           ${isConsultaRole() ? '' : `
-            <a href="#/nuevo" class="${activeRoute === 'nuevo' ? 'active' : ''}" data-tooltip="Nuevo Código" title="Nuevo Código de Emergencia">
+            <a href="#/nuevo" class="${activeRoute === 'nuevo' ? 'active' : ''}" onclick="closeSidebar()">
               ${SVG.nuevo}
+              <span class="nav-label">Nuevo Código</span>
             </a>
           `}
-          <a href="#/pacientes" class="${activeRoute === 'pacientes' ? 'active' : ''}" data-tooltip="Pacientes" title="Gestión de Pacientes">
+          <a href="#/pacientes" class="${activeRoute === 'pacientes' ? 'active' : ''}" onclick="closeSidebar()">
             ${SVG.pacientes}
+            <span class="nav-label">Pacientes</span>
           </a>
-          <a href="#/areas" class="${activeRoute === 'areas' ? 'active' : ''}" data-tooltip="Áreas y Camas" title="Áreas y Camas Hospitalarias">
+          <a href="#/areas" class="${activeRoute === 'areas' ? 'active' : ''}" onclick="closeSidebar()">
             ${SVG.areas}
+            <span class="nav-label">Áreas y Camas</span>
           </a>
-          <a href="#/personal" class="${activeRoute === 'personal' ? 'active' : ''}" data-tooltip="Personal y Equipos" title="Personal de Salud y Equipos">
+          <a href="#/personal" class="${activeRoute === 'personal' ? 'active' : ''}" onclick="closeSidebar()">
             ${SVG.personal}
+            <span class="nav-label">Personal y Equipos</span>
           </a>
-          <a href="#/materiales" class="${activeRoute === 'materiales' ? 'active' : ''}" data-tooltip="Carro de Paro" title="Materiales y Carro de Paro">
+          <a href="#/materiales" class="${activeRoute === 'materiales' ? 'active' : ''}" onclick="closeSidebar()">
             ${SVG.materiales}
+            <span class="nav-label">Carro de Paro</span>
           </a>
-          <a href="#/reportes" class="${activeRoute === 'reportes' ? 'active' : ''}" data-tooltip="Reportes" title="Reportes y Estadísticas">
+          <a href="#/reportes" class="${activeRoute === 'reportes' ? 'active' : ''}" onclick="closeSidebar()">
             ${SVG.reportes}
+            <span class="nav-label">Reportes</span>
           </a>
           ${isConsultaRole() ? '' : `
-            <a href="#/papelera" class="${activeRoute === 'papelera' ? 'active' : ''}" data-tooltip="Papelera" title="Papelera de Registros Eliminados" style="position:relative;">
+            <a href="#/papelera" class="${activeRoute === 'papelera' ? 'active' : ''}" style="position:relative;" onclick="closeSidebar()">
               ${icon('trash2', 20)}
-              ${(typeof getTrashCount === 'function' && getTrashCount() > 0) ? '<span style="position:absolute; top:6px; right:6px; background:#dc2626; color:#fff; font-size:9px; font-weight:800; min-width:16px; height:16px; border-radius:8px; display:flex; align-items:center; justify-content:center; padding:0 4px; line-height:1;">' + getTrashCount() + '</span>' : ''}
+              <span class="nav-label">Papelera</span>
+              ${(typeof getTrashCount === 'function' && getTrashCount() > 0) ? '<span class="trash-badge">' + getTrashCount() + '</span>' : ''}
             </a>
           `}
         </nav>
+
         <div class="sidebar-footer">
           <button class="sidebar-logout" onclick="handleLogout()" title="Cerrar Sesión">
             ${SVG.logout}
+            <span class="nav-label">Cerrar Sesión</span>
           </button>
-          <div class="sidebar-avatar" title="${user?.user || 'Admin'} (${user?.role || 'Admin'})">${user?.initials || 'AD'}</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-avatar">${escapeHtml(user?.initials || 'AD')}</div>
+            <div class="sidebar-user-details">
+              <span class="sidebar-user-name">${escapeHtml(user?.user || 'Administrador')}</span>
+              <span class="sidebar-user-role">${escapeHtml(user?.role || 'Admin')}</span>
+            </div>
+          </div>
         </div>
       </aside>
-      <div class="app-main-wrapper" style="flex:1; display:flex; flex-direction:column; min-width:0; overflow:hidden;">
-        ${roleBar}
+
+      <div class="app-main-wrapper">
         ${alertBanner}
-        <main class="main-content" style="flex:1; overflow-y:auto;">
+        <main class="main-content">
           ${content}
         </main>
       </div>
