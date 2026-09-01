@@ -1074,12 +1074,12 @@ function openPacienteDetailModal(pacienteId) {
 
         <!-- Seccion: Historial Clinico de Internaciones Timeline -->
         <div style="border-top:1px solid var(--gray-200); padding-top:16px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
             <h3 style="font-size:14px; font-weight:800; color:var(--gray-800); margin:0; display:flex; align-items:center; gap:6px;">
               ${icon('clock', 16)} Historial Clínico de Internaciones
             </h3>
-            <button class="btn btn-secondary btn-sm" onclick="document.querySelector('.paciente-detail-overlay')?.remove(); openHistorialClinicoModal(${paciente.id});" style="font-size:11.5px; font-weight:700;">
-              Ver Línea de Tiempo Completa
+            <button class="btn btn-secondary btn-sm" onclick="document.querySelector('.paciente-detail-overlay')?.remove(); openHistorialClinicoModal(${paciente.id});" style="font-size:11.5px; font-weight:700; white-space:nowrap;">
+              Ver Línea de Tiempo
             </button>
           </div>
           ${(() => {
@@ -1094,14 +1094,14 @@ function openPacienteDetailModal(pacienteId) {
             return `
               <div style="display:flex; flex-direction:column; gap:8px;">
                 ${hEntries.slice(0, 3).map(h => `
-                  <div style="background:#ffffff; border:1px solid var(--gray-200); border-radius:10px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center; font-size:12px;">
-                    <div>
+                  <div style="background:#ffffff; border:1px solid var(--gray-200); border-radius:10px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; font-size:12px;">
+                    <div style="min-width:0; flex:1 1 180px;">
                       <span style="font-weight:700; color:var(--gray-800);">${escapeHtml(h.causa || 'Internación')}</span>
                       <div style="color:var(--gray-500); font-size:11px; margin-top:2px;">
                         Ingreso: ${h.fecha_ingreso ? formatDate(h.fecha_ingreso, true) : 'S/D'} · Ubicación: ${escapeHtml(h.area_cama || 'S/D')}
                       </div>
                     </div>
-                    <span class="badge" style="font-size:10.5px; font-weight:700; padding:2px 8px; ${!h.fecha_egreso ? 'background:#e0f2fe; color:#0369a1; border:1px solid #7dd3fc;' : 'background:#f1f5f9; color:#475569; border:1px solid #cbd5e1;'}">
+                    <span class="badge" style="font-size:10.5px; font-weight:700; padding:2px 8px; flex-shrink:0; ${!h.fecha_egreso ? 'background:#e0f2fe; color:#0369a1; border:1px solid #7dd3fc;' : 'background:#f1f5f9; color:#475569; border:1px solid #cbd5e1;'}">
                       ${!h.fecha_egreso ? 'Internado Activo' : escapeHtml(h.resultado_egreso || 'Alta médica')}
                     </span>
                   </div>
@@ -1125,8 +1125,8 @@ function openPacienteDetailModal(pacienteId) {
               ${pacienteCodigos.map(c => {
                 const isFatal = c.estado?.value === 'fatal';
                 return `
-                  <div style="background:${isFatal ? '#fff8f8' : '#f0fdf4'}; border:1px solid ${isFatal ? '#fecaca' : '#bbf7d0'}; border-radius:10px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; gap:12px;">
-                    <div>
+                  <div style="background:${isFatal ? '#fff8f8' : '#f0fdf4'}; border:1px solid ${isFatal ? '#fecaca' : '#bbf7d0'}; border-radius:10px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <div style="min-width:0; flex:1 1 180px;">
                       <div style="font-weight:700; font-size:13px; color:var(--gray-800);">
                         Código Azul #${c.id} · ${escapeHtml(c.ubicacion || 'Guardia')}
                       </div>
@@ -1134,8 +1134,8 @@ function openPacienteDetailModal(pacienteId) {
                         Fecha: ${new Date(c.fecha || c.createdAt).toLocaleString()} · Causa: ${escapeHtml(c.causa?.label || 'S/D')}
                       </div>
                     </div>
-                    <a href="#/detalle/${c.id}" class="btn btn-sm" onclick="document.querySelector('.paciente-detail-overlay')?.remove();" style="background:${isFatal ? '#dc2626' : '#16a34a'}; color:#fff; font-weight:700; font-size:11.5px; padding:4px 10px; border-radius:6px; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
-                      Ver Detalle Completo ${icon('chevronRight', 12)}
+                    <a href="#/detalle/${c.id}" class="btn btn-sm" onclick="document.querySelector('.paciente-detail-overlay')?.remove();" style="background:${isFatal ? '#dc2626' : '#16a34a'}; color:#fff; font-weight:700; font-size:11.5px; padding:6px 10px; border-radius:6px; text-decoration:none; display:inline-flex; align-items:center; gap:4px; flex-shrink:0; white-space:nowrap;">
+                      Ver Detalle ${icon('chevronRight', 12)}
                     </a>
                   </div>
                 `;
@@ -1147,7 +1147,7 @@ function openPacienteDetailModal(pacienteId) {
       </div>
 
       <!-- Footer -->
-      <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center; padding:14px 24px; border-top:1px solid var(--gray-200); background:#f8fafc;">
+      <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; padding:14px 20px; border-top:1px solid var(--gray-200); background:#f8fafc;">
         <div>
           ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? '' : `
             <button class="btn btn-secondary btn-sm" onclick="document.querySelector('.paciente-detail-overlay')?.remove(); openPacienteModal(${paciente.id});" style="font-weight:700;">

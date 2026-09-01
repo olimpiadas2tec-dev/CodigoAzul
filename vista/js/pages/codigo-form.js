@@ -125,12 +125,12 @@ function renderCodigoForm(editId = null) {
                 </label>
 
                 <!-- Tarjeta del Paciente Seleccionado -->
-                <div id="paciente-selected-card" style="display:${hasPacienteSelected ? 'flex' : 'none'}; justify-content:space-between; align-items:center; background:#f0fdf4; border:2px solid #22c55e; border-radius:8px; padding:12px 16px; margin-bottom:8px;">
-                  <div style="display:flex; align-items:center; gap:12px;">
-                    <span style="font-size:24px;">${icon('user')}</span>
-                    <div>
-                      <div style="font-size:15px; font-weight:800; color:#166534;" id="sel-paciente-nombre">-</div>
-                      <div style="font-size:12px; color:#15803d; margin-top:2px;">
+                <div id="paciente-selected-card" style="display:${hasPacienteSelected ? 'flex' : 'none'}; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; background:#f0fdf4; border:2px solid #22c55e; border-radius:10px; padding:12px 14px; margin-bottom:8px; box-sizing:border-box;">
+                  <div style="display:flex; align-items:center; gap:10px; min-width:0; flex:1 1 200px;">
+                    <span style="font-size:22px; flex-shrink:0;">${icon('user')}</span>
+                    <div style="min-width:0; overflow:hidden;">
+                      <div style="font-size:15px; font-weight:800; color:#166534; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" id="sel-paciente-nombre">-</div>
+                      <div style="font-size:12px; color:#15803d; margin-top:2px; line-height:1.4;">
                         <span>DNI: <strong id="sel-paciente-dni">-</strong></span> &middot; 
                         <span>Ubicación: <strong id="sel-paciente-area-cama">-</strong></span> &middot; 
                         <span>Grupo: <strong id="sel-paciente-grupo">-</strong></span> &middot; 
@@ -138,19 +138,19 @@ function renderCodigoForm(editId = null) {
                       </div>
                     </div>
                   </div>
-                  <button type="button" class="btn btn-outline btn-sm" onclick="togglePacienteList(true)" style="font-weight:700; color:#166534; border-color:#86efac; background:#fff;">
+                  <button type="button" class="btn btn-outline btn-sm" onclick="togglePacienteList(true)" style="font-weight:700; color:#166534; border-color:#86efac; background:#fff; flex-shrink:0; white-space:nowrap;">
                     ${icon('refreshCw')} Cambiar Paciente
                   </button>
                 </div>
 
                 <!-- Buscador y Lista de selección de pacientes -->
                 <div id="paciente-dropdown-wrapper" style="display:${hasPacienteSelected ? 'none' : 'block'}; margin-top:6px;">
-                  <div style="display:flex; gap:10px; margin-bottom:8px; align-items:center;">
-                    <div style="position:relative; flex:1;">
-                      <input type="text" id="filter-paciente-input" placeholder="Filtrar pacientes por nombre, DNI o área..." style="font-size:13px; padding:10px 14px 10px 36px; border:1.5px solid var(--celeste-300); border-radius:8px; width:100%;" />
+                  <div style="display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
+                    <div style="position:relative; flex:1 1 180px; min-width:160px;">
+                      <input type="text" id="filter-paciente-input" placeholder="Filtrar pacientes por nombre, DNI o área..." style="font-size:13px; padding:10px 14px 10px 36px; border:1.5px solid var(--celeste-300); border-radius:8px; width:100%; box-sizing:border-box;" />
                       <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--gray-400);">${icon('search', 16)}</span>
                     </div>
-                    <button type="button" class="btn btn-secondary btn-sm" style="background:#fef3c7; color:#92400e; border:1.5px solid #fde68a; font-weight:700; font-size:12px; padding:9px 14px; white-space:nowrap; cursor:pointer;" onclick="selectNNPaciente()">
+                    <button type="button" class="btn btn-secondary btn-sm" style="background:#fef3c7; color:#92400e; border:1.5px solid #fde68a; font-weight:700; font-size:12px; padding:9px 12px; white-space:nowrap; cursor:pointer; flex:0 0 auto;" onclick="selectNNPaciente()">
                        Paciente N.N. (No Identificado)
                     </button>
                   </div>
@@ -158,11 +158,11 @@ function renderCodigoForm(editId = null) {
                   <div id="pacientes-list-container" style="max-height:220px; overflow-y:auto; border:1.5px solid var(--gray-300); border-radius:8px; background:var(--white); padding:6px; box-shadow:inset 0 2px 4px rgba(0,0,0,0.03);">
                     <!-- Opción Paciente N.N. -->
                     <div class="paciente-select-item" data-id="nn" data-dni="S/D" data-area="Urgencias / Guardia" data-cama="Reanimación" data-grupo="S/D" data-alergias="S/D" data-causa="" data-nombre="N.N. (Paciente No Identificado)"
-                      style="padding:10px 14px; border-radius:6px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; background:#fffbe6; border:1.5px solid #ffe58f; transition:all 0.15s;"
+                      style="padding:10px 12px; border-radius:6px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:6px; background:#fffbe6; border:1.5px solid #ffe58f; transition:all 0.15s;"
                       onclick="selectNNPaciente()">
                       <div>
-                        <strong style="font-size:14px; color:#d48806;"> N.N. &mdash; Paciente No Identificado</strong>
-                        <span style="font-size:12px; color:#8c8c8c; margin-left:8px;">DNI: Sin Registrar (Emergencia)</span>
+                        <strong style="font-size:13.5px; color:#d48806;"> N.N. &mdash; Paciente No Identificado</strong>
+                        <span style="font-size:11.5px; color:#8c8c8c; display:block;">DNI: Sin Registrar (Emergencia)</span>
                       </div>
                       <span class="badge" style="background:#fff1b8; color:#d48806; border:1px solid #ffe58f; font-size:11px; font-weight:700;">
                         Emergencia N.N.
@@ -172,11 +172,11 @@ function renderCodigoForm(editId = null) {
                     ${pacientesList.length === 0 ? '' : pacientesList.map(p => {
                       return `
                         <div class="paciente-select-item" data-id="${p.id}" data-dni="${p.dni || ''}" data-area="${p.area}" data-cama="${p.cama}" data-grupo="${p.grupo || ''}" data-alergias="${p.alergias || ''}" data-causa="${p.causa || ''}" data-nombre="${escapeHtml(p.apellido + ', ' + p.nombre)}"
-                          style="padding:10px 14px; border-radius:6px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; background:#f8fafc; border:1px solid #e2e8f0; transition:all 0.15s;"
+                          style="padding:10px 12px; border-radius:6px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:4px; background:#f8fafc; border:1px solid #e2e8f0; transition:all 0.15s;"
                           onclick="selectPacienteItem(${p.id})">
                           <div>
-                            <strong style="font-size:14px; color:var(--gray-900);">${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}</strong>
-                            <span style="font-size:12px; color:var(--gray-500); margin-left:8px;">DNI: ${p.dni ? formatDNI(p.dni) : 'S/D'}</span>
+                            <strong style="font-size:13.5px; color:var(--gray-900);">${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}</strong>
+                            <span style="font-size:11.5px; color:var(--gray-500); display:block;">DNI: ${p.dni ? formatDNI(p.dni) : 'S/D'}</span>
                           </div>
                           <span class="badge" style="background:var(--gray-100); color:var(--gray-800); border:1px solid var(--gray-300); font-size:11px; font-weight:700;">
                             ${escapeHtml(p.area)} [${escapeHtml(p.cama || 'Cama')}]
@@ -222,12 +222,12 @@ function renderCodigoForm(editId = null) {
                 </label>
 
                 <!-- Tarjeta del Personal Seleccionado -->
-                <div id="activador-selected-card" style="display:${hasActivadorSelected ? 'flex' : 'none'}; justify-content:space-between; align-items:center; background:#f0fdf4; border:2px solid #22c55e; border-radius:8px; padding:12px 16px; margin-bottom:8px;">
-                  <div style="display:flex; align-items:center; gap:12px;">
-                    <span style="font-size:24px;">${icon('user')}</span>
-                    <div>
-                      <div style="font-size:15px; font-weight:800; color:#166534;" id="sel-activador-nombre">-</div>
-                      <div style="font-size:12px; color:#15803d; margin-top:2px;">
+                <div id="activador-selected-card" style="display:${hasActivadorSelected ? 'flex' : 'none'}; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; background:#f0fdf4; border:2px solid #22c55e; border-radius:10px; padding:12px 14px; margin-bottom:8px; box-sizing:border-box;">
+                  <div style="display:flex; align-items:center; gap:10px; min-width:0; flex:1 1 200px;">
+                    <span style="font-size:22px; flex-shrink:0;">${icon('user')}</span>
+                    <div style="min-width:0; overflow:hidden;">
+                      <div style="font-size:15px; font-weight:800; color:#166534; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" id="sel-activador-nombre">-</div>
+                      <div style="font-size:12px; color:#15803d; margin-top:2px; line-height:1.4;">
                         <span>Rol: <strong id="sel-activador-rol">-</strong></span> &middot; 
                         <span>DNI: <strong id="sel-activador-dni">-</strong></span> &middot; 
                         <span>Sector: <strong id="sel-activador-area">-</strong></span> &middot; 
@@ -235,7 +235,7 @@ function renderCodigoForm(editId = null) {
                       </div>
                     </div>
                   </div>
-                  <button type="button" class="btn btn-outline btn-sm" onclick="toggleActivadorList(true)" style="font-weight:700; color:#166534; border-color:#86efac; background:#fff;">
+                  <button type="button" class="btn btn-outline btn-sm" onclick="toggleActivadorList(true)" style="font-weight:700; color:#166534; border-color:#86efac; background:#fff; flex-shrink:0; white-space:nowrap;">
                     ${icon('refreshCw')} Cambiar Personal
                   </button>
                 </div>
@@ -243,7 +243,7 @@ function renderCodigoForm(editId = null) {
                 <!-- Buscador y Lista de selección de Personal -->
                 <div id="activador-dropdown-wrapper" style="display:${hasActivadorSelected ? 'none' : 'block'}; margin-top:6px;">
                   <div style="position:relative; margin-bottom:8px;">
-                    <input type="text" id="filter-activador-input" placeholder="Filtrar personal por nombre, rol o sector en tiempo real..." style="font-size:13px; padding:10px 14px 10px 36px; border:1.5px solid var(--celeste-300); border-radius:8px; width:100%;" />
+                    <input type="text" id="filter-activador-input" placeholder="Filtrar personal por nombre, rol o sector en tiempo real..." style="font-size:13px; padding:10px 14px 10px 36px; border:1.5px solid var(--celeste-300); border-radius:8px; width:100%; box-sizing:border-box;" />
                     <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--gray-400);">${icon('search', 16)}</span>
                   </div>
                   
@@ -251,13 +251,13 @@ function renderCodigoForm(editId = null) {
                     ${personalList.map(pers => {
                       return `
                         <div class="activador-select-item" data-id="${pers.id}" data-nombre="${escapeHtml(pers.apellido + ', ' + pers.nombre)}" data-rol="${escapeHtml(pers.nombre_rol || 'Personal')}" data-dni="${pers.dni || ''}" data-tel="${pers.telefono || ''}" data-area="${pers.area || ''}"
-                          style="padding:10px 14px; border-radius:6px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; background:#f8fafc; border:1px solid #e2e8f0; transition:all 0.15s;"
+                          style="padding:10px 12px; border-radius:6px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:4px; background:#f8fafc; border:1px solid #e2e8f0; transition:all 0.15s;"
                           onclick="selectActivadorItem(${pers.id})">
                           <div>
-                            <strong style="font-size:14px; color:var(--gray-900);">${escapeHtml(pers.apellido)}, ${escapeHtml(pers.nombre)}</strong>
-                            <span style="font-size:12px; color:var(--gray-500); margin-left:8px;">[${escapeHtml(pers.nombre_rol || 'Personal')}]</span>
+                            <strong style="font-size:13.5px; color:var(--gray-900);">${escapeHtml(pers.apellido)}, ${escapeHtml(pers.nombre)}</strong>
+                            <span style="font-size:11.5px; color:var(--gray-500); display:block;">[${escapeHtml(pers.nombre_rol || 'Personal')}]</span>
                           </div>
-                          <span style="font-size:11.5px; color:var(--gray-600);">DNI: ${pers.dni ? formatDNI(pers.dni) : 'S/D'} (${pers.area || 'Guardia'})</span>
+                          <span style="font-size:11px; color:var(--gray-600); background:#f1f5f9; padding:2px 8px; border-radius:6px;">DNI: ${pers.dni ? formatDNI(pers.dni) : 'S/D'} (${pers.area || 'Guardia'})</span>
                         </div>
                       `;
                     }).join('')}
