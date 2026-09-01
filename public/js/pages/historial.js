@@ -91,11 +91,10 @@ function renderHistorial() {
         <p>Registro oficial de eventos clínicos, causas, equipos intervinientes y resultados</p>
       </div>
       <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-        
-        <!-- Botón Único Unificado de Exportación con Dropdown -->
+             <!-- Botón Único Unificado de Exportación con Dropdown -->
         <div id="export-dropdown-container" style="position:relative; display:inline-block;">
-          <button class="btn btn-outline btn-sm" onclick="toggleExportDropdown()" style="font-weight:700; gap:6px; background:#fff; border-color:var(--gray-300);" title="Exportar registros en diferentes formatos">
-            ${icon('download')} Exportar Datos <span style="font-size:10px; margin-left:2px;">▼</span>
+          <button class="btn btn-outline btn-sm" onclick="toggleExportDropdown()" style="padding:7px 14px; height:36px; box-sizing:border-box; font-size:12.5px; font-weight:700; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; gap:6px; background:#ffffff; border:1.5px solid var(--celeste-dark); color:var(--celeste-dark); cursor:pointer;" title="Exportar registros en diferentes formatos">
+            ${icon('download', 14)} Exportar Datos <span style="font-size:10px; margin-left:2px;">▼</span>
           </button>
           <div id="export-dropdown-menu" style="display:none; position:absolute; right:0; top:110%; background:#fff; border:1px solid var(--gray-300); border-radius:8px; box-shadow:0 10px 25px rgba(0,0,0,0.1); z-index:100; min-width:210px; padding:6px 0;">
             <button onclick="exportExcel(getFilteredData()); toggleExportDropdown();" style="width:100%; text-align:left; padding:9px 14px; background:none; border:none; cursor:pointer; font-size:13px; font-weight:600; color:var(--gray-800); display:flex; align-items:center; gap:10px;">
@@ -120,9 +119,11 @@ function renderHistorial() {
               </div>
             </button>
           </div>
-             ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? '' : `
-          <a href="#/nuevo" class="btn btn-primary btn-sm">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </div>
+
+        ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? '' : `
+          <a href="#/nuevo" class="btn btn-primary btn-sm" style="padding:7px 14px; height:36px; box-sizing:border-box; font-size:12.5px; font-weight:700; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; gap:6px; background:var(--celeste-dark); border:none; color:#ffffff; cursor:pointer;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Registrar Código
           </a>
         `}
@@ -277,19 +278,18 @@ function renderHistorial() {
                       </span>
                     </td>
                     <td style="vertical-align:middle; text-align:center;">
-                      <div style="display:inline-flex; gap:6px; justify-content:center; align-items:center;">
-                        <a href="#/detalle/${d.id}" onclick="event.stopPropagation();" class="btn btn-outline btn-xs" style="padding:6px 8px; color:var(--celeste-dark); border-color:var(--celeste-300); background:#f0f9ff; border-radius:6px; display:inline-flex; align-items:center;" title="Ver Detalle Clínico">
-                          ${icon('eye', 14)}
-                        </a>
-                        ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? '' : `
+                      ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? `
+                        <span style="font-size:11px; color:var(--gray-400); font-style:italic;">Solo lectura</span>
+                      ` : `
+                        <div style="display:inline-flex; gap:6px; justify-content:center; align-items:center;">
                           <a href="#/editar/${d.id}" onclick="event.stopPropagation();" class="btn btn-outline btn-xs" style="padding:6px 8px; color:var(--gray-700); border-color:var(--gray-300); background:#fff; border-radius:6px; display:inline-flex; align-items:center;" title="Editar Registro de Código Azul">
                             ${icon('edit', 14)}
                           </a>
                           <button class="btn btn-outline btn-xs" style="padding:6px 8px; color:#b91c1c; border-color:#fca5a5; background:#fef2f2; border-radius:6px; display:inline-flex; align-items:center; cursor:pointer;" onclick="event.stopPropagation(); confirmDeleteCodigo(${d.id});" title="Eliminar Registro de Auditoría">
                             ${icon('trash', 14)}
                           </button>
-                        `}
-                      </div>
+                        </div>
+                      `}
                     </td>
                   </tr>
                 `;

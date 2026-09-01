@@ -82,11 +82,7 @@ function renderLayout(content, activeRoute) {
           <span class="badge" style="background:#e0f2fe; color:#0369a1; border:1px solid #7dd3fc; font-weight:800; font-size:11.5px; padding:4px 12px; border-radius:12px; display:inline-flex; align-items:center; gap:5px;">
             👁️ Modo Consulta (Acceso de Solo Lectura)
           </span>
-        ` : `
-          <span class="badge" style="background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; font-weight:800; font-size:11.5px; padding:4px 12px; border-radius:12px; display:inline-flex; align-items:center; gap:5px;">
-            ⚡ Modo Administrador (Acceso Completo)
-          </span>
-        `}
+        ` : ''}
       </div>
       <div style="font-size:12px; color:var(--gray-600); font-weight:600;">
         Usuario activo: <strong>${escapeHtml(user?.user || 'Usuario')}</strong> &middot; Rol: <strong>${escapeHtml(user?.role || 'Administrador')}</strong>
