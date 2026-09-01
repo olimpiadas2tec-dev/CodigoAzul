@@ -42,16 +42,37 @@ function renderDetalle(id) {
           <h1>${escapeHtml(codigo.paciente)}</h1>
           <p>Código Azul #${codigo.id} &middot; Registrado el ${formatDateTime(codigo.fecha)}</p>
         </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button class="btn btn-outline btn-sm" onclick="exportExcel([getData().find(d=>d.id===${codigo.id})], 'codigo_azul_${codigo.id}.xls')" title="Exportar a Excel">
-            ${icon('fileSpreadsheet')} Excel
-          </button>
-          <button class="btn btn-outline btn-sm" onclick="exportCSV([getData().find(d=>d.id===${codigo.id})], 'codigo_azul_${codigo.id}.csv')" title="Exportar CSV">
-            ${icon('barChart')} CSV
-          </button>
-          <button class="btn btn-outline btn-sm" onclick="exportPDF([getData().find(d=>d.id===${codigo.id})], 'codigo_azul_${codigo.id}.pdf')">
-            ${icon('fileText')} PDF Certificado
-          </button>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <!-- Botón Único Unificado de Exportación con Dropdown -->
+          <div id="export-dropdown-container" style="position:relative; display:inline-block; z-index:9999;">
+            <button class="btn btn-outline btn-sm" onclick="toggleExportDropdown()" style="padding:7px 14px; height:36px; box-sizing:border-box; font-size:12.5px; font-weight:700; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; gap:6px; background:#ffffff; border:1.5px solid var(--celeste-dark); color:var(--celeste-dark); cursor:pointer;" title="Exportar registro en diferentes formatos">
+              ${icon('download', 14)} Exportar Datos <span style="font-size:10px; margin-left:2px;">▼</span>
+            </button>
+            <div id="export-dropdown-menu" style="display:none; position:absolute; right:0; top:110%; background:#fff; border:1px solid var(--gray-300); border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.2); z-index:99999; min-width:210px; padding:6px 0;">
+              <button onclick="exportExcel([getData().find(d=>d.id===${codigo.id})], 'codigo_azul_${codigo.id}.xls'); toggleExportDropdown();" style="width:100%; text-align:left; padding:9px 14px; background:none; border:none; cursor:pointer; font-size:13px; font-weight:600; color:var(--gray-800); display:flex; align-items:center; gap:10px;">
+                ${icon('fileSpreadsheet', 16)} 
+                <div>
+                  <div>Excel (.xlsx)</div>
+                  <div style="font-size:10.5px; color:var(--gray-400); font-weight:normal;">Planilla tabular completa</div>
+                </div>
+              </button>
+              <button onclick="exportCSV([getData().find(d=>d.id===${codigo.id})], 'codigo_azul_${codigo.id}.csv'); toggleExportDropdown();" style="width:100%; text-align:left; padding:9px 14px; background:none; border:none; cursor:pointer; font-size:13px; font-weight:600; color:var(--gray-800); display:flex; align-items:center; gap:10px;">
+                ${icon('barChart', 16)} 
+                <div>
+                  <div>CSV (Texto Plano)</div>
+                  <div style="font-size:10.5px; color:var(--gray-400); font-weight:normal;">Ideal para análisis estadístico</div>
+                </div>
+              </button>
+              <button onclick="exportPDF([getData().find(d=>d.id===${codigo.id})], 'codigo_azul_${codigo.id}.pdf'); toggleExportDropdown();" style="width:100%; text-align:left; padding:9px 14px; background:none; border:none; cursor:pointer; font-size:13px; font-weight:600; color:var(--gray-800); display:flex; align-items:center; gap:10px;">
+                ${icon('fileText', 16)} 
+                <div>
+                  <div>PDF (Informe Legal)</div>
+                  <div style="font-size:10.5px; color:var(--gray-400); font-weight:normal;">Documento oficial listo para imprimir</div>
+                </div>
+              </button>
+            </div>
+          </div>
+
           <a href="#/editar/${codigo.id}" class="btn btn-secondary btn-sm">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Registro
           </a>
