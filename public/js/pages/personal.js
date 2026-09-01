@@ -24,12 +24,12 @@ function renderPersonal() {
         ${tab === 'personal' ? `
           <button class="btn btn-primary btn-sm" onclick="openPersonalModal()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            + Nuevo Personal
+            Nuevo Personal
           </button>
         ` : tab === 'equipos' ? `
           <button class="btn btn-primary btn-sm" onclick="openEquipoModal()" ${equiposCount >= 3 ? 'title="Límite máximo de 3 equipos alcanzado" style="opacity:0.6;"' : ''}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            + Nuevo Equipo ${equiposCount >= 3 ? '(Máx 3)' : ''}
+            Nuevo Equipo ${equiposCount >= 3 ? '(Máx 3)' : ''}
           </button>
         ` : ''}
       </div>
@@ -287,7 +287,7 @@ function renderEquiposTab() {
         Configuración institucional: <strong>${equiposList.length} de 3 Equipos activos</strong> (Equipo A, Equipo B, Equipo C).
       </div>
       ${equiposList.length < 3 ? `
-        <button class="btn btn-primary btn-sm" onclick="openEquipoModal()">+ Nuevo Equipo</button>
+        <button class="btn btn-primary btn-sm" onclick="openEquipoModal()">${icon('plus')} Nuevo Equipo</button>
       ` : `
         <span class="badge badge-info" style="font-size:12px;">${icon('alertTriangle', 12)} Límite de 3 Equipos alcanzado</span>
       `}
@@ -312,7 +312,7 @@ function renderEquiposTab() {
               </div>
               <div style="display:flex; align-items:center; gap:14px;">
                 <button class="btn btn-outline btn-sm" onclick="openAsignarPersonalEquipoModal(${eq.id})" title="Asignar Integrante" style="padding:6px 12px; font-size:12.5px;">
-                  + Asignar
+                  ${icon('plus')} Asignar
                 </button>
                 <button class="action-link" onclick="openEquipoModal(${eq.id})" title="Editar Equipo" style="font-size:13px;">Editar</button>
                 <button class="action-link danger" onclick="confirmDeleteEquipo(${eq.id})" title="Eliminar Equipo" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none;">

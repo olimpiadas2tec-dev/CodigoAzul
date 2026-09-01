@@ -43,7 +43,7 @@ function renderPacientes() {
       </div>
       <button class="btn btn-primary btn-sm" onclick="openPacienteModal()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        + Nuevo Paciente
+        Nuevo Paciente
       </button>
     </div>
 
@@ -99,7 +99,7 @@ function renderPacientes() {
                       </p>
                       <div style="display:flex; gap:10px; justify-content:center;">
                         <button class="btn btn-primary btn-sm" onclick="openPacienteModal()">
-                          ${icon('user')} + Registrar Nuevo Paciente Aquí
+                          ${icon('user')} Registrar Nuevo Paciente Aquí
                         </button>
                         <button class="btn btn-secondary btn-sm" onclick="clearPacienteFilters()">
                           Limpiar Filtros
