@@ -537,6 +537,7 @@ function toggleActivadorList(show) {
   if (show) {
     document.getElementById('filter-activador-input')?.focus();
   }
+}
 function selectNNPaciente() {
   selectedPacienteId = 'nn';
   const input = document.getElementById('form-paciente-id');
@@ -1070,6 +1071,8 @@ function executeSaveCodigo(isEdit, editId, pacienteObj, causa, activadorData, qu
   }
 }
 
+window.renderCodigoForm = renderCodigoForm;
+window.setupCodigoForm = setupCodigoForm;
 window.togglePacienteList = togglePacienteList;
 window.toggleActivadorList = toggleActivadorList;
 window.selectNNPaciente = selectNNPaciente;
