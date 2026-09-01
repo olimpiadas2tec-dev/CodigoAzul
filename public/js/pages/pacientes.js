@@ -84,7 +84,7 @@ function renderPacientes() {
               <tr style="background:var(--gray-50); border-bottom:1px solid var(--gray-200);">
                 <th style="padding:10px 12px; vertical-align:middle; text-align:left;">#</th>
                 <th style="padding:10px 12px; vertical-align:middle; text-align:left;">PACIENTE</th>
-                <th style="padding:10px 12px; vertical-align:middle; text-align:left; white-space:nowrap;">DNI / EDAD</th>
+                <th style="padding:10px 12px; vertical-align:middle; text-align:left; white-space:nowrap;">DATOS PERSONALES & CONTACTO</th>
                 <th style="padding:10px 12px; vertical-align:middle; text-align:left;">ÁREA & CAMA</th>
                 <th style="padding:10px 12px; vertical-align:middle; text-align:left;">CAUSA / DIAGNÓSTICO</th>
                 <th style="padding:10px 12px; vertical-align:middle; text-align:left;">MÉDICO RESPONSABLE</th>
