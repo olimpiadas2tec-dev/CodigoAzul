@@ -31,7 +31,7 @@ function renderDashboard() {
     <div class="page-body">
       <div class="kpi-grid stagger">
         <div class="kpi-card fade-in">
-          <div class="kpi-icon blue">${icon('activity')}</div>
+          <div class="kpi-icon" style="background:#f1f5f9; color:#334155;">${icon('clipboard')}</div>
           <div class="kpi-value">${kpis.totalMes}</div>
           <div class="kpi-label">Códigos este mes</div>
         </div>
@@ -45,12 +45,12 @@ function renderDashboard() {
           <div class="kpi-icon ${dashTimeIconColor}">${icon('clock')}</div>
           <div class="kpi-value">${kpis.tiempoPromedio}m</div>
           <div class="kpi-label">Tiempo prom. respuesta</div>
-          <div class="kpi-change up" style="color:#059669; background:#ecfdf5; padding:2px 8px; border-radius:12px; font-weight:600; font-size:11px; display:inline-flex; align-items:center; gap:4px; margin-top:4px;">
-            ${icon('check')} Meta &lt; 5 min (Excelente)
+          <div class="kpi-change up" style="color:${dashTimeIconColor === 'green' ? '#059669' : (dashTimeIconColor === 'yellow' ? '#d97706' : '#dc2626')}; background:${dashTimeIconColor === 'green' ? '#ecfdf5' : (dashTimeIconColor === 'yellow' ? '#fef3c7' : '#fee2e2')}; padding:2px 8px; border-radius:12px; font-weight:600; font-size:11px; display:inline-flex; align-items:center; gap:4px; margin-top:4px;">
+            ${dashTimeIconColor === 'green' ? `${icon('check')} Meta &lt; 2 min (Excelente)` : (dashTimeIconColor === 'yellow' ? `${icon('check')} Rango aceptable (2.1 - 4.5 min)` : `${icon('alertTriangle')} Requiere atención (&gt; 4.5 min)`)}
           </div>
         </div>
         <div class="kpi-card fade-in">
-          <div class="kpi-icon" style="background:#f1f5f9; color:#475569;">${icon('clipboard')}</div>
+          <div class="kpi-icon blue">${icon('barChart')}</div>
           <div class="kpi-value">${data.length}</div>
           <div class="kpi-label">Total eventos registrados</div>
         </div>

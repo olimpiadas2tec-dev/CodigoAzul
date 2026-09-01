@@ -130,7 +130,7 @@ function renderReportes() {
           <div class="kpi-label">Total eventos registrados</div>
         </div>
         <div class="kpi-card fade-in">
-          <div class="kpi-icon green">${icon('check')}</div>
+          <div class="kpi-icon" style="background:#f1f5f9; color:#334155;">${icon('clipboard')}</div>
           <div class="kpi-value">${thisMonth.length}</div>
           <div class="kpi-label">Eventos este mes</div>
         </div>
