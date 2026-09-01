@@ -1563,26 +1563,26 @@ function openPersonalDetailModal(personalId) {
     <div class="modal scale-in" style="background:var(--white); border-radius:var(--radius-xl); width:95%; max-width:780px; max-height:90vh; display:flex; flex-direction:column; box-shadow:var(--shadow-lg); overflow:hidden;">
       
       <!-- Header -->
-      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; padding:20px 24px; border-bottom:1px solid var(--gray-200); background:#f8fafc;">
-        <div style="display:flex; align-items:center; gap:14px;">
-          <div style="width:48px; height:48px; border-radius:50%; background:var(--celeste-100, #e0f2fe); color:var(--celeste-dark, #0369a1); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:18px; border:2px solid var(--celeste-300);">
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:flex-start; padding:16px 20px; border-bottom:1px solid var(--gray-200); background:#f8fafc; gap:12px;">
+        <div style="display:flex; align-items:center; gap:12px; min-width:0; flex:1;">
+          <div style="width:44px; height:44px; border-radius:50%; background:var(--celeste-100, #e0f2fe); color:var(--celeste-dark, #0369a1); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:17px; border:2px solid var(--celeste-300); flex-shrink:0;">
             ${initials}
           </div>
-          <div>
-            <div style="display:flex; align-items:center; gap:10px;">
-              <h2 style="font-size:20px; font-weight:800; color:var(--gray-900); margin:0;">
+          <div style="min-width:0; flex:1;">
+            <div style="display:flex; align-items:center; flex-wrap:wrap; gap:6px 8px;">
+              <h2 style="font-size:18px; font-weight:800; color:var(--gray-900); margin:0; line-height:1.2;">
                 ${escapeHtml(pers.apellido)}, ${escapeHtml(pers.nombre)}
               </h2>
-              <span class="badge" style="font-size:11px; padding:4px 10px; font-weight:700; ${getRolBadgeStyle(rolText)}">
+              <span class="badge" style="font-size:11px; padding:3px 9px; font-weight:700; white-space:nowrap; border-radius:6px; ${getRolBadgeStyle(rolText)}">
                 ${escapeHtml(rolText)}
               </span>
             </div>
-            <div style="font-size:12.5px; color:var(--gray-500); margin-top:2px;">
+            <div style="font-size:12px; color:var(--gray-500); margin-top:3px; word-break:break-word;">
               Ficha de Personal de Salud · ID #${pers.id} · Área: ${escapeHtml(pers.area || 'Sin Designar')}
             </div>
           </div>
         </div>
-        <button class="modal-close" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--gray-400);" onclick="this.closest('.personal-detail-overlay').remove()">&times;</button>
+        <button class="modal-close" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--gray-400); flex-shrink:0; line-height:1;" onclick="this.closest('.personal-detail-overlay').remove()">&times;</button>
       </div>
 
       <!-- Body -->
