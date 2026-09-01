@@ -145,15 +145,31 @@ function renderCodigoForm(editId = null) {
 
                 <!-- Buscador y Lista de selección de pacientes -->
                 <div id="paciente-dropdown-wrapper" style="display:${hasPacienteSelected ? 'none' : 'block'}; margin-top:6px;">
-                  <div style="position:relative; margin-bottom:8px;">
-                    <input type="text" id="filter-paciente-input" placeholder="Filtrar pacientes por nombre, DNI o área..." style="font-size:13px; padding:10px 14px 10px 36px; border:1.5px solid var(--celeste-300); border-radius:8px; width:100%;" />
-                    <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--gray-400);">${icon('search', 16)}</span>
+                  <div style="display:flex; gap:10px; margin-bottom:8px; align-items:center;">
+                    <div style="position:relative; flex:1;">
+                      <input type="text" id="filter-paciente-input" placeholder="Filtrar pacientes por nombre, DNI o área..." style="font-size:13px; padding:10px 14px 10px 36px; border:1.5px solid var(--celeste-300); border-radius:8px; width:100%;" />
+                      <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--gray-400);">${icon('search', 16)}</span>
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm" style="background:#fef3c7; color:#92400e; border:1.5px solid #fde68a; font-weight:700; font-size:12px; padding:9px 14px; white-space:nowrap; cursor:pointer;" onclick="selectNNPaciente()">
+                      👤 Paciente N.N. (No Identificado)
+                    </button>
                   </div>
                   
                   <div id="pacientes-list-container" style="max-height:220px; overflow-y:auto; border:1.5px solid var(--gray-300); border-radius:8px; background:var(--white); padding:6px; box-shadow:inset 0 2px 4px rgba(0,0,0,0.03);">
-                    ${pacientesList.length === 0 ? `
-                      <div style="padding:16px; text-align:center; color:var(--gray-400); font-size:13px;">No hay pacientes internados activos.</div>
-                    ` : pacientesList.map(p => {
+                    <!-- Opción Paciente N.N. -->
+                    <div class="paciente-select-item" data-id="nn" data-dni="S/D" data-area="Urgencias / Guardia" data-cama="Reanimación" data-grupo="S/D" data-alergias="S/D" data-causa="" data-nombre="N.N. (Paciente No Identificado)"
+                      style="padding:10px 14px; border-radius:6px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; background:#fffbe6; border:1.5px solid #ffe58f; transition:all 0.15s;"
+                      onclick="selectNNPaciente()">
+                      <div>
+                        <strong style="font-size:14px; color:#d48806;">👤 N.N. &mdash; Paciente No Identificado</strong>
+                        <span style="font-size:12px; color:#8c8c8c; margin-left:8px;">DNI: Sin Registrar (Emergencia)</span>
+                      </div>
+                      <span class="badge" style="background:#fff1b8; color:#d48806; border:1px solid #ffe58f; font-size:11px; font-weight:700;">
+                        Emergencia N.N.
+                      </span>
+                    </div>
+
+                    ${pacientesList.length === 0 ? '' : pacientesList.map(p => {
                       return `
                         <div class="paciente-select-item" data-id="${p.id}" data-dni="${p.dni || ''}" data-area="${p.area}" data-cama="${p.cama}" data-grupo="${p.grupo || ''}" data-alergias="${p.alergias || ''}" data-causa="${p.causa || ''}" data-nombre="${escapeHtml(p.apellido + ', ' + p.nombre)}"
                           style="padding:10px 14px; border-radius:6px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; background:#f8fafc; border:1px solid #e2e8f0; transition:all 0.15s;"
@@ -521,6 +537,18 @@ function toggleActivadorList(show) {
   if (show) {
     document.getElementById('filter-activador-input')?.focus();
   }
+function selectNNPaciente() {
+  selectedPacienteId = 'nn';
+  const input = document.getElementById('form-paciente-id');
+  if (input) input.value = 'nn';
+
+  document.getElementById('sel-paciente-nombre').textContent = 'N.N. (Paciente No Identificado)';
+  document.getElementById('sel-paciente-dni').textContent = 'S/D (Sin Identificar)';
+  document.getElementById('sel-paciente-area-cama').textContent = 'Urgencias / Guardia [Reanimación]';
+  document.getElementById('sel-paciente-grupo').textContent = 'S/D';
+  document.getElementById('sel-paciente-alergias').textContent = 'S/D (Desconocidas)';
+
+  togglePacienteList(false);
 }
 
 function selectPacienteItem(id) {
@@ -790,12 +818,29 @@ function submitCodigoForm(editId = null) {
   }
 
   // Validar Paciente
-  const pacienteId = pacienteInput ? parseInt(pacienteInput.value) : selectedPacienteId;
+  const pacienteIdVal = pacienteInput ? pacienteInput.value : selectedPacienteId;
   const pacientesList = getPacientes();
-  const pacienteObj = pacientesList.find(p => p.id === pacienteId);
+  let pacienteObj = null;
 
-  if (!pacienteId || !pacienteObj) {
-    markError(document.getElementById('paciente-selected-card'), 'Por favor seleccione un paciente internado');
+  if (pacienteIdVal === 'nn' || selectedPacienteId === 'nn') {
+    pacienteObj = {
+      id: 0,
+      apellido: 'N.N.',
+      nombre: '(Paciente No Identificado)',
+      dni: 'S/D',
+      edad: 'S/D',
+      area: 'Urgencias / Guardia',
+      cama: 'Reanimación',
+      grupo: 'S/D',
+      alergias: 'S/D'
+    };
+  } else {
+    const pId = parseInt(pacienteIdVal);
+    pacienteObj = pacientesList.find(p => p.id === pId);
+  }
+
+  if (!pacienteObj) {
+    markError(document.getElementById('paciente-selected-card'), 'Por favor seleccione un paciente internado o seleccione Paciente No Identificado (N.N.)');
     return;
   }
 
@@ -1027,6 +1072,7 @@ function executeSaveCodigo(isEdit, editId, pacienteObj, causa, activadorData, qu
 
 window.togglePacienteList = togglePacienteList;
 window.toggleActivadorList = toggleActivadorList;
+window.selectNNPaciente = selectNNPaciente;
 window.selectPacienteItem = selectPacienteItem;
 window.selectActivadorItem = selectActivadorItem;
 window.toggleMaterialRow = toggleMaterialRow;

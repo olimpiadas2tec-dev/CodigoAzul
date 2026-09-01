@@ -247,16 +247,16 @@ function openPacienteModal(editId = null) {
               <input type="text" id="m-nombre" required placeholder="Ej: Juan" value="${paciente ? escapeHtml(paciente.nombre) : ''}" />
             </div>
             <div class="form-group">
-              <label>DNI / Documento *</label>
-              <input type="text" id="m-dni" required placeholder="Ej: 32.145.678" value="${paciente ? escapeHtml(paciente.dni || '') : ''}" />
+              <label>DNI / Documento (Opcional)</label>
+              <input type="text" id="m-dni" placeholder="Ej: 32.145.678 (o dejar vacío)" value="${paciente ? escapeHtml(paciente.dni || '') : ''}" />
             </div>
             <div class="form-group">
-              <label>Edad / Fecha Nacimiento</label>
-              <input type="number" id="m-edad" min="1" max="120" placeholder="Años (Ej: 65)" value="${paciente ? (paciente.edad || 60) : 60}" />
+              <label>Edad / Fecha Nacimiento (Opcional)</label>
+              <input type="number" id="m-edad" min="1" max="120" placeholder="Años (o dejar vacío)" value="${paciente && paciente.edad ? paciente.edad : ''}" />
             </div>
             <div class="form-group full-width" style="grid-column: 1 / -1;">
-              <label style="color:var(--celeste-dark); font-weight:700;">${icon('alertTriangle')} Causa de Intervención / Diagnóstico Principal *</label>
-              <input type="text" id="m-causa" required placeholder="Ej: Infarto Agudo de Miocardio / Shock Cardiogénico" value="${paciente ? escapeHtml(paciente.causa || '') : ''}" />
+              <label style="color:var(--celeste-dark); font-weight:700;">Diagnóstico / Causa Principal (Opcional)</label>
+              <input type="text" id="m-causa" placeholder="Ej: Infarto Agudo de Miocardio / Opciones varias (o dejar vacío)" value="${paciente ? escapeHtml(paciente.causa || '') : ''}" />
             </div>
             <div class="form-group">
               <label>Área Hospitalaria</label>
@@ -283,11 +283,11 @@ function openPacienteModal(editId = null) {
               </select>
             </div>
 
-            <!-- Médico / Personal de Salud a Cargo (UNA SOLA BARRA CON FILTRO EN TIEMPO REAL) -->
+            <!-- Médico / Personal de Salud a Cargo (OPCIONAL CON BÚSQUEDA EN TIEMPO REAL) -->
             <div class="form-group full-width" style="grid-column: 1 / -1; position: relative;">
-              <label style="color:var(--celeste-dark); font-weight:700;">Médico / Personal de Salud a Cargo *</label>
+              <label style="color:var(--celeste-dark); font-weight:700;">Médico / Personal de Salud a Cargo (Opcional)</label>
               <div style="position:relative; width:100%;">
-                <input type="text" id="m-personal-search" placeholder="Escriba para buscar y seleccionar profesional a cargo..." autocomplete="off" value="${escapeHtml(initialDocText)}" required style="font-size:12.5px; font-weight:600; padding:9px 12px 9px 36px; border:1.5px solid var(--celeste-300); border-radius:10px; width:100%; outline:none; background:#ffffff; box-shadow:0 1px 2px rgba(0,0,0,0.04); transition:all 0.15s ease;" />
+                <input type="text" id="m-personal-search" placeholder="Escriba para seleccionar profesional o deje vacío..." autocomplete="off" value="${escapeHtml(initialDocText)}" style="font-size:12.5px; font-weight:600; padding:9px 12px 9px 36px; border:1.5px solid var(--celeste-300); border-radius:10px; width:100%; outline:none; background:#ffffff; box-shadow:0 1px 2px rgba(0,0,0,0.04); transition:all 0.15s ease;" />
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); width:16px; height:16px; color:var(--gray-400); pointer-events:none;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 <input type="hidden" id="m-personal" value="${initialDocId}" />
                 <div id="m-personal-dropdown" style="display:none; position:absolute; top:calc(100% + 4px); left:0; right:0; max-height:200px; overflow-y:auto; background:#ffffff; border:1.5px solid var(--celeste-300); border-radius:10px; z-index:99999; box-shadow:0 8px 24px rgba(0,0,0,0.15); padding:4px 0;"></div>
@@ -295,10 +295,14 @@ function openPacienteModal(editId = null) {
             </div>
 
             <div class="form-group">
-              <label>Grupo Sanguíneo</label>
+              <label>Grupo Sanguíneo (Opcional)</label>
               <select id="m-grupo">
-                ${['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'S/D'].map(g => `<option value="${g}" ${paciente && paciente.grupo === g ? 'selected' : ''}>${g}</option>`).join('')}
+                ${['S/D', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map(g => `<option value="${g}" ${paciente && paciente.grupo === g ? 'selected' : (!paciente && g === 'S/D' ? 'selected' : '')}>${g === 'S/D' ? 'S/D (Desconocido)' : g}</option>`).join('')}
               </select>
+            </div>
+            <div class="form-group">
+              <label>Alergias Conocidas</label>
+              <input type="text" id="m-alergias" placeholder="Ej: Penicilina, Látex, Ninguna" value="${paciente ? escapeHtml(paciente.alergias || 'Ninguna') : 'Ninguna'}" />
             </div>
             <div class="form-group">
               <label>Alergias Conocidas</label>
@@ -412,12 +416,14 @@ function openPacienteModal(editId = null) {
     e.preventDefault();
     const apellido = document.getElementById('m-apellido').value.trim();
     const nombre = document.getElementById('m-nombre').value.trim();
-    const dni = document.getElementById('m-dni').value.trim();
-    const edad = parseInt(document.getElementById('m-edad').value) || 60;
-    const causa = document.getElementById('m-causa').value.trim();
+    const dni = document.getElementById('m-dni').value.trim() || 'S/D';
+    const edadVal = document.getElementById('m-edad').value.trim();
+    const edad = edadVal ? parseInt(edadVal) : 'S/D';
+    const causa = document.getElementById('m-causa').value.trim() || 'Sin Diagnóstico / En Evaluación';
     const area = document.getElementById('m-area') ? document.getElementById('m-area').value : '';
     const cama = document.getElementById('m-cama') ? document.getElementById('m-cama').value.trim() : '';
     const id_personal = parseInt(document.getElementById('m-personal').value) || 0;
+    const personalSearchText = document.getElementById('m-personal-search').value.trim() || 'Sin Designar';
     const grupo = document.getElementById('m-grupo') ? document.getElementById('m-grupo').value : 'S/D';
     const alergias = document.getElementById('m-alergias') ? document.getElementById('m-alergias').value.trim() : 'Ninguna';
 
@@ -431,8 +437,8 @@ function openPacienteModal(editId = null) {
       finalActivo = false;
     }
 
-    if (!apellido || !nombre || !dni || !causa || !id_personal) {
-      showToast('Complete todos los campos obligatorios (*)', 'error');
+    if (!apellido || !nombre) {
+      showToast('Por favor ingrese el Apellido y Nombre del paciente', 'error');
       return;
     }
 
