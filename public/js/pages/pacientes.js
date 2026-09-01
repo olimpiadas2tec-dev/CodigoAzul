@@ -123,7 +123,7 @@ function renderPacientes() {
                 const formattedDNI = p.dni ? formatDNI(p.dni) : 'S/D';
 
                 return `
-                  <tr class="paciente-table-row" style="border-bottom:1px solid var(--gray-100);">
+                  <tr class="paciente-table-row" onclick="openPacienteDetailModal(${p.id})" title="Haga clic para ver la ficha clínica completa de ${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}" style="border-bottom:1px solid var(--gray-100); cursor:pointer; transition:background 0.15s ease;">
                     <td style="padding:10px 12px; vertical-align:middle; font-weight:600; color:var(--gray-400);">${p.id}</td>
                     <td style="padding:10px 12px; vertical-align:middle; font-weight:700; color:var(--gray-800); white-space:nowrap;">${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}</td>
                     <td style="padding:10px 12px; vertical-align:middle; white-space:nowrap;">
@@ -164,17 +164,17 @@ function renderPacientes() {
                         <span style="font-size:11px; color:var(--gray-400); font-style:italic;">Solo lectura</span>
                       ` : `
                         <div style="display:flex; gap:6px; align-items:center; justify-content:center;">
-                          <button class="action-link" style="font-size:11.5px; font-weight:600;" onclick="openPacienteModal(${p.id})">Editar</button>
+                          <button class="action-link" style="font-size:11.5px; font-weight:600;" onclick="event.stopPropagation(); openPacienteModal(${p.id})">Editar</button>
                           ${p.activo ? `
-                            <button class="btn btn-sm" style="padding:3px 7px; font-size:11px; font-weight:600; background:#059669; color:#ffffff; border:none; border-radius:5px; display:inline-flex; align-items:center; gap:3px; box-shadow:0 1px 2px rgba(0,0,0,0.08); cursor:pointer;" onclick="confirmAltaPaciente(${p.id})" title="Registrar Alta Médica (Requiere confirmación)">
+                            <button class="btn btn-sm" style="padding:3px 7px; font-size:11px; font-weight:600; background:#059669; color:#ffffff; border:none; border-radius:5px; display:inline-flex; align-items:center; gap:3px; box-shadow:0 1px 2px rgba(0,0,0,0.08); cursor:pointer;" onclick="event.stopPropagation(); confirmAltaPaciente(${p.id})" title="Registrar Alta Médica (Requiere confirmación)">
                               ${icon('checkCircle', 11)} Dar de Alta
                             </button>
                           ` : `
-                            <button class="btn btn-sm" style="padding:3px 7px; font-size:11px; font-weight:600; background:var(--celeste-dark); color:#ffffff; border:none; border-radius:5px; display:inline-flex; align-items:center; gap:3px; box-shadow:0 1px 2px rgba(0,0,0,0.08); cursor:pointer;" onclick="reingresarPaciente(${p.id})" title="Reingresar Paciente">
+                            <button class="btn btn-sm" style="padding:3px 7px; font-size:11px; font-weight:600; background:var(--celeste-dark); color:#ffffff; border:none; border-radius:5px; display:inline-flex; align-items:center; gap:3px; box-shadow:0 1px 2px rgba(0,0,0,0.08); cursor:pointer;" onclick="event.stopPropagation(); reingresarPaciente(${p.id})" title="Reingresar Paciente">
                               ${icon('refreshCw', 11)} Reingresar
                             </button>
                           `}
-                          <button class="action-link danger" onclick="confirmDeletePaciente(${p.id})" title="Eliminar paciente definitivamente" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none; padding:4px; margin-left:2px; cursor:pointer; color:#dc2626;">
+                          <button class="action-link danger" onclick="event.stopPropagation(); confirmDeletePaciente(${p.id})" title="Eliminar paciente definitivamente" style="display:inline-flex; align-items:center; justify-content:center; border:none; background:none; padding:4px; margin-left:2px; cursor:pointer; color:#dc2626;">
                             ${icon('trash', 14)}
                           </button>
                         </div>
@@ -876,7 +876,203 @@ function deletePaciente(id) {
   renderApp();
 }
 
+function openPacienteDetailModal(pacienteId) {
+  const list = getPacientes();
+  const paciente = list.find(p => String(p.id) === String(pacienteId));
+  if (!paciente) return;
+
+  const personalList = getPersonalSalud();
+  const doc = personalList.find(d => d.id === paciente.id_personal || (paciente.personal_a_cargo && paciente.personal_a_cargo.includes(d.apellido)));
+  const docName = doc ? `${doc.apellido}, ${doc.nombre}` : (paciente.personal_a_cargo || 'Médico de Guardia');
+  const docInfo = doc ? `${doc.nombre_rol || 'Médico'} · ${doc.area || 'Guardia'}` : 'Personal de Guardia Asignado';
+
+  // Buscar historial de Códigos Azules asociados a este paciente
+  const codigosList = (typeof getData === 'function' ? getData() : []) || [];
+  const pacienteCodigos = codigosList.filter(c => 
+    String(c.id_paciente) === String(paciente.id) || 
+    (c.paciente && paciente.apellido && c.paciente.toLowerCase().includes(paciente.apellido.toLowerCase()))
+  );
+
+  const formattedDNI = paciente.dni ? formatDNI(paciente.dni) : 'S/D (Sin Documento)';
+  const hasAlergia = paciente.alergias && paciente.alergias.trim().toLowerCase() !== 'ninguna' && paciente.alergias.trim() !== '-';
+
+  document.querySelector('.paciente-detail-overlay')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay active paciente-detail-overlay';
+  overlay.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(17,24,39,0.75); z-index:9999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px); padding:20px;';
+
+  overlay.innerHTML = `
+    <div class="modal scale-in" style="background:var(--white); border-radius:var(--radius-xl); width:95%; max-width:760px; max-height:90vh; display:flex; flex-direction:column; box-shadow:var(--shadow-lg); overflow:hidden;">
+      
+      <!-- Header -->
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; padding:20px 24px; border-bottom:1px solid var(--gray-200); background:#f8fafc;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="width:44px; height:44px; border-radius:12px; background:var(--celeste-100, #e0f2fe); color:var(--celeste-dark, #0369a1); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:18px;">
+            ${icon('user', 22)}
+          </div>
+          <div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <h2 style="font-size:20px; font-weight:800; color:var(--gray-900); margin:0;">
+                ${escapeHtml(paciente.apellido)}, ${escapeHtml(paciente.nombre)}
+              </h2>
+              <span class="badge ${paciente.activo !== false ? 'badge-success' : 'badge-warning'}" style="font-size:11px; padding:4px 10px; font-weight:700;">
+                ${paciente.activo !== false ? 'Internado Activo' : 'Dado de Alta'}
+              </span>
+            </div>
+            <div style="font-size:12.5px; color:var(--gray-500); margin-top:2px;">
+              Ficha Clínica Hospitalaria · ID Paciente #${paciente.id}
+            </div>
+          </div>
+        </div>
+        <button class="modal-close" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--gray-400);" onclick="this.closest('.paciente-detail-overlay').remove()">&times;</button>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body" style="padding:24px; overflow-y:auto; flex:1; display:flex; flex-direction:column; gap:20px;">
+        
+        <!-- Grid de Tarjetas Informativas -->
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:14px;">
+          
+          <!-- Card 1: Identificación y Contacto -->
+          <div style="background:#f8fafc; border:1px solid var(--gray-200); border-radius:12px; padding:16px;">
+            <div style="font-size:11px; text-transform:uppercase; font-weight:800; color:var(--gray-400); letter-spacing:0.5px; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+              ${icon('user', 14)} Identificación y Contacto
+            </div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <div>
+                <span style="font-size:11px; color:var(--gray-500); display:block;">DNI / Documento</span>
+                <span style="font-size:13.5px; font-weight:700; color:var(--gray-800);">${escapeHtml(formattedDNI)}</span>
+              </div>
+              <div>
+                <span style="font-size:11px; color:var(--gray-500); display:block;">Edad / Fecha de Nacimiento</span>
+                <span style="font-size:13px; font-weight:600; color:var(--gray-700);">${paciente.edad ? paciente.edad + ' años' : 'S/D'} ${paciente.fecha_nacimiento ? '(' + paciente.fecha_nacimiento + ')' : ''}</span>
+              </div>
+              <div>
+                <span style="font-size:11px; color:var(--gray-500); display:block;">Teléfono de Contacto</span>
+                <span style="font-size:13px; font-weight:600; color:${paciente.telefono ? 'var(--gray-800)' : 'var(--gray-400)'};">${paciente.telefono ? escapeHtml(paciente.telefono) : 'No registrado'}</span>
+              </div>
+              <div>
+                <span style="font-size:11px; color:var(--gray-500); display:block;">Correo Electrónico</span>
+                <span style="font-size:13px; font-weight:600; color:${paciente.email ? 'var(--gray-800)' : 'var(--gray-400)'};">${paciente.email ? escapeHtml(paciente.email) : 'No registrado'}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Ubicación Hospitalaria -->
+          <div style="background:#f8fafc; border:1px solid var(--gray-200); border-radius:12px; padding:16px;">
+            <div style="font-size:11px; text-transform:uppercase; font-weight:800; color:var(--gray-400); letter-spacing:0.5px; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+              ${icon('building', 14)} Ubicación Hospitalaria
+            </div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <div>
+                <span style="font-size:11px; color:var(--gray-500); display:block;">Área Clínico-Hospitalaria</span>
+                <span style="font-size:13.5px; font-weight:700; color:var(--gray-800);">${escapeHtml(paciente.area || 'Sin Designar')}</span>
+              </div>
+              <div>
+                <span style="font-size:11px; color:var(--gray-500); display:block;">Cama / Box Asignado</span>
+                <span style="font-size:13.5px; font-weight:700; color:var(--celeste-dark, #0369a1); display:inline-flex; align-items:center; gap:4px;">
+                  ${icon('bed', 14)} ${escapeHtml(paciente.cama || 'Sin Cama Asignada')}
+                </span>
+              </div>
+              <div>
+                <span style="font-size:11px; color:var(--gray-500); display:block;">Médico / Personal a Cargo</span>
+                <span style="font-size:13px; font-weight:700; color:var(--gray-800);">${escapeHtml(docName)}</span>
+                <div style="font-size:11px; color:var(--gray-500);">${escapeHtml(docInfo)}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Datos Médicos & Alergias -->
+          <div style="background:#f8fafc; border:1px solid var(--gray-200); border-radius:12px; padding:16px;">
+            <div style="font-size:11px; text-transform:uppercase; font-weight:800; color:var(--gray-400); letter-spacing:0.5px; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+              ${icon('heart', 14)} Información Clínica & Sangre
+            </div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <div>
+                <span style="font-size:11px; color:var(--gray-500); display:block;">Diagnóstico / Causa Principal</span>
+                <span style="font-size:13px; font-weight:700; color:var(--gray-800); background:#fff; border:1px solid #e2e8f0; padding:4px 8px; border-radius:6px; display:inline-block; margin-top:2px;">
+                  ${escapeHtml(paciente.causa || 'En Evaluación')}
+                </span>
+              </div>
+              <div>
+                <span style="font-size:11px; color:var(--gray-500); display:block;">Grupo Sanguíneo & Factor</span>
+                <span class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:800; font-size:12px; padding:2px 8px; border-radius:6px;">
+                  ${escapeHtml(paciente.grupo || 'S/D')}
+                </span>
+              </div>
+              <div>
+                <span style="font-size:11px; color:var(--gray-500); display:block;">Alergias Conocidas</span>
+                ${hasAlergia ? `
+                  <span style="background:#fef2f2; color:#991b1b; border:1px solid #fca5a5; font-weight:700; font-size:12px; padding:3px 8px; border-radius:6px; display:inline-flex; align-items:center; gap:4px; margin-top:2px;">
+                    ${icon('alertTriangle', 13)} ${escapeHtml(paciente.alergias)}
+                  </span>
+                ` : `
+                  <span style="font-size:12.5px; color:var(--gray-600); font-weight:600;">Ninguna declarada</span>
+                `}
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Seccion: Historial de Eventos Código Azul -->
+        <div style="border-top:1px solid var(--gray-200); padding-top:16px;">
+          <h3 style="font-size:14px; font-weight:800; color:var(--gray-800); margin:0 0 12px 0; display:flex; align-items:center; gap:6px;">
+            ${icon('clock', 16)} Historial de Eventos de Código Azul Registrados (${pacienteCodigos.length})
+          </h3>
+          ${pacienteCodigos.length === 0 ? `
+            <div style="background:#f8fafc; border:1px dashed var(--gray-300); border-radius:10px; padding:16px; text-align:center; color:var(--gray-500); font-size:12.5px;">
+              Este paciente no registra eventos de Código Azul en su historial clínico.
+            </div>
+          ` : `
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              ${pacienteCodigos.map(c => {
+                const isFatal = c.estado?.value === 'fatal';
+                return `
+                  <div style="background:${isFatal ? '#fff8f8' : '#f0fdf4'}; border:1px solid ${isFatal ? '#fecaca' : '#bbf7d0'}; border-radius:10px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; gap:12px;">
+                    <div>
+                      <div style="font-weight:700; font-size:13px; color:var(--gray-800);">
+                        Código Azul #${c.id} · ${escapeHtml(c.ubicacion || 'Guardia')}
+                      </div>
+                      <div style="font-size:11.5px; color:var(--gray-500); margin-top:2px;">
+                        Fecha: ${new Date(c.fecha || c.createdAt).toLocaleString()} · Causa: ${escapeHtml(c.causa?.label || 'S/D')}
+                      </div>
+                    </div>
+                    <a href="#/detalle/${c.id}" class="btn btn-sm" onclick="document.querySelector('.paciente-detail-overlay')?.remove();" style="background:${isFatal ? '#dc2626' : '#16a34a'}; color:#fff; font-weight:700; font-size:11.5px; padding:4px 10px; border-radius:6px; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
+                      Ver Detalle Completo ${icon('chevronRight', 12)}
+                    </a>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          `}
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center; padding:14px 24px; border-top:1px solid var(--gray-200); background:#f8fafc;">
+        <div>
+          ${(typeof isConsultaRole === 'function' && isConsultaRole()) ? '' : `
+            <button class="btn btn-secondary btn-sm" onclick="document.querySelector('.paciente-detail-overlay')?.remove(); openPacienteModal(${paciente.id});" style="font-weight:700;">
+              ${icon('edit', 14)} Editar Paciente
+            </button>
+          `}
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="this.closest('.paciente-detail-overlay').remove()">
+          Cerrar Ficha
+        </button>
+      </div>
+
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+}
+
 window.openPacienteModal = openPacienteModal;
+window.openPacienteDetailModal = openPacienteDetailModal;
 window.confirmAltaPaciente = confirmAltaPaciente;
 window.doAltaPaciente = doAltaPaciente;
 window.reingresarPaciente = reingresarPaciente;
@@ -888,4 +1084,5 @@ window.handleReingresoEliminarCodigo = handleReingresoEliminarCodigo;
 window.toggleSinCamaFilter = toggleSinCamaFilter;
 window.confirmDeletePaciente = confirmDeletePaciente;
 window.deletePaciente = deletePaciente;
+
 
