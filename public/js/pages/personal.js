@@ -65,17 +65,7 @@ function renderPersonal() {
 // -------------------------------------------------------------
 // TAB 1: PERSONAL DE SALUD
 // -------------------------------------------------------------
-function formatDNI(dniStr) {
-  if (!dniStr) return 'S/D';
-  const clean = String(dniStr).replace(/\D/g, '');
-  if (clean.length === 8) {
-    return clean.replace(/^(\d{2})(\d{3})(\d{3})$/, '$1.$2.$3');
-  }
-  if (clean.length === 7) {
-    return clean.replace(/^(\d{1})(\d{3})(\d{3})$/, '$1.$2.$3');
-  }
-  return dniStr;
-}
+
 
 function getRolBadgeStyle(rolName) {
   if (!rolName || rolName === 'Sin Designar') {

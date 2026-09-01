@@ -582,8 +582,8 @@ async function syncWithDatabase() {
           let estadoObj = ESTADOS[1];
           if (l.estado === 'Atendido') {
             if (l.resultado === 'ROSC') estadoObj = ESTADOS[0];
-            else if (l.resultado === 'Fallecido') estadoObj = ESTADOS[2];
-            else if (l.resultado === 'Derivado') estadoObj = ESTADOS[3];
+            else if (l.resultado === 'Fallecido') estadoObj = ESTADOS[1];
+            else if (l.resultado === 'Derivado') estadoObj = ESTADOS[0];
             else estadoObj = ESTADOS[0];
           }
 

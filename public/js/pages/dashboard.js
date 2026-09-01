@@ -107,7 +107,7 @@ function renderDashboard() {
 
                 return `
                   <li class="recent-item" onclick="window.location.hash='#/detalle/${item.id}'" style="padding:10px 14px; border:1px solid ${isFatal ? '#fca5a5' : (isMostRecent ? 'var(--celeste-300)' : '#e2e8f0')}; border-left:4px solid ${rowBorder}; background:${rowBg}; border-radius:8px; display:flex; align-items:center; gap:12px; cursor:pointer; transition:transform 0.1s ease, box-shadow 0.1s ease;">
-                    <span class="recent-dot ${item.estado.value === 'resuelto' ? 'resolved' : item.estado.value === 'pendiente' ? 'pending' : 'fatal'}"></span>
+                    <span class="recent-dot ${item.estado?.value === 'resuelto' ? 'resolved' : item.estado?.value === 'pendiente' ? 'pending' : 'fatal'}"></span>
                     <div class="recent-info" style="flex:1;">
                       <div class="recent-title" style="font-weight:700; color:var(--gray-900); font-size:13.5px; display:flex; align-items:center; gap:8px;">
                         <span>${escapeHtml(item.paciente)}</span>
@@ -124,8 +124,8 @@ function renderDashboard() {
                       </div>
                     </div>
                     <div style="text-align:right;">
-                      <span class="badge ${item.estado.badge}" style="font-size:10.5px; margin-bottom:4px; display:inline-block; font-weight:600;">
-                        ${item.estado.label}
+                      <span class="badge ${item.estado?.badge}" style="font-size:10.5px; margin-bottom:4px; display:inline-block; font-weight:600;">
+                        ${item.estado?.label}
                       </span>
                       <div class="recent-time" style="font-size:11px; color:var(--gray-400);">${getRelativeTime(item.fecha)}</div>
                     </div>

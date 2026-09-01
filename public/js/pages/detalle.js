@@ -28,7 +28,7 @@ function renderDetalle(id) {
     area: codigo.area || 'Urgencias'
   };
 
-  const isFatal = codigo.estado.value === 'fatal';
+  const isFatal = codigo.estado?.value === 'fatal';
 
   return `
     <div class="page-header page-transition">
@@ -125,9 +125,9 @@ function renderDetalle(id) {
               <span style="font-size:20px;">${icon('user')}</span>
               <h2>Información del Paciente</h2>
             </div>
-            <span class="badge ${codigo.estado.badge}">
+            <span class="badge ${codigo.estado?.badge}">
               <span class="badge-dot"></span>
-              ${codigo.estado.label}
+              ${codigo.estado?.label}
             </span>
           </div>
           <div class="card-body">
@@ -455,48 +455,6 @@ function showIntegrantesEquipoModal(equipoNombre, turnoNombre = 'Guardia', respo
   document.body.appendChild(overlay);
 }
 
-// Modal de acceso directo a la ficha del personal
-function showPersonalModalDirect(nombreCompleto) {
-  document.querySelector('.personal-direct-overlay')?.remove();
-
-  const personal = getPersonalSalud();
-  const pers = personal.find(p => `${p.apellido}, ${p.nombre}`.includes(nombreCompleto.split(' ')[0]) || nombreCompleto.includes(p.apellido)) || personal[0];
-
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay active personal-direct-overlay';
-  overlay.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(17,24,39,0.7); z-index:9999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px); padding:20px;';
-
-  overlay.innerHTML = `
-    <div class="modal scale-in" style="background:var(--white); border-radius:var(--radius-xl); width:90%; max-width:480px; box-shadow:var(--shadow-lg); overflow:hidden;">
-      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; padding:18px 24px; border-bottom:1px solid var(--gray-200); background:#fef3c7;">
-        <div style="display:flex; align-items:center; gap:8px;">
-          <span style="font-size:22px;">${icon('user')}</span>
-          <h2 style="font-size:17px; font-weight:800; color:#92400e; margin:0;">Ficha del Personal Hospitalario</h2>
-        </div>
-        <button class="modal-close" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--gray-400);" onclick="this.closest('.personal-direct-overlay').remove()">&times;</button>
-      </div>
-      <div class="modal-body" style="padding:20px 24px;">
-        <div style="font-size:16px; font-weight:800; color:var(--gray-900); margin-bottom:4px;">
-          ${escapeHtml(pers.apellido)}, ${escapeHtml(pers.nombre)}
-        </div>
-        <div style="font-size:13px; color:var(--celeste-dark); font-weight:700; margin-bottom:16px;">
-          ${escapeHtml(pers.nombre_rol || 'Personal de Salud')}
-        </div>
-        <div class="detail-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:13px;">
-          <div><span style="color:var(--gray-500);">DNI:</span> <strong>${escapeHtml(pers.dni || '30.123.456')}</strong></div>
-          <div><span style="color:var(--gray-500);">Teléfono / Int:</span> <strong>${escapeHtml(pers.telefono || 'Interno 302')}</strong></div>
-          <div><span style="color:var(--gray-500);">Área Asignada:</span> <strong>${escapeHtml(pers.area || 'Guardia Central')}</strong></div>
-          <div><span style="color:var(--gray-500);">Estado:</span> <span class="badge badge-success">Activo en Guardia</span></div>
-        </div>
-      </div>
-      <div class="modal-footer" style="display:flex; justify-content:flex-end; padding:14px 24px; border-top:1px solid var(--gray-200); background:var(--gray-50);">
-        <button class="btn btn-secondary btn-sm" onclick="this.closest('.personal-direct-overlay').remove()">Cerrar</button>
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(overlay);
-}
 
 function goToEquiposPage() {
   if (typeof personalTabState !== 'undefined') {

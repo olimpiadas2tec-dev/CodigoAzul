@@ -134,10 +134,10 @@ function renderLayout(content, activeRoute) {
           <div class="sidebar-avatar" title="${user?.user || 'Admin'} (${user?.role || 'Admin'})">${user?.initials || 'AD'}</div>
         </div>
       </aside>
-      <div style="flex:1; margin-left:100px; display:flex; flex-direction:column; min-width:0; overflow:hidden;">
+      <div class="app-main-wrapper" style="flex:1; display:flex; flex-direction:column; min-width:0; overflow:hidden;">
         ${roleBar}
         ${alertBanner}
-        <main class="main-content" style="flex:1; overflow-y:auto; margin-left:0;">
+        <main class="main-content" style="flex:1; overflow-y:auto;">
           ${content}
         </main>
       </div>

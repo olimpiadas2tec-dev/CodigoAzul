@@ -30,7 +30,7 @@ function getFilteredData() {
   }
 
   if (historialState.estado) {
-    data = data.filter(d => d.estado.value === historialState.estado);
+    data = data.filter(d => d.estado?.value === historialState.estado);
   }
 
   if (historialState.equipo) {
@@ -81,7 +81,7 @@ function renderHistorial() {
   const tiempoPromedio = totalEventos > 0
     ? (filtered.reduce((acc, curr) => acc + (parseFloat(curr.tiempoRespuesta) || 0), 0) / totalEventos).toFixed(1)
     : '0.0';
-  const exitososCount = filtered.filter(d => d.estado.value === 'resuelto').length;
+  const exitososCount = filtered.filter(d => d.estado?.value === 'resuelto').length;
   const tasaExito = totalEventos > 0 ? ((exitososCount / totalEventos) * 100).toFixed(1) : '0.0';
 
   return `
@@ -226,7 +226,7 @@ function renderHistorial() {
               ` : pageData.map(d => {
                 const matCount = (d.materiales || []).reduce((acc, m) => acc + (m.cantidad || 1), 0);
                 const matList = (d.materiales || []).map(m => `${m.nombre.split(' ')[0]} (x${m.cantidad})`).join(', ');
-                const isFatal = d.estado.value === 'fatal';
+                const isFatal = d.estado?.value === 'fatal';
 
                 return `
                   <tr class="historial-row" onclick="window.location.hash='#/detalle/${d.id}'" title="Haga clic para ver el detalle clínico de ${escapeHtml(d.paciente)}" style="${isFatal ? 'background:#fff8f8; border-left:4px solid #ef4444;' : 'border-left:4px solid #10b981;'}">

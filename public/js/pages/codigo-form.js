@@ -46,7 +46,7 @@ function renderCodigoForm(editId = null) {
   const selectedMaterials = codigo && Array.isArray(codigo.materiales) ? codigo.materiales : [];
   const currentCausa = codigo ? (codigo.causa || '') : '';
   const isCausaPredefinida = CAUSAS_PREDEFINIDAS.slice(0, -1).includes(currentCausa);
-  const currentEstado = codigo ? codigo.estado.value : '';
+  const currentEstado = codigo ? codigo.estado?.value : '';
   const datosCierre = (codigo && codigo.datosCierre) ? codigo.datosCierre : {};
 
   const hasPacienteSelected = isEdit && !!codigo && !!selectedPacienteId;
@@ -73,7 +73,7 @@ function renderCodigoForm(editId = null) {
           <div style="display:flex; align-items:center; gap:10px;">
             <span style="font-size:24px;">${icon('lock')}</span>
             <div>
-              <strong style="color:#991b1b; font-size:14px;">Registro de Evento Clínico (${codigo.estado.label})</strong>
+              <strong style="color:#991b1b; font-size:14px;">Registro de Evento Clínico (${codigo.estado?.label})</strong>
               <p style="color:#7f1d1d; font-size:12px; margin:2px 0 0 0;">
                 Toda modificación quedará asentada en el Libro de Auditoría Legal con su usuario institucional.
               </p>

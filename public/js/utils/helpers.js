@@ -95,7 +95,7 @@ function showToast(message, type = 'success') {
 
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
-  toast.textContent = message;
+  toast.innerHTML = message;
   container.appendChild(toast);
 
   requestAnimationFrame(() => {
@@ -107,6 +107,20 @@ function showToast(message, type = 'success') {
     setTimeout(() => toast.remove(), 300);
   }, 3000);
 }
+
+function formatDNI(dniStr) {
+  if (!dniStr) return 'S/D';
+  const clean = String(dniStr).replace(/\D/g, '');
+  if (clean.length === 8) {
+    return clean.replace(/^(\d{2})(\d{3})(\d{3})$/, '$1.$2.$3');
+  }
+  if (clean.length === 7) {
+    return clean.replace(/^(\d{1})(\d{3})(\d{3})$/, '$1.$2.$3');
+  }
+  return dniStr;
+}
+
+window.formatDNI = formatDNI;
 
 /**
  * Generador de Gráfico de Torta / Donut SVG Profesional

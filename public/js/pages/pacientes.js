@@ -444,6 +444,7 @@ function openPacienteModal(editId = null) {
 
     let finalCama = cama;
     let finalArea = area || 'Sin Designar';
+    const currentList = getPacientes();
     let finalActivo = isEdit ? (currentList.find(p => p.id === editId)?.activo !== false) : true;
 
     if (!cama || cama === 'Sin Cama') {
@@ -455,7 +456,6 @@ function openPacienteModal(editId = null) {
       return;
     }
 
-    const currentList = getPacientes();
     const camasList = getCamas();
     let oldCama = '';
     let oldArea = '';

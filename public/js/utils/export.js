@@ -229,6 +229,10 @@ function exportPDF(data, filename = 'codigo_azul_historial.pdf') {
     return;
   }
 
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    showToast('Librería jsPDF no disponible. Verifique la conexión a internet.', 'error');
+    return;
+  }
   const { jsPDF } = window.jspdf;
   const isSingle = data.length === 1;
   const doc = new jsPDF(isSingle ? 'portrait' : 'landscape');
