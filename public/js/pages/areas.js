@@ -99,26 +99,31 @@ function renderAreasTab() {
     </div>
 
     <div class="card scale-in">
-      <div class="card-body" style="padding-bottom:12px;">
-        <div class="filters-bar">
-          <div class="filter-group search-input-wrapper" style="flex:1; min-width:200px;">
+      <div class="card-body" style="padding:14px 16px;">
+        <div style="display:flex; gap:8px; align-items:center;">
+          <div class="search-input-wrapper" style="flex:1; min-width:0; position:relative;">
             <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" id="area-search" placeholder="Buscar área por nombre o descripción..." value="${escapeHtml(areasTabState.searchArea)}" />
+            <input type="text" id="area-search" placeholder="Buscar área por nombre o descripción..." value="${escapeHtml(areasTabState.searchArea)}" style="width:100%; height:40px; border-radius:8px; border:1.5px solid var(--gray-300); padding:8px 12px 8px 36px; font-size:13px; box-sizing:border-box;" />
           </div>
-          <button class="btn btn-secondary btn-sm" onclick="areasTabState.searchArea=''; renderApp();">Limpiar</button>
-          <div class="filter-count-badge" style="font-size:12px; color:var(--gray-600); font-weight:600;">
-            <span class="badge" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; font-weight:600; padding:4px 10px; font-size:11px;">
-              Mostrando ${filtered.length} de ${areasList.length} áreas
-            </span>
+          ${areasTabState.searchArea ? `
+            <button class="btn btn-secondary btn-sm" onclick="areasTabState.searchArea=''; renderApp();" style="height:40px; padding:0 14px; white-space:nowrap; font-weight:700;">Limpiar</button>
+          ` : ''}
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:8px; border-top:1px solid var(--gray-100);">
+          <div style="font-size:12.5px; color:var(--gray-500); font-weight:600;">
+            Mostrando <strong style="color:var(--gray-900); font-weight:800;">${filtered.length}</strong> de <strong style="color:var(--gray-700); font-weight:800;">${areasList.length}</strong> áreas hospitalarias
           </div>
+          ${areasTabState.searchArea ? `
+            <span class="badge badge-info" style="font-size:10.5px; padding:2px 8px;">Filtro aplicado</span>
+          ` : ''}
         </div>
       </div>
 
-      <div class="table-container table-stagger" style="padding:0;">
-        <table style="width:100%; border-collapse:collapse; font-size:13px;">
+      <div class="table-container table-stagger" style="padding:0; overflow-x:auto;">
+        <table style="width:100%; min-width:580px; border-collapse:collapse; font-size:13px;">
           <thead>
             <tr style="border-bottom:2px solid var(--gray-200); background:var(--gray-50); text-align:left;">
-              <th style="padding:10px 14px; width:50px; text-align:center;">#</th>
+              <th style="padding:10px 14px; width:45px; text-align:center;">#</th>
               <th style="padding:10px 14px;">Nombre del Área</th>
               <th style="padding:10px 14px; text-align:center;">Camas Totales</th>
               <th style="padding:10px 14px; text-align:center;">Libres</th>
@@ -223,7 +228,7 @@ function renderCamasTab() {
 
   return `
     <div class="card scale-in">
-      <div class="card-body" style="padding-bottom:12px;">
+      <div class="card-body" style="padding:14px 16px;">
         <div class="filters-bar">
           <div class="filter-group search-input-wrapper" style="flex:1; min-width:200px;">
             <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -242,11 +247,11 @@ function renderCamasTab() {
               <option value="Ocupada" ${areasTabState.filterEstadoCamas === 'Ocupada' ? 'selected' : ''}>${icon('circleFill')} Camas Ocupadas</option>
             </select>
           </div>
-          <button class="btn btn-secondary btn-sm" onclick="areasTabState.searchCama=''; areasTabState.filterAreaCamas=''; areasTabState.filterEstadoCamas=''; renderApp();">Limpiar</button>
-          <div class="filter-count-badge" style="font-size:12px; color:var(--gray-600); font-weight:600;">
-            <span class="badge" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; font-weight:600; padding:4px 10px; font-size:11px;">
-              Mostrando ${filtered.length} de ${camasList.length} camas
-            </span>
+          <button class="btn btn-secondary btn-sm" onclick="areasTabState.searchCama=''; areasTabState.filterAreaCamas=''; areasTabState.filterEstadoCamas=''; renderApp();">Limpiar Filtros</button>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:8px; border-top:1px solid var(--gray-100);">
+          <div style="font-size:12.5px; color:var(--gray-500); font-weight:600;">
+            Mostrando <strong style="color:var(--gray-900); font-weight:800;">${filtered.length}</strong> de <strong style="color:var(--gray-700); font-weight:800;">${camasList.length}</strong> camas hospitalarias
           </div>
         </div>
       </div>
