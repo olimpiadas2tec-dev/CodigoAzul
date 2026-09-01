@@ -585,28 +585,144 @@ function reingresarPaciente(id) {
 }
 
 function doReingresarPaciente(id) {
+  openReingresoCamaModal(id);
+}
+
+function openReingresoCamaModal(id, pendingRedirectCodigoId = null) {
   const currentList = getPacientes();
   const idx = currentList.findIndex(p => p.id === id);
-  if (idx !== -1) {
-    const p = currentList[idx];
-    p.activo = true;
-    savePacientes(currentList);
+  if (idx === -1) return;
+  const p = currentList[idx];
 
-    // Marcar cama como Ocupada si aplica
-    if (p.cama && p.area && p.area !== 'Sin Designar') {
-      const camasList = getCamas();
-      const camaObj = camasList.find(c => (c.area_nombre === p.area && c.numero === p.cama) || c.numero === p.cama);
-      if (camaObj) {
-        camaObj.estado = 'Ocupada';
-        camaObj.id_paciente = p.id;
-        camaObj.paciente_nombre = `${p.apellido}, ${p.nombre}`;
-        saveCamas(camasList);
-      }
+  document.querySelector('.reingreso-cama-modal-overlay')?.remove();
+
+  const areasValidas = AREAS.filter(a => a !== 'Sin Designar');
+  const initialArea = (p.area && p.area !== 'Sin Designar') ? p.area : areasValidas[0];
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay active reingreso-cama-modal-overlay';
+  overlay.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(17,24,39,0.7); z-index:10000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px); padding:20px;';
+
+  overlay.innerHTML = `
+    <div class="modal scale-in" style="background:var(--white); border-radius:var(--radius-xl); width:90%; max-width:500px; box-shadow:var(--shadow-lg); overflow:hidden;">
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; padding:18px 24px; border-bottom:1px solid var(--gray-200); background:#f0f9ff;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:24px; color:var(--celeste-dark);">${icon('building')}</span>
+          <div>
+            <h3 style="font-size:17px; font-weight:800; color:var(--celeste-dark); margin:0;">
+              Reingreso &mdash; Asignar Ubicación y Cama
+            </h3>
+            <span style="font-size:12px; color:var(--gray-600);">Paciente: <strong>${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)}</strong> (DNI: ${p.dni || 'S/D'})</span>
+          </div>
+        </div>
+        <button class="modal-close" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--gray-400);" onclick="this.closest('.reingreso-cama-modal-overlay').remove()">&times;</button>
+      </div>
+
+      <form id="reingreso-cama-form">
+        <div class="modal-body" style="padding:20px 24px;">
+          <p style="font-size:13px; color:var(--gray-600); margin:0 0 16px 0; line-height:1.4;">
+            Seleccione el área hospitalaria y una cama disponible para reactivar la internación del paciente:
+          </p>
+
+          <div class="form-group" style="margin-bottom:14px;">
+            <label style="font-weight:700; color:var(--celeste-dark);">Área Hospitalaria *</label>
+            <select id="reingreso-area" required style="font-size:14px; padding:10px; border-radius:8px; border:1.5px solid var(--celeste-300); width:100%;">
+              ${areasValidas.map(a => `<option value="${a}" ${initialArea === a ? 'selected' : ''}>${escapeHtml(a)}</option>`).join('')}
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-bottom:16px;">
+            <label style="font-weight:700; color:var(--celeste-dark);">Cama / Box Disponible *</label>
+            <select id="reingreso-cama" required style="font-size:14px; padding:10px; border-radius:8px; border:1.5px solid var(--celeste-300); width:100%;">
+              <!-- Se completa dinámicamente -->
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:10px; padding:14px 24px; border-top:1px solid var(--gray-200); background:var(--gray-50);">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="this.closest('.reingreso-cama-modal-overlay').remove()">Cancelar</button>
+          <button type="submit" class="btn btn-primary btn-sm" style="font-weight:700;">
+            ${icon('check')} Confirmar Reingreso y Asignar Cama
+          </button>
+        </div>
+      </form>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  const areaSelect = document.getElementById('reingreso-area');
+  const camaSelect = document.getElementById('reingreso-cama');
+
+  function updateCamasOptions() {
+    const selectedArea = areaSelect.value;
+    const freeCamas = getCamas().filter(c => c.area_nombre === selectedArea && c.estado === 'Libre');
+
+    if (freeCamas.length === 0) {
+      camaSelect.innerHTML = `<option value="">⚠️ No hay camas libres en esta área</option>`;
+      camaSelect.required = false;
+    } else {
+      camaSelect.required = true;
+      camaSelect.innerHTML = `
+        <option value="">-- Seleccionar Cama Libre en ${escapeHtml(selectedArea)} --</option>
+        ${freeCamas.map(c => `
+          <option value="${escapeHtml(c.numero)}">
+            ${escapeHtml(c.numero)} [Disponible]
+          </option>
+        `).join('')}
+      `;
+    }
+  }
+
+  areaSelect.addEventListener('change', updateCamasOptions);
+  updateCamasOptions();
+
+  document.getElementById('reingreso-cama-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const selectedArea = areaSelect.value;
+    const selectedCama = camaSelect.value;
+
+    if (!selectedArea) {
+      showToast('Seleccione un área hospitalaria', 'error');
+      return;
     }
 
-    showToast(`Paciente ${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)} reingresado a internación activa.`, 'success');
-    renderApp();
-  }
+    if (!selectedCama) {
+      showToast('Debe seleccionar una cama disponible en el área seleccionada', 'error');
+      return;
+    }
+
+    // Actualizar datos del paciente
+    const pList = getPacientes();
+    const pIdx = pList.findIndex(item => item.id === id);
+    if (pIdx !== -1) {
+      pList[pIdx].activo = true;
+      pList[pIdx].area = selectedArea;
+      pList[pIdx].cama = selectedCama;
+      savePacientes(pList);
+
+      // Ocupar la cama en la lista global de camas
+      const camasList = getCamas();
+      const camaObj = camasList.find(c => c.area_nombre === selectedArea && c.numero === selectedCama);
+      if (camaObj) {
+        camaObj.estado = 'Ocupada';
+        camaObj.id_paciente = pList[pIdx].id;
+        camaObj.paciente_nombre = `${pList[pIdx].apellido}, ${pList[pIdx].nombre}`;
+        saveCamas(camasList);
+      }
+
+      showToast(`Paciente ${escapeHtml(pList[pIdx].apellido)}, ${escapeHtml(pList[pIdx].nombre)} reingresado y asignado a ${selectedArea} [${selectedCama}].`, 'success');
+    }
+
+    document.querySelector('.reingreso-cama-modal-overlay')?.remove();
+
+    if (pendingRedirectCodigoId) {
+      showToast('Redirigiendo a edición de Código Azul...', 'info');
+      window.location.hash = `#/editar/${pendingRedirectCodigoId}`;
+    } else {
+      renderApp();
+    }
+  });
 }
 
 function showReingresoFallecidoModal(p, fatalCodigo) {
@@ -683,9 +799,7 @@ function showReingresoFallecidoModal(p, fatalCodigo) {
 
 function handleReingresoEditarCodigo(pacienteId, codigoId) {
   document.querySelector('.reingreso-fatal-modal-overlay')?.remove();
-  doReingresarPaciente(pacienteId);
-  showToast('Paciente reingresado a la lista activa. Redirigiendo a edición de Código Azul...', 'info');
-  window.location.hash = `#/editar/${codigoId}`;
+  openReingresoCamaModal(pacienteId, codigoId);
 }
 
 function handleReingresoEliminarCodigo(pacienteId, codigoId) {
@@ -695,8 +809,7 @@ function handleReingresoEliminarCodigo(pacienteId, codigoId) {
   const rest = currentCodigos.filter(c => c.id !== codigoId);
   saveData(rest);
 
-  doReingresarPaciente(pacienteId);
-  showToast(`Código Azul #${codigoId} eliminado y paciente reingresado con éxito.`, 'success');
+  openReingresoCamaModal(pacienteId);
 }
 
 window.openPacienteModal = openPacienteModal;
@@ -704,6 +817,7 @@ window.confirmAltaPaciente = confirmAltaPaciente;
 window.doAltaPaciente = doAltaPaciente;
 window.reingresarPaciente = reingresarPaciente;
 window.doReingresarPaciente = doReingresarPaciente;
+window.openReingresoCamaModal = openReingresoCamaModal;
 window.showReingresoFallecidoModal = showReingresoFallecidoModal;
 window.handleReingresoEditarCodigo = handleReingresoEditarCodigo;
 window.handleReingresoEliminarCodigo = handleReingresoEliminarCodigo;
