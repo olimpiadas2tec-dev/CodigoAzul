@@ -538,6 +538,10 @@ function openCamaModal(editId = null) {
   const camasList = getCamas();
   const cama = isEdit ? camasList.find(c => c.id === editId) : null;
 
+  const activePacientes = (typeof getPacientes === 'function' ? getPacientes() : []).filter(p => p.activo !== false);
+  const isOcupada = cama ? cama.estado === 'Ocupada' : false;
+  const currentPacId = cama ? (cama.id_paciente || (activePacientes.find(p => p.cama === cama.numero)?.id)) : null;
+
   document.querySelector('.cama-modal-overlay')?.remove();
 
   const overlay = document.createElement('div');
@@ -582,9 +586,24 @@ function openCamaModal(editId = null) {
           <div class="form-group">
             <label>Estado Inicial *</label>
             <select id="cm-estado" required>
-              <option value="Libre" ${cama && cama.estado === 'Libre' ? 'selected' : ''}>${icon('circleFill')} Libre (Disponible)</option>
-              <option value="Ocupada" ${cama && cama.estado === 'Ocupada' ? 'selected' : ''}>${icon('circleFill')} Ocupada</option>
+              <option value="Libre" ${!isOcupada ? 'selected' : ''}>Libre (Disponible)</option>
+              <option value="Ocupada" ${isOcupada ? 'selected' : ''}>Ocupada</option>
             </select>
+          </div>
+
+          <div id="cm-paciente-group" class="form-group" style="margin-top:14px; display:${isOcupada ? 'block' : 'none'};">
+            <label style="color:var(--celeste-dark); font-weight:700;">Paciente Ocupante *</label>
+            <select id="cm-paciente-id" style="font-weight:600;" ${isOcupada ? 'required' : ''}>
+              <option value="">-- Seleccionar Paciente a Internar --</option>
+              ${activePacientes.map(p => `
+                <option value="${p.id}" ${currentPacId && String(currentPacId) === String(p.id) ? 'selected' : ''}>
+                  ${escapeHtml(p.apellido)}, ${escapeHtml(p.nombre)} (DNI: ${escapeHtml(p.dni || 'S/D')}) ${p.cama ? '· [Cama Actual: ' + escapeHtml(p.cama) + ']' : ''}
+                </option>
+              `).join('')}
+            </select>
+            <span style="font-size:11px; color:var(--gray-500); margin-top:4px; display:block;">
+              Seleccione el paciente que ocupará esta cama.
+            </span>
           </div>
         </div>
 
@@ -598,9 +617,14 @@ function openCamaModal(editId = null) {
 
   document.body.appendChild(overlay);
 
+  const areaSelect = document.getElementById('cm-area');
+  const estadoSelect = document.getElementById('cm-estado');
+  const pacienteGroup = document.getElementById('cm-paciente-group');
+  const pacienteSelect = document.getElementById('cm-paciente-id');
+
   // Actualizar preview al cambiar área
-  document.getElementById('cm-area').addEventListener('change', () => {
-    const selAreaId = parseInt(document.getElementById('cm-area').value);
+  areaSelect.addEventListener('change', () => {
+    const selAreaId = parseInt(areaSelect.value);
     const selArea = areasList.find(a => a.id === selAreaId);
     if (selArea) {
       const camasEnArea = camasList.filter(c => c.id_area === selAreaId).length;
@@ -609,32 +633,70 @@ function openCamaModal(editId = null) {
     }
   });
 
+  // Mostrar / ocultar selector de paciente según estado
+  estadoSelect.addEventListener('change', () => {
+    if (estadoSelect.value === 'Ocupada') {
+      pacienteGroup.style.display = 'block';
+      pacienteSelect.required = true;
+    } else {
+      pacienteGroup.style.display = 'none';
+      pacienteSelect.required = false;
+      pacienteSelect.value = '';
+    }
+  });
+
   document.getElementById('cama-form').addEventListener('submit', (e) => {
     e.preventDefault();
-    const id_area = parseInt(document.getElementById('cm-area').value);
-    const estado = document.getElementById('cm-estado').value;
+    const id_area = parseInt(areaSelect.value);
+    const estado = estadoSelect.value;
+    const selectedPacId = pacienteSelect ? pacienteSelect.value : '';
 
     if (!id_area) return;
+
+    if (estado === 'Ocupada' && !selectedPacId) {
+      showToast('Por favor seleccione qué paciente ocupará la cama', 'error');
+      return;
+    }
 
     const areaObj = areasList.find(a => a.id === id_area);
     const area_nombre = areaObj ? areaObj.nombre : 'Área';
     const currentCamas = getCamas();
+    const currentPacientes = getPacientes();
+
+    let targetPac = selectedPacId ? currentPacientes.find(p => String(p.id) === String(selectedPacId)) : null;
 
     if (isEdit) {
       const idx = currentCamas.findIndex(c => c.id === editId);
       if (idx !== -1) {
         const oldState = currentCamas[idx].estado;
         const oldNum = currentCamas[idx].numero;
-        const oldArea = currentCamas[idx].area_nombre;
 
         currentCamas[idx] = { ...currentCamas[idx], id_area, area_nombre, estado };
 
-        if (oldState === 'Ocupada' && estado === 'Libre') {
-          const pacientes = getPacientes();
-          const pIdx = pacientes.findIndex(p => p.activo && (p.cama === oldNum || (p.area === oldArea && p.cama === oldNum)));
-          if (pIdx !== -1) {
-            pacientes[pIdx].cama = '';
-            savePacientes(pacientes);
+        if (estado === 'Ocupada' && targetPac) {
+          currentCamas[idx].id_paciente = targetPac.id;
+          currentCamas[idx].paciente_nombre = `${targetPac.apellido}, ${targetPac.nombre}`;
+          
+          // Si el paciente estaba en otra cama, liberar la cama anterior
+          const oldBed = currentCamas.find(c => c.id !== editId && (c.numero === targetPac.cama || c.id_paciente === targetPac.id));
+          if (oldBed) {
+            oldBed.estado = 'Libre';
+            oldBed.id_paciente = null;
+            oldBed.paciente_nombre = null;
+          }
+
+          // Asignar paciente a esta cama
+          targetPac.area = area_nombre;
+          targetPac.cama = currentCamas[idx].numero;
+          savePacientes(currentPacientes);
+
+        } else if (estado === 'Libre') {
+          if (oldState === 'Ocupada' || currentCamas[idx].id_paciente) {
+            const pIdx = currentPacientes.findIndex(p => p.activo && (p.cama === oldNum || String(p.id) === String(currentCamas[idx].id_paciente)));
+            if (pIdx !== -1) {
+              currentPacientes[pIdx].cama = '';
+              savePacientes(currentPacientes);
+            }
           }
           currentCamas[idx].id_paciente = null;
           currentCamas[idx].paciente_nombre = null;
@@ -655,7 +717,31 @@ function openCamaModal(editId = null) {
       const newId = currentCamas.length > 0 ? Math.max(...currentCamas.map(c => c.id)) + 1 : 1;
       const camasEnArea = currentCamas.filter(c => c.id_area === id_area).length;
       const numero = generarNumeroCama(area_nombre, camasEnArea + 1);
-      currentCamas.push({ id: newId, id_area, area_nombre, numero, estado });
+
+      const newCama = {
+        id: newId,
+        id_area,
+        area_nombre,
+        numero,
+        estado,
+        id_paciente: (estado === 'Ocupada' && targetPac) ? targetPac.id : null,
+        paciente_nombre: (estado === 'Ocupada' && targetPac) ? `${targetPac.apellido}, ${targetPac.nombre}` : null
+      };
+
+      if (estado === 'Ocupada' && targetPac) {
+        // Liberar si el paciente estaba en otra cama
+        const oldBed = currentCamas.find(c => c.numero === targetPac.cama || c.id_paciente === targetPac.id);
+        if (oldBed) {
+          oldBed.estado = 'Libre';
+          oldBed.id_paciente = null;
+          oldBed.paciente_nombre = null;
+        }
+        targetPac.area = area_nombre;
+        targetPac.cama = numero;
+        savePacientes(currentPacientes);
+      }
+
+      currentCamas.push(newCama);
       saveCamas(currentCamas);
 
       // Actualizar cantidad_camas del área
